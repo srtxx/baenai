@@ -53,6 +53,22 @@ export default function App(): React.JSX.Element {
     return -1;
   })();
 
+  const currentMealIndex = (() => {
+    const hours = new Date().getHours();
+    if (hours >= 4 && hours < 11) return 0; // 朝食
+    if (hours >= 11 && hours < 17) return 1; // 昼食
+    return 2; // 夕食
+  })();
+
+  const todayRowRef = React.useRef<HTMLDivElement>(null);
+
+  // 今週表示時、今日の行が見えるように自動スクロール
+  React.useEffect(() => {
+    if (isCurrentWeek && !isLoading && todayRowRef.current) {
+      todayRowRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [isCurrentWeek, isLoading]);
+
   const handlePrevWeek = () => {
     setCurrentWeekStart(prev => {
       const next = new Date(prev);
@@ -147,28 +163,29 @@ export default function App(): React.JSX.Element {
             return (
               <div
                 key={di}
+                ref={isToday ? todayRowRef : null}
                 className={`day-row ${isToday ? "today" : ""}`}
               >
                 {/* Day info column */}
-                <div className="day-info">
-                  <div className={`day-name ${isToday ? "today" : di === 5 ? "saturday" : ""}`}>
+                <div className={`day-info ${isToday ? "today" : ""}`}>
+                  {isToday && <span className="today-badge">TODAY</span>}
+                  <div className={`day-name ${isToday ? "today" : di === 5 ? "saturday" : di === 6 ? "sunday" : ""}`}>
                     {DAYS[dayIndex]}
                   </div>
                   <div className={`day-date ${isToday ? "today" : ""}`}>
                     {datesList[di]}
                   </div>
-                  {isToday && (
-                    <div className="today-dot" />
-                  )}
                 </div>
                 {/* Meal Cells */}
                 {dayMeals.map((meal, mi) => {
                   const mealIndex = mi as MealIndex;
+                  const isCurrentSlot = isToday && mealIndex === currentMealIndex;
                   return (
                     <MealCell
                       key={mi}
                       meal={meal}
                       isToday={isToday}
+                      isCurrentSlot={isCurrentSlot}
                       onClick={() => handleCellClick(dayIndex, mealIndex, meal)}
                     />
                   );

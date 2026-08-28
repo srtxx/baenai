@@ -6,17 +6,19 @@ import { Meal } from "../types";
 interface MealCellProps {
   meal: Meal;
   isToday: boolean;
+  isCurrentSlot?: boolean;
   onClick: () => void;
 }
 
-const MealCell = React.memo(function MealCell({ meal, isToday, onClick }: MealCellProps): React.JSX.Element {
+const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, onClick }: MealCellProps): React.JSX.Element {
   if (!meal) {
     return (
       <div
         onClick={onClick}
-        className={`meal-cell-empty ${isToday ? "today" : ""}`}
+        className={`meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""}`}
       >
         <span className="plus-icon"><Icon.Plus /></span>
+        {isCurrentSlot && <span className="now-badge">NOW</span>}
       </div>
     );
   }
