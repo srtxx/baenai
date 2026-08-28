@@ -2,6 +2,7 @@ import React, { useState, useRef, ChangeEvent } from "react";
 import { Icon } from "./icons/Icons";
 import { DAYS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
+import { compressImage } from "../utils/imageCompressor";
 
 interface AddMealModalProps {
   di: DayIndex;
@@ -12,23 +13,35 @@ interface AddMealModalProps {
 
 export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalProps): React.JSX.Element {
   const [image, setImage] = useState<string>("");
+  const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tagsList = ["自炊", "外食", "コンビニ", "惣菜"] as const;
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setImage(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      setIsCompressing(true);
+      // 長辺800px・WebP/JPEGにリサイズ＆圧縮
+      const compressedDataUrl = await compressImage(file, 800, 800, 0.8);
+      setImage(compressedDataUrl);
+    } catch (err) {
+      console.error("画像圧縮エラー:", err);
+      // フォールバック: 生のDataURLで読み込み
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImage(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleTagToggle = (tag: string) => {
@@ -38,10 +51,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
   };
 
   const handleSave = () => {
-    if (!image) return;
+    if (!image || isCompressing) return;
     onSave(di, mi, { image, note, tags: selectedTags });
     onClose();
   };
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -55,10 +69,15 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
 
         {/* Upload Box */}
         <div
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => !isCompressing && fileInputRef.current?.click()}
           className="upload-box"
         >
-          {image ? (
+          {isCompressing ? (
+            <div className="upload-placeholder">
+              <div className="loading-spinner" style={{ width: "20px", height: "20px", marginBottom: "8px" }} />
+              <span className="upload-text">画像を最適化中...</span>
+            </div>
+          ) : image ? (
             <img src={image} alt="プレビュー" className="upload-preview" />
           ) : (
             <div className="upload-placeholder">
@@ -126,10 +145,10 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           </button>
           <button
             onClick={handleSave}
-            disabled={!image}
-            className={`btn-save ${image ? "active" : ""}`}
+            disabled={!image || isCompressing}
+            className={`btn-save ${image && !isCompressing ? "active" : ""}`}
           >
-            保存する
+            {isCompressing ? "処理中..." : "保存する"}
           </button>
         </div>
       </div>

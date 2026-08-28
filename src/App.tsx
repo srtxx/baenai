@@ -8,6 +8,7 @@ import MealCell from "./components/MealCell";
 import BottomNav from "./components/BottomNav";
 import AddMealModal from "./components/AddMealModal";
 import MealDetailModal from "./components/MealDetailModal";
+import SettingsModal from "./components/SettingsModal";
 import { getMondayOfCurrentWeek, getWeekKey } from "./utils/helpers";
 import { DayIndex, MealIndex, MealSlot, ModalState } from "./types";
 
@@ -15,10 +16,14 @@ export default function App(): React.JSX.Element {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
   const weekKey = getWeekKey(currentWeekStart);
 
-  const { meals, isLoading, saveMeal, deleteMeal } = useMeals(weekKey);
+  const { meals, isLoading, saveMeal, deleteMeal, resetAllData, stats } = useMeals(weekKey);
 
   const [activeModal, setActiveModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<MealSlot>({ di: 0, mi: 0 });
+
+  // 今週かどうか
+  const todayMonday = getMondayOfCurrentWeek();
+  const isCurrentWeek = currentWeekStart.getTime() === todayMonday.getTime();
 
   // currentWeekStart から週の日付配列を動的生成
   const datesList = (() => {
@@ -41,10 +46,8 @@ export default function App(): React.JSX.Element {
   })();
 
   const currentDayIndex = (() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const currentMonday = getMondayOfCurrentWeek(today);
-    if (currentWeekStart.getTime() === currentMonday.getTime()) {
+    if (isCurrentWeek) {
+      const today = new Date();
       return ((today.getDay() + 6) % 7) as DayIndex; // 月:0〜日:6
     }
     return -1;
@@ -66,6 +69,10 @@ export default function App(): React.JSX.Element {
     });
   };
 
+  const handleJumpToToday = () => {
+    setCurrentWeekStart(getMondayOfCurrentWeek());
+  };
+
   const handleCameraClick = () => {
     const now = new Date();
     const hours = now.getHours();
@@ -79,8 +86,8 @@ export default function App(): React.JSX.Element {
       mi = 2; // 夕食
     }
 
-    const todayMonday = getMondayOfCurrentWeek(now);
-    setCurrentWeekStart(todayMonday);
+    const currentMon = getMondayOfCurrentWeek(now);
+    setCurrentWeekStart(currentMon);
     const di = ((now.getDay() + 6) % 7) as DayIndex; // 月:0〜日:6
 
     setSelectedSlot({ di, mi });
@@ -115,8 +122,11 @@ export default function App(): React.JSX.Element {
 
         <Header
           weekLabel={weekRangeLabel}
+          isCurrentWeek={isCurrentWeek}
           onPrevWeek={handlePrevWeek}
           onNextWeek={handleNextWeek}
+          onToday={handleJumpToToday}
+          stats={stats}
         />
 
         <div className="divider" />
@@ -168,7 +178,10 @@ export default function App(): React.JSX.Element {
           })}
         </div>
 
-        <BottomNav onCameraClick={handleCameraClick} />
+        <BottomNav
+          onCameraClick={handleCameraClick}
+          onSettingsClick={() => setActiveModal("settings")}
+        />
       </div>
 
       {/* Modals */}
@@ -190,6 +203,14 @@ export default function App(): React.JSX.Element {
           onDelete={deleteMeal}
         />
       )}
+
+      {activeModal === "settings" && (
+        <SettingsModal
+          onClose={() => setActiveModal(null)}
+          onResetAll={resetAllData}
+        />
+      )}
     </div>
   );
 }
+

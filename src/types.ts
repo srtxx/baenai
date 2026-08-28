@@ -44,4 +44,5 @@ export interface MealSlot {
 }
 
 /** モーダルの状態 */
-export type ModalState = "add" | "detail" | null;
+export type ModalState = "add" | "detail" | "settings" | null;
+

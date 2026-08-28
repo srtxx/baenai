@@ -3,16 +3,38 @@ import { Icon } from "./icons/Icons";
 
 interface HeaderProps {
   weekLabel: string;
+  isCurrentWeek: boolean;
   onPrevWeek: () => void;
   onNextWeek: () => void;
+  onToday: () => void;
+  stats: {
+    photoCount: number;
+    skipCount: number;
+    totalLogged: number;
+    totalSlots: number;
+  };
 }
 
-export default function Header({ weekLabel, onPrevWeek, onNextWeek }: HeaderProps): React.JSX.Element {
+export default function Header({
+  weekLabel,
+  isCurrentWeek,
+  onPrevWeek,
+  onNextWeek,
+  onToday,
+  stats,
+}: HeaderProps): React.JSX.Element {
   return (
     <div className="app-header">
       <div className="header-flex">
         <div className="header-title-container">
-          <div className="app-title">RATION</div>
+          <div className="app-title-row">
+            <span className="app-title">RATION</span>
+            {!isCurrentWeek && (
+              <button onClick={onToday} className="today-jump-btn" title="今週に戻る">
+                今週
+              </button>
+            )}
+          </div>
           <div className="week-nav">
             <button onClick={onPrevWeek} className="week-nav-btn" aria-label="前の週">
               <Icon.ChevronLeft />
@@ -25,23 +47,28 @@ export default function Header({ weekLabel, onPrevWeek, onNextWeek }: HeaderProp
         </div>
       </div>
 
-      {/* Minimalist badging and habits */}
+      {/* 実データ連動のバッジ */}
       <div className="badge-list">
-        {[
-          { icon: <Icon.Fire />, label: "記録 6日連続", bg: "var(--accent-faint)", col: "var(--accent)" },
-          { icon: <Icon.Cup />, label: "朝食ログ継続",  bg: "var(--accent-faint)", col: "var(--accent)" },
-          { icon: <Icon.BellMini />, label: "リマインド 1件", bg: "var(--accent-faint)", col: "var(--accent)" },
-        ].map(({ icon, label, bg, col }) => (
-          <div
-            key={label}
-            className="badge-item"
-            style={{ backgroundColor: bg }}
-          >
-            <span style={{ color: col, display: "inline-flex" }}>{icon}</span>
-            <span className="badge-label" style={{ color: col }}>{label}</span>
+        <div className="badge-item">
+          <span className="badge-icon"><Icon.Fire /></span>
+          <span className="badge-label">
+            記録 {stats.photoCount} / {stats.totalSlots}
+          </span>
+        </div>
+        {stats.skipCount > 0 && (
+          <div className="badge-item">
+            <span className="badge-icon"><Icon.Cup /></span>
+            <span className="badge-label">スキップ {stats.skipCount}食</span>
           </div>
-        ))}
+        )}
+        <div className="badge-item">
+          <span className="badge-icon"><Icon.BellMini /></span>
+          <span className="badge-label">
+            未記録 {stats.totalSlots - stats.totalLogged}食
+          </span>
+        </div>
       </div>
     </div>
   );
 }
+
