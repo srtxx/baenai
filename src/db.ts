@@ -57,3 +57,39 @@ export async function clearAllMeals(): Promise<void> {
   });
 }
 
+const PROFILE_KEY = "ration_user_profile";
+
+export async function getUserProfile(): Promise<import("./types").UserProfile> {
+  try {
+    const db = await getDB();
+    return new Promise((resolve) => {
+      const transaction = db.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(PROFILE_KEY);
+      request.onsuccess = () => {
+        const res = request.result;
+        if (res && typeof res === "object" && "name" in res) {
+          resolve(res as import("./types").UserProfile);
+        } else {
+          resolve({ name: "USER", handle: "" });
+        }
+      };
+      request.onerror = () => resolve({ name: "USER", handle: "" });
+    });
+  } catch {
+    return { name: "USER", handle: "" };
+  }
+}
+
+export async function saveUserProfile(profile: import("./types").UserProfile): Promise<void> {
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(profile, PROFILE_KEY);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+

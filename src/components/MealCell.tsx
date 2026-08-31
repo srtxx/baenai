@@ -18,7 +18,7 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
         className={`meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""}`}
       >
         <span className="plus-icon"><Icon.Plus /></span>
-        {isCurrentSlot && <span className="now-badge">NOW</span>}
+        {isCurrentSlot && <span className="now-badge">いま</span>}
       </div>
     );
   }
@@ -27,8 +27,25 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
     return (
       <div
         onClick={onClick}
-        className="meal-cell-skipped"
-      />
+        className="meal-cell-rested"
+        title="おやすみ"
+      >
+        <span className="rested-mark">—</span>
+      </div>
+    );
+  }
+
+  // クイック絵文字記録の場合
+  if ("quickEmoji" in meal && meal.quickEmoji && !("image" in meal && meal.image)) {
+    const hasMeta = ("note" in meal && !!meal.note) || ("tags" in meal && !!meal.tags && meal.tags.length > 0);
+    return (
+      <div
+        onClick={onClick}
+        className="meal-cell-emoji"
+      >
+        <span className="cell-emoji-char">{meal.quickEmoji}</span>
+        {hasMeta && <div className="cell-indicator-dot" />}
+      </div>
     );
   }
 
@@ -46,12 +63,14 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
       onClick={onClick}
       className="meal-cell-filled"
     >
-      {imgSrc && (
+      {imgSrc ? (
         <img
           src={imgSrc}
           alt="食事の写真"
           className="meal-cell-image"
         />
+      ) : (
+        <span className="cell-emoji-char">🍚</span>
       )}
       {hasMeta && <div className="cell-indicator-dot" />}
     </div>

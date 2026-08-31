@@ -1,22 +1,47 @@
 import React, { useState } from "react";
 import { useMeals } from "./hooks/useMeals";
+import { useSocial } from "./hooks/useSocial";
+import { useAchievements } from "./hooks/useAchievements";
 import { DAYS } from "./constants";
 import "./App.css";
 import StatusBar from "./components/StatusBar";
 import Header from "./components/Header";
 import MealCell from "./components/MealCell";
 import BottomNav from "./components/BottomNav";
+import FriendsView from "./components/FriendsView";
 import AddMealModal from "./components/AddMealModal";
 import MealDetailModal from "./components/MealDetailModal";
 import SettingsModal from "./components/SettingsModal";
+import ShareModal from "./components/ShareModal";
+import AddFriendModal from "./components/AddFriendModal";
+import NotificationModal from "./components/NotificationModal";
+import AchievementsModal from "./components/AchievementsModal";
 import { getMondayOfCurrentWeek, getWeekKey } from "./utils/helpers";
-import { DayIndex, MealIndex, MealSlot, ModalState } from "./types";
+import { DayIndex, MealIndex, MealSlot, ModalState, ActiveTab } from "./types";
 
 export default function App(): React.JSX.Element {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("home");
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
   const weekKey = getWeekKey(currentWeekStart);
 
   const { meals, isLoading, saveMeal, deleteMeal, resetAllData, stats } = useMeals(weekKey);
+  const {
+    friends,
+    encouragements,
+    reactions,
+    myFriendCode,
+    toastMessage,
+    sendEncouragement,
+    addFriendByCode,
+    addReaction
+  } = useSocial();
+
+  const {
+    achievements,
+    recentlyUnlocked,
+    recordEncourageSent,
+    recordShareGenerated
+  } = useAchievements(meals, friends.length);
 
   const [activeModal, setActiveModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<MealSlot>({ di: 0, mi: 0 });
@@ -42,7 +67,7 @@ export default function App(): React.JSX.Element {
     end.setDate(start.getDate() + 6);
     const startStr = `${start.getMonth() + 1}/${start.getDate()}`;
     const endStr = `${end.getMonth() + 1}/${end.getDate()}`;
-    return `${start.getFullYear()}/${startStr} (Mon) — ${endStr} (Sun)`;
+    return `${start.getFullYear()}/${startStr} (月) — ${endStr} (日)`;
   })();
 
   const currentDayIndex = (() => {
@@ -64,10 +89,10 @@ export default function App(): React.JSX.Element {
 
   // 今週表示時、今日の行が見えるように自動スクロール
   React.useEffect(() => {
-    if (isCurrentWeek && !isLoading && todayRowRef.current) {
+    if (activeTab === "home" && isCurrentWeek && !isLoading && todayRowRef.current) {
       todayRowRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [isCurrentWeek, isLoading]);
+  }, [activeTab, isCurrentWeek, isLoading]);
 
   const handlePrevWeek = () => {
     setCurrentWeekStart(prev => {
@@ -104,9 +129,10 @@ export default function App(): React.JSX.Element {
 
     const currentMon = getMondayOfCurrentWeek(now);
     setCurrentWeekStart(currentMon);
-    const di = ((now.getDay() + 6) % 7) as DayIndex; // 月:0〜日:6
+    const di = ((now.getDay() + 6) % 7) as DayIndex;
 
     setSelectedSlot({ di, mi });
+    setActiveTab("home");
     setActiveModal("add");
   };
 
@@ -119,13 +145,18 @@ export default function App(): React.JSX.Element {
     }
   };
 
+  const handleSendEncouragementWrapped = (friendId: string, type: import("./types").EncourageType) => {
+    sendEncouragement(friendId, type);
+    recordEncourageSent();
+  };
+
   const selectedMeal = meals[selectedSlot.di][selectedSlot.mi];
 
   if (isLoading) {
     return (
       <div className="loading-screen">
         <div className="loading-spinner" />
-        <span className="loading-text">RATION</span>
+        <span className="loading-text">mog</span>
       </div>
     );
   }
@@ -136,70 +167,116 @@ export default function App(): React.JSX.Element {
 
         <StatusBar />
 
-        <Header
-          weekLabel={weekRangeLabel}
-          isCurrentWeek={isCurrentWeek}
-          onPrevWeek={handlePrevWeek}
-          onNextWeek={handleNextWeek}
-          onToday={handleJumpToToday}
-          stats={stats}
-        />
+        {/* Home Tab: My Weekly Log */}
+        {activeTab === "home" ? (
+          <>
+            <Header
+              weekLabel={weekRangeLabel}
+              isCurrentWeek={isCurrentWeek}
+              currentDayIndex={currentDayIndex}
+              onPrevWeek={handlePrevWeek}
+              onNextWeek={handleNextWeek}
+              onToday={handleJumpToToday}
+              onShareClick={() => {
+                setActiveModal("share");
+                recordShareGenerated();
+              }}
+              onAchievementsClick={() => setActiveModal("achievements")}
+              onNotificationsClick={() => setActiveModal("notifications")}
+              hasUnreadNudges={encouragements.length > 0}
+              stats={stats}
+            />
 
-        <div className="divider" />
+            <div className="divider" />
 
-        {/* Column labels */}
-        <div className="column-labels">
-          <div className="column-label-spacer" />
-          {["朝", "昼", "夜"].map(m => (
-            <div key={m} className="column-label">{m}</div>
-          ))}
-        </div>
+            {/* Column labels */}
+            <div className="column-labels">
+              <div className="column-label-spacer" />
+              {["朝", "昼", "夜"].map(m => (
+                <div key={m} className="column-label">{m}</div>
+              ))}
+            </div>
 
-        {/* Grid */}
-        <div className="meal-grid">
-          {meals.map((dayMeals, di) => {
-            const dayIndex = di as DayIndex;
-            const isToday = dayIndex === currentDayIndex;
-            return (
-              <div
-                key={di}
-                ref={isToday ? todayRowRef : null}
-                className={`day-row ${isToday ? "today" : ""}`}
-              >
-                {/* Day info column */}
-                <div className={`day-info ${isToday ? "today" : ""}`}>
-                  {isToday && <span className="today-badge">TODAY</span>}
-                  <div className={`day-name ${isToday ? "today" : di === 5 ? "saturday" : di === 6 ? "sunday" : ""}`}>
-                    {DAYS[dayIndex]}
+            {/* Grid */}
+            <div className="meal-grid">
+              {meals.map((dayMeals, di) => {
+                const dayIndex = di as DayIndex;
+                const isToday = dayIndex === currentDayIndex;
+                return (
+                  <div
+                    key={di}
+                    ref={isToday ? todayRowRef : null}
+                    className={`day-row ${isToday ? "today" : ""}`}
+                  >
+                    {/* Day info column */}
+                    <div className={`day-info ${isToday ? "today" : ""}`}>
+                      {isToday && <span className="today-badge">きょう</span>}
+                      <div className={`day-name ${isToday ? "today" : di === 5 ? "saturday" : di === 6 ? "sunday" : ""}`}>
+                        {DAYS[dayIndex]}
+                      </div>
+                      <div className={`day-date ${isToday ? "today" : ""}`}>
+                        {datesList[di]}
+                      </div>
+                    </div>
+                    {/* Meal Cells */}
+                    {dayMeals.map((meal, mi) => {
+                      const mealIndex = mi as MealIndex;
+                      const isCurrentSlot = isToday && mealIndex === currentMealIndex;
+                      return (
+                        <MealCell
+                          key={mi}
+                          meal={meal}
+                          isToday={isToday}
+                          isCurrentSlot={isCurrentSlot}
+                          onClick={() => handleCellClick(dayIndex, mealIndex, meal)}
+                        />
+                      );
+                    })}
                   </div>
-                  <div className={`day-date ${isToday ? "today" : ""}`}>
-                    {datesList[di]}
-                  </div>
-                </div>
-                {/* Meal Cells */}
-                {dayMeals.map((meal, mi) => {
-                  const mealIndex = mi as MealIndex;
-                  const isCurrentSlot = isToday && mealIndex === currentMealIndex;
-                  return (
-                    <MealCell
-                      key={mi}
-                      meal={meal}
-                      isToday={isToday}
-                      isCurrentSlot={isCurrentSlot}
-                      onClick={() => handleCellClick(dayIndex, mealIndex, meal)}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          /* Friends Tab: Gentle Companions */
+          <FriendsView
+            friends={friends}
+            encouragements={encouragements}
+            currentDayIndex={currentDayIndex}
+            currentMealIndex={currentMealIndex}
+            myFriendCode={myFriendCode}
+            onOpenAddFriend={() => setActiveModal("add_friend")}
+            onOpenNotifications={() => setActiveModal("notifications")}
+            onSendEncouragement={handleSendEncouragementWrapped}
+            onSendReaction={addReaction}
+          />
+        )}
 
         <BottomNav
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           onCameraClick={handleCameraClick}
           onSettingsClick={() => setActiveModal("settings")}
         />
       </div>
+
+      {/* Achievement Unlocked Popup */}
+      {recentlyUnlocked && (
+        <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
+          <span className="unlocked-badge-icon">{recentlyUnlocked.icon}</span>
+          <div>
+            <div className="unlocked-badge-tag">きろくが灯りました 🌱</div>
+            <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Toast Alert */}
+      {toastMessage && (
+        <div className="social-toast">
+          {toastMessage}
+        </div>
+      )}
 
       {/* Modals */}
       {activeModal === "add" && (
@@ -227,7 +304,43 @@ export default function App(): React.JSX.Element {
           onResetAll={resetAllData}
         />
       )}
+
+      {activeModal === "share" && (
+        <ShareModal
+          meals={meals}
+          weekLabel={weekRangeLabel}
+          stats={stats}
+          datesList={datesList}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {activeModal === "add_friend" && (
+        <AddFriendModal
+          myFriendCode={myFriendCode}
+          onClose={() => setActiveModal(null)}
+          onAddFriend={addFriendByCode}
+        />
+      )}
+
+      {activeModal === "notifications" && (
+        <NotificationModal
+          encouragements={encouragements}
+          reactions={reactions}
+          onClose={() => setActiveModal(null)}
+          onQuickRecord={handleCameraClick}
+        />
+      )}
+
+      {activeModal === "achievements" && (
+        <AchievementsModal
+          achievements={achievements}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
     </div>
   );
 }
+
+
 

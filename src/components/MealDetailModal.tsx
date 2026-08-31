@@ -1,6 +1,6 @@
 import React from "react";
 import { photoUrl } from "../utils/helpers";
-import { DAYS } from "../constants";
+import { DAYS, MEAL_LABELS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 
 interface MealDetailModalProps {
@@ -12,11 +12,13 @@ interface MealDetailModalProps {
 }
 
 export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: MealDetailModalProps): React.JSX.Element {
+  const mealLabel = MEAL_LABELS[mi] || "ごはん";
+
   if (!meal) {
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-title">データがありません</div>
+          <div className="modal-title">記録がありません</div>
           <button onClick={onClose} className="btn-close">閉じる</button>
         </div>
       </div>
@@ -30,10 +32,10 @@ export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: Mea
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-title">
-            {DAYS[di]}曜日 — {mi === 0 ? "朝食" : mi === 1 ? "昼食" : "夕食"}
+            {DAYS[di]}曜日 — {mealLabel}
           </div>
           <div className="modal-subtitle-detail">
-            この食事はスキップされました
+            この食事はおやすみしました 🌙
           </div>
 
           <div className="btn-group-vertical">
@@ -44,7 +46,7 @@ export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: Mea
               }}
               className="btn-action-restore"
             >
-              スキップを解除して記録する
+              記録をし直す
             </button>
             <button
               onClick={onClose}
@@ -65,6 +67,7 @@ export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: Mea
     imgSrc = photoUrl(meal.seed, 400, 300);
   }
 
+  const quickEmoji = "quickEmoji" in meal ? meal.quickEmoji : undefined;
   const hasNote = "note" in meal && meal.note;
   const hasTags = "tags" in meal && meal.tags && meal.tags.length > 0;
 
@@ -72,16 +75,22 @@ export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: Mea
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">
-          {DAYS[di]}曜日 — {mi === 0 ? "朝食" : mi === 1 ? "昼食" : "夕食"}
+          {DAYS[di]}曜日 — {mealLabel}
         </div>
         <div className="modal-subtitle-detail">
-          食事の記録
+          もぐの記録
         </div>
 
-        {/* Meal Photo */}
-        <div className="detail-preview">
-          {imgSrc && <img src={imgSrc} alt="食事の写真" className="detail-image" />}
-        </div>
+        {/* Meal Photo or Emoji */}
+        {imgSrc ? (
+          <div className="detail-preview">
+            <img src={imgSrc} alt="食事の写真" className="detail-image" />
+          </div>
+        ) : quickEmoji ? (
+          <div className="detail-emoji-preview">
+            <span className="detail-emoji-large">{quickEmoji}</span>
+          </div>
+        ) : null}
 
         {/* メモ・タグ表示 */}
         {(hasNote || hasTags) && (
@@ -106,7 +115,7 @@ export default function MealDetailModal({ di, mi, meal, onClose, onDelete }: Mea
             }}
             className="btn-delete"
           >
-            この記録を削除
+            この記録を取り消す
           </button>
           <button
             onClick={onClose}

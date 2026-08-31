@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef, ChangeEvent } from "react";
 import { Icon } from "./icons/Icons";
+import { useProfile } from "../hooks/useProfile";
+import { compressImage } from "../utils/imageCompressor";
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -7,8 +9,21 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ onClose, onResetAll }: SettingsModalProps): React.JSX.Element {
+  const { profile, updateProfile } = useProfile();
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file, 200, 200, 0.85);
+      updateProfile({ avatar: compressed });
+    } catch (err) {
+      console.error("Avatar compression error:", err);
+    }
+  };
 
   const handleReset = async () => {
     setIsResetting(true);
@@ -25,16 +40,84 @@ export default function SettingsModal({ onClose, onResetAll }: SettingsModalProp
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">設定・管理</div>
-        <div className="modal-subtitle">RATION — 映えない食事記録</div>
+        <div className="modal-title">設定</div>
+        <div className="modal-subtitle">mog — たべる、のこす、いきる。</div>
+
+        {/* Profile Section */}
+        <div className="settings-section">
+          <div className="settings-item-title">プロフィール（週報に表示）</div>
+          <div className="share-profile-row" style={{ marginTop: "10px", marginBottom: 0 }}>
+            <div
+              className="share-avatar-uploader"
+              onClick={() => avatarInputRef.current?.click()}
+              title="アイコンを変更"
+            >
+              {profile.avatar ? (
+                <img src={profile.avatar} alt={profile.name} className="share-avatar-img" />
+              ) : (
+                <div className="share-avatar-placeholder">
+                  {(profile.name || "U").slice(0, 1).toUpperCase()}
+                </div>
+              )}
+              <span className="share-avatar-badge">📷</span>
+            </div>
+            <input
+              type="file"
+              ref={avatarInputRef}
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleAvatarChange}
+            />
+
+            <div className="share-name-input-wrap">
+              <label className="share-input-label">おなまえ</label>
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => updateProfile({ name: e.target.value })}
+                placeholder="表示名"
+                className="share-name-input"
+                maxLength={20}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Cloud Sync (Supabase) Section */}
+        <div className="settings-section">
+          <div className="settings-item-title">クラウド同期（Supabase連携）</div>
+          <p className="settings-desc" style={{ marginBottom: "10px" }}>
+            Supabaseの情報を設定すると、ともだちとのリアルタイム同期が有効になります（未設定時は端末内IndexedDBで動作）。
+          </p>
+          <div className="supabase-input-group">
+            <label className="share-input-label">Project URL</label>
+            <input
+              type="text"
+              value={profile.supabaseUrl || ""}
+              onChange={(e) => updateProfile({ supabaseUrl: e.target.value })}
+              placeholder="https://xxxxxxxxxxxx.supabase.co"
+              className="share-name-input"
+              style={{ fontSize: "11.5px", marginBottom: "8px" }}
+            />
+            <label className="share-input-label">Anon Key</label>
+            <input
+              type="password"
+              value={profile.supabaseKey || ""}
+              onChange={(e) => updateProfile({ supabaseKey: e.target.value })}
+              placeholder="eyJhbGciOi..."
+              className="share-name-input"
+              style={{ fontSize: "11.5px" }}
+            />
+          </div>
+        </div>
 
         <div className="settings-section">
-          <div className="settings-item-title">使い方</div>
+          <div className="settings-item-title">mogについて</div>
           <p className="settings-desc">
-            ・各マスの「＋」をタップして写真を登録します。<br />
-            ・食べなかった時は「スキップ」を記録できます。<br />
-            ・下部中央のカメラボタンで「今の食事」を素早く記録できます。<br />
-            ・写真は自動で圧縮され、この端末内（IndexedDB）に安全に保存されます。
+            ・各マスをタップしてワンタップ、または写真・メモを記録します。<br />
+            ・食べなかった時は「おやすみ」を静かに記録できます。<br />
+            ・「ともだち」タブで、同じ時間を生きている仲間にやさしいことばを送れます。<br />
+            ・右上のシェアボタンから今週のmog画像を生成・共有できます。
           </p>
         </div>
 

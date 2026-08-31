@@ -1,24 +1,47 @@
 import React from "react";
 import { Icon } from "./icons/Icons";
+import { ActiveTab } from "../types";
 
 interface BottomNavProps {
+  activeTab: ActiveTab;
+  onTabChange: (tab: ActiveTab) => void;
   onCameraClick: () => void;
   onSettingsClick: () => void;
 }
 
-export default function BottomNav({ onCameraClick, onSettingsClick }: BottomNavProps): React.JSX.Element {
+export default function BottomNav({
+  activeTab,
+  onTabChange,
+  onCameraClick,
+  onSettingsClick,
+}: BottomNavProps): React.JSX.Element {
   return (
     <div className="bottom-nav">
-      <div className="nav-item active" title="週間記録一覧">
+      <div
+        onClick={() => onTabChange("home")}
+        className={`nav-item ${activeTab === "home" ? "active" : ""}`}
+        title="きろく"
+      >
         <div className="nav-icon"><Icon.Log /></div>
-        <div className="nav-label">記録</div>
+        <div className="nav-label">きろく</div>
+      </div>
+
+      <div
+        onClick={() => onTabChange("friends")}
+        className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
+        title="ともだち"
+      >
+        <div className="nav-icon">
+          <Icon.Friends />
+        </div>
+        <div className="nav-label">ともだち</div>
       </div>
 
       <div
         onClick={onCameraClick}
         className="nav-primary-btn"
-        aria-label="撮影して記録"
-        title="今の食事を記録"
+        aria-label="mogする"
+        title="mogする"
       >
         <Icon.Camera />
       </div>
@@ -26,7 +49,7 @@ export default function BottomNav({ onCameraClick, onSettingsClick }: BottomNavP
       <div
         onClick={onSettingsClick}
         className="nav-item"
-        title="設定・データ管理"
+        title="設定"
       >
         <div className="nav-icon"><Icon.Settings /></div>
         <div className="nav-label">設定</div>
@@ -34,4 +57,5 @@ export default function BottomNav({ onCameraClick, onSettingsClick }: BottomNavP
     </div>
   );
 }
+
 

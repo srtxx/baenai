@@ -1,6 +1,6 @@
 import React, { useState, useRef, ChangeEvent } from "react";
 import { Icon } from "./icons/Icons";
-import { DAYS } from "../constants";
+import { DAYS, MEAL_LABELS, QUICK_MEAL_OPTIONS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 import { compressImage } from "../utils/imageCompressor";
 
@@ -13,12 +13,13 @@ interface AddMealModalProps {
 
 export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalProps): React.JSX.Element {
   const [image, setImage] = useState<string>("");
+  const [quickEmoji, setQuickEmoji] = useState<string>("🍚");
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const tagsList = ["自炊", "外食", "コンビニ", "惣菜"] as const;
+  const tagsList = ["自炊", "外食", "コンビニ", "テイクアウト"] as const;
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,12 +27,10 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
 
     try {
       setIsCompressing(true);
-      // 長辺800px・WebP/JPEGにリサイズ＆圧縮
       const compressedDataUrl = await compressImage(file, 800, 800, 0.8);
       setImage(compressedDataUrl);
     } catch (err) {
       console.error("画像圧縮エラー:", err);
-      // フォールバック: 生のDataURLで読み込み
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
@@ -50,21 +49,71 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     );
   };
 
-  const handleSave = () => {
-    if (!image || isCompressing) return;
-    onSave(di, mi, { image, note, tags: selectedTags });
+  // ワンタップで即時記録
+  const handleQuickSave = (emoji: string, tags: readonly string[]) => {
+    onSave(di, mi, {
+      quickEmoji: emoji,
+      tags: [...tags],
+    });
     onClose();
   };
 
+  // 通常保存（写真またはメモ・タグ・絵文字）
+  const handleSave = () => {
+    if (isCompressing) return;
+    onSave(di, mi, {
+      image: image || undefined,
+      quickEmoji: image ? undefined : quickEmoji,
+      note: note.trim() || undefined,
+      tags: selectedTags.length > 0 ? selectedTags : undefined,
+    });
+    onClose();
+  };
+
+  const mealLabel = MEAL_LABELS[mi] || "ごはん";
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content add-meal-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">
-          {DAYS[di]}曜日 — {mi === 0 ? "朝食" : mi === 1 ? "昼食" : "夕食"}
+          {DAYS[di]}曜日 — {mealLabel}
         </div>
         <div className="modal-subtitle">
-          食事の記録
+          もぐの記録
+        </div>
+
+        {/* ワンタップ記録エリア */}
+        <div className="quick-actions-box">
+          <div className="quick-actions-label">ワンタップで記録</div>
+          <div className="quick-buttons-row">
+            {QUICK_MEAL_OPTIONS.map((opt) => (
+              <button
+                key={opt.label}
+                type="button"
+                className="btn-quick-action"
+                onClick={() => handleQuickSave(opt.emoji, opt.tags)}
+              >
+                <span className="quick-emoji">{opt.emoji}</span>
+                <span className="quick-text">{opt.label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className="btn-quick-action btn-quick-rest"
+              onClick={() => {
+                onSave(di, mi, { skipped: true });
+                onClose();
+              }}
+              title="この食事はおやすみ"
+            >
+              <span className="quick-emoji">🌙</span>
+              <span className="quick-text">おやすみ</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="modal-section-divider">
+          <span>写真やメモを残す場合</span>
         </div>
 
         {/* Upload Box */}
@@ -82,19 +131,20 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           ) : (
             <div className="upload-placeholder">
               <span className="upload-icon"><Icon.Upload /></span>
-              <span className="upload-text">写真をアップロード</span>
+              <span className="upload-text">写真を追加（撮影 or アルバム）</span>
             </div>
           )}
         </div>
 
         {/* メモ入力 */}
         <div className="modal-input-group">
-          <label className="modal-input-label">メモ</label>
+          <label className="modal-input-label">ひとこと（なくてもOK）</label>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="メニューや感想など"
             className="modal-textarea"
+            rows={2}
           />
         </div>
 
@@ -115,17 +165,6 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           </div>
         </div>
 
-        {/* スキップボタン */}
-        <button
-          onClick={() => {
-            onSave(di, mi, { skipped: true });
-            onClose();
-          }}
-          className="btn-skip"
-        >
-          この食事をスキップ（食べなかった）
-        </button>
-
         <input
           type="file"
           ref={fileInputRef}
@@ -136,17 +175,17 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
         />
 
         {/* Buttons */}
-        <div className="btn-group">
+        <div className="btn-group" style={{ marginTop: "16px" }}>
           <button
             onClick={onClose}
             className="btn-cancel"
           >
-            キャンセル
+            閉じる
           </button>
           <button
             onClick={handleSave}
-            disabled={!image || isCompressing}
-            className={`btn-save ${image && !isCompressing ? "active" : ""}`}
+            disabled={isCompressing}
+            className="btn-save active"
           >
             {isCompressing ? "処理中..." : "保存する"}
           </button>
