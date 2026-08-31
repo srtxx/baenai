@@ -7,15 +7,25 @@ interface MealCellProps {
   meal: Meal;
   isToday: boolean;
   isCurrentSlot?: boolean;
+  isFuture?: boolean;
+  isJustSaved?: boolean;
   onClick: () => void;
 }
 
-const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, onClick }: MealCellProps): React.JSX.Element {
+const MealCell = React.memo(function MealCell({
+  meal,
+  isToday,
+  isCurrentSlot,
+  isFuture,
+  isJustSaved,
+  onClick,
+}: MealCellProps): React.JSX.Element {
   if (!meal) {
     return (
       <div
         onClick={onClick}
-        className={`meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""}`}
+        className={`meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""} ${isFuture ? "is-future" : ""}`}
+        title={isFuture ? "これからの食事（タップして予定または先取り記録）" : "食事を記録"}
       >
         <span className="plus-icon"><Icon.Plus /></span>
         {isCurrentSlot && <span className="now-badge">いま</span>}
@@ -27,7 +37,7 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
     return (
       <div
         onClick={onClick}
-        className="meal-cell-rested"
+        className={`meal-cell-rested ${isJustSaved ? "meal-cell-just-saved" : ""}`}
         title="おやすみ"
       >
         <span className="rested-mark">—</span>
@@ -41,7 +51,7 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
     return (
       <div
         onClick={onClick}
-        className="meal-cell-emoji"
+        className={`meal-cell-emoji ${isJustSaved ? "meal-cell-just-saved" : ""}`}
       >
         <span className="cell-emoji-char">{meal.quickEmoji}</span>
         {hasMeta && <div className="cell-indicator-dot" />}
@@ -61,7 +71,7 @@ const MealCell = React.memo(function MealCell({ meal, isToday, isCurrentSlot, on
   return (
     <div
       onClick={onClick}
-      className="meal-cell-filled"
+      className={`meal-cell-filled ${isJustSaved ? "meal-cell-just-saved" : ""}`}
     >
       {imgSrc ? (
         <img

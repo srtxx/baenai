@@ -83,6 +83,32 @@ export default function SettingsModal({ onClose, onResetAll }: SettingsModalProp
           </div>
         </div>
 
+        {/* Theme Preference Section */}
+        <div className="settings-section">
+          <div className="settings-item-title">カラーテーマ</div>
+          <p className="settings-desc" style={{ marginBottom: "8px" }}>
+            就寝前や暗い場所でも見やすい「ナイト」テーマを選べます。
+          </p>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              className={`btn-tag ${(profile.themePreference || "ecru") === "ecru" ? "selected" : ""}`}
+              onClick={() => updateProfile({ themePreference: "ecru" })}
+              style={{ flex: 1, padding: "8px 12px", justifyContent: "center", cursor: "pointer" }}
+            >
+              🌿 エクリュ（通常）
+            </button>
+            <button
+              type="button"
+              className={`btn-tag ${profile.themePreference === "night" ? "selected" : ""}`}
+              onClick={() => updateProfile({ themePreference: "night" })}
+              style={{ flex: 1, padding: "8px 12px", justifyContent: "center", cursor: "pointer" }}
+            >
+              🌙 ナイト（夜）
+            </button>
+          </div>
+        </div>
+
         {/* Cloud Sync (Supabase) Section */}
         <div className="settings-section">
           <div className="settings-item-title">クラウド同期（Supabase連携）</div>

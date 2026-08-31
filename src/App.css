@@ -5,10 +5,92 @@
   --accent-faint: #F4F7F5;     /* ごく淡いセージグリーン */
   --accent-border: #E2EAE5;    /* 繊細なセージ枠線 */
   --text: #2C2C2C;            /* ソフトチャコール */
-  --text-mid: #7C7A77;         /* ウォームグレー */
-  --text-light: #C0BBB5;       /* ライトグレー */
-  --border: #F2EDE8;          /* 境界線 */
-  --today-bg: #F6F8F7;         /* 本日ハイライト背景 */
+  --text-mid: #63605C;         /* ウォームグレー（コントラスト向上） */
+  --text-light: #918C85;       /* ライトグレー（コントラスト向上） */
+  --border: #EDE7E0;          /* 境界線 */
+  --today-bg: #EDF5F1;         /* 本日ハイライト背景 */
+  --cell-future-border: rgba(160, 155, 148, 0.4);
+}
+
+[data-theme="night"] {
+  --bg: #181B19;            /* ナイトチャコール */
+  --white: #222724;         /* ナイトカード背景 */
+  --accent: #82A996;        /* 優しいミントセージ */
+  --accent-faint: #25312B;   /* ナイトセージ背景 */
+  --accent-border: #36443D;  /* ナイトセージ枠線 */
+  --text: #F2EFE9;          /* ソフトオフホワイト */
+  --text-mid: #ABA7A0;       /* ナイトウォームグレー */
+  --text-light: #7E8581;     /* ナイトライトグレー */
+  --border: #2D3330;        /* ナイト境界線 */
+  --today-bg: #212D27;       /* ナイト本日ハイライト */
+  --cell-future-border: rgba(80, 92, 86, 0.5);
+}
+
+[data-theme="night"] .app-wrapper {
+  background-color: #111312;
+}
+
+[data-theme="night"] .modal-content,
+[data-theme="night"] .share-modal-content {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="night"] .app-container {
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="night"] .meal-cell-empty {
+  background-color: rgba(36, 39, 37, 0.6);
+  border-color: rgba(60, 70, 65, 0.8);
+}
+
+[data-theme="night"] .meal-cell-empty.today {
+  background-color: var(--white);
+  border-color: rgba(130, 169, 150, 0.6);
+}
+
+[data-theme="night"] .meal-cell-empty.current-slot {
+  background-color: var(--white);
+  border-color: var(--accent);
+}
+
+[data-theme="night"] .meal-cell-rested,
+[data-theme="night"] .meal-cell-skipped {
+  background-color: #1F2422;
+}
+
+[data-theme="night"] .day-row.today {
+  background: #202D26;
+  border-color: #4A6355;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="night"] .day-name.saturday {
+  color: #7AA2F7;
+}
+
+[data-theme="night"] .day-name.sunday {
+  color: #F7768E;
+}
+
+[data-theme="night"] .bottom-nav {
+  background-color: rgba(26, 30, 28, 0.92);
+  border-top-color: var(--border);
+}
+
+[data-theme="night"] .share-name-input,
+[data-theme="night"] .modal-textarea {
+  background-color: #181B19;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="night"] .btn-quick-action,
+[data-theme="night"] .btn-tag {
+  background-color: var(--white);
+  border-color: var(--border);
+  color: var(--text);
 }
 
 /* Loading Screen */
@@ -385,6 +467,44 @@
 
 .meal-cell-empty:hover .plus-icon {
   color: var(--accent);
+}
+
+/* 未来のスロット（控えめで優しい表示） */
+.meal-cell-empty.is-future {
+  border: 0.5px dashed var(--cell-future-border);
+  background-color: transparent;
+  opacity: 0.55;
+}
+
+.meal-cell-empty.is-future:hover {
+  opacity: 0.9;
+  border-color: var(--accent);
+  background-color: var(--accent-faint);
+}
+
+.meal-cell-empty.is-future .plus-icon {
+  opacity: 0.4;
+}
+
+/* 記録完了直後のやさしいマイクロインタラクション */
+.meal-cell-just-saved {
+  animation: mogSoftPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 5;
+}
+
+@keyframes mogSoftPop {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(107, 138, 122, 0.4);
+  }
+  40% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(107, 138, 122, 0.25);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 16px rgba(40, 38, 35, 0.04);
+  }
 }
 
 .meal-cell-filled {

@@ -44,6 +44,9 @@ export interface MealSlot {
   mi: MealIndex;
 }
 
+/** カラーテーマ */
+export type ThemeMode = "ecru" | "night";
+
 /** ユーザープロフィール */
 export interface UserProfile {
   id?: string;
@@ -53,6 +56,7 @@ export interface UserProfile {
   friendCode?: string;
   supabaseUrl?: string;
   supabaseKey?: string;
+  themePreference?: ThemeMode;
 }
 
 /** 催促（Nudge）の種類 */

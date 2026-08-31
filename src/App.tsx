@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useMeals } from "./hooks/useMeals";
 import { useSocial } from "./hooks/useSocial";
 import { useAchievements } from "./hooks/useAchievements";
+import { useProfile } from "./hooks/useProfile";
 import { DAYS } from "./constants";
 import "./App.css";
 import StatusBar from "./components/StatusBar";
@@ -17,13 +18,14 @@ import AddFriendModal from "./components/AddFriendModal";
 import NotificationModal from "./components/NotificationModal";
 import AchievementsModal from "./components/AchievementsModal";
 import { getMondayOfCurrentWeek, getWeekKey } from "./utils/helpers";
-import { DayIndex, MealIndex, MealSlot, ModalState, ActiveTab } from "./types";
+import { DayIndex, MealIndex, MealSlot, ModalState, ActiveTab, Meal } from "./types";
 
 export default function App(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<ActiveTab>("home");
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
   const weekKey = getWeekKey(currentWeekStart);
 
+  const { profile } = useProfile();
   const { meals, isLoading, saveMeal, deleteMeal, resetAllData, stats } = useMeals(weekKey);
   const {
     friends,
@@ -45,6 +47,7 @@ export default function App(): React.JSX.Element {
 
   const [activeModal, setActiveModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<MealSlot>({ di: 0, mi: 0 });
+  const [justSavedSlot, setJustSavedSlot] = useState<MealSlot | null>(null);
 
   // 今週かどうか
   const todayMonday = getMondayOfCurrentWeek();
@@ -136,6 +139,14 @@ export default function App(): React.JSX.Element {
     setActiveModal("add");
   };
 
+  const handleSaveMeal = (di: DayIndex, mi: MealIndex, mealData: Meal) => {
+    saveMeal(di, mi, mealData);
+    setJustSavedSlot({ di, mi });
+    setTimeout(() => {
+      setJustSavedSlot((prev) => (prev?.di === di && prev?.mi === mi ? null : prev));
+    }, 850);
+  };
+
   const handleCellClick = (di: DayIndex, mi: MealIndex, meal: unknown) => {
     setSelectedSlot({ di, mi });
     if (meal) {
@@ -152,9 +163,13 @@ export default function App(): React.JSX.Element {
 
   const selectedMeal = meals[selectedSlot.di][selectedSlot.mi];
 
+  // 週全体の未来・過去判定
+  const isFutureWeek = currentWeekStart.getTime() > todayMonday.getTime();
+  const isPastWeek = currentWeekStart.getTime() < todayMonday.getTime();
+
   if (isLoading) {
     return (
-      <div className="loading-screen">
+      <div className="loading-screen" data-theme={profile.themePreference || "ecru"}>
         <div className="loading-spinner" />
         <span className="loading-text">mog</span>
       </div>
@@ -162,7 +177,7 @@ export default function App(): React.JSX.Element {
   }
 
   return (
-    <div className="app-wrapper">
+    <div className="app-wrapper" data-theme={profile.themePreference || "ecru"}>
       <div className="app-container">
 
         <StatusBar />
@@ -222,12 +237,31 @@ export default function App(): React.JSX.Element {
                     {dayMeals.map((meal, mi) => {
                       const mealIndex = mi as MealIndex;
                       const isCurrentSlot = isToday && mealIndex === currentMealIndex;
+                      
+                      // 未来マス判定
+                      let isFuture = false;
+                      if (isFutureWeek) {
+                        isFuture = true;
+                      } else if (isPastWeek) {
+                        isFuture = false;
+                      } else if (isCurrentWeek) {
+                        if (dayIndex > currentDayIndex) {
+                          isFuture = true;
+                        } else if (dayIndex === currentDayIndex && mealIndex > currentMealIndex) {
+                          isFuture = true;
+                        }
+                      }
+
+                      const isJustSaved = justSavedSlot?.di === dayIndex && justSavedSlot?.mi === mealIndex;
+
                       return (
                         <MealCell
                           key={mi}
                           meal={meal}
                           isToday={isToday}
                           isCurrentSlot={isCurrentSlot}
+                          isFuture={isFuture}
+                          isJustSaved={isJustSaved}
                           onClick={() => handleCellClick(dayIndex, mealIndex, meal)}
                         />
                       );
@@ -284,7 +318,7 @@ export default function App(): React.JSX.Element {
           di={selectedSlot.di}
           mi={selectedSlot.mi}
           onClose={() => setActiveModal(null)}
-          onSave={saveMeal}
+          onSave={handleSaveMeal}
         />
       )}
 
@@ -295,7 +329,7 @@ export default function App(): React.JSX.Element {
           meal={selectedMeal}
           onClose={() => setActiveModal(null)}
           onDelete={deleteMeal}
-          onSave={saveMeal}
+          onSave={handleSaveMeal}
         />
       )}
 
