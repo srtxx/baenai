@@ -363,15 +363,21 @@ export async function generateShareImage(
     })
   );
 
+  const statsParts = [
+    `📸 記録 ${stats.photoCount}/${stats.totalSlots}`,
+    stats.skipCount > 0 ? `🌙 おやすみ ${stats.skipCount}食` : "",
+    cookCount > 0 ? `🍳 自炊 ${cookCount}食` : "",
+    outCount > 0 ? `🍽️ 外食 ${outCount}食` : "",
+    convCount > 0 ? `🏪 コンビニ ${convCount}食` : "",
+  ].filter(Boolean);
+
   const statsY = HEIGHT - (ratio === "9:16" ? 140 : 90);
   ctx.fillStyle = colors.textMain;
-  ctx.font = "bold 21px sans-serif";
+  ctx.font = "bold 20px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   ctx.fillText(
-    `📸 記録 ${stats.photoCount}/${stats.totalSlots}   🌙 おやすみ ${stats.skipCount}食${
-      cookCount > 0 ? `   🍳 自炊 ${cookCount}食` : ""
-    }`,
+    statsParts.join("   "),
     WIDTH / 2,
     statsY
   );

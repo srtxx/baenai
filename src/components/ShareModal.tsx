@@ -123,29 +123,35 @@ export default function ShareModal({
         {/* Ratio & Theme Selectors */}
         <div className="share-controls-row">
           <div className="share-control-group">
-            <span className="share-control-label">比率:</span>
+            <span className="share-control-label">比率</span>
             <div className="share-pill-selector">
-              {(["4:5", "9:16", "1:1"] as const).map((r) => (
+              {(
+                [
+                  { id: "4:5", label: "4:5 (標準)" },
+                  { id: "9:16", label: "9:16 (縦長)" },
+                  { id: "1:1", label: "1:1 (正方形)" },
+                ] as const
+              ).map((r) => (
                 <button
-                  key={r}
+                  key={r.id}
                   type="button"
-                  onClick={() => setRatio(r)}
-                  className={`share-pill-btn ${ratio === r ? "active" : ""}`}
+                  onClick={() => setRatio(r.id)}
+                  className={`share-pill-btn ${ratio === r.id ? "active" : ""}`}
                 >
-                  {r === "4:5" ? "標準 (4:5)" : r === "9:16" ? "縦長 (9:16)" : "正方形 (1:1)"}
+                  {r.label}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="share-control-group" style={{ marginTop: "8px" }}>
-            <span className="share-control-label">テーマ:</span>
+            <span className="share-control-label">テーマ</span>
             <div className="share-pill-selector">
               {(
                 [
-                  { id: "ecru", label: "生成り (Ecru)" },
-                  { id: "dark", label: "ダーク (Dark)" },
-                  { id: "sage", label: "セージ (Sage)" },
+                  { id: "ecru", label: "生成り" },
+                  { id: "dark", label: "ダーク" },
+                  { id: "sage", label: "セージ" },
                 ] as const
               ).map((t) => (
                 <button

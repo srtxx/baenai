@@ -136,6 +136,25 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           )}
         </div>
 
+        {/* 写真がない場合のアイコン選択 */}
+        {!image && (
+          <div className="modal-input-group" style={{ marginBottom: "12px" }}>
+            <label className="modal-input-label">アイコン</label>
+            <div className="emoji-picker-row">
+              {["🍚", "🥐", "🍙", "🥗", "🍜", "☕️", "🍰"].map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => setQuickEmoji(em)}
+                  className={`btn-emoji-select ${quickEmoji === em ? "active" : ""}`}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* メモ入力 */}
         <div className="modal-input-group">
           <label className="modal-input-label">ひとこと（なくてもOK）</label>

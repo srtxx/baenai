@@ -171,14 +171,28 @@ export default function FriendGridModal({
                     );
                   }
 
+                  if ("quickEmoji" in meal && meal.quickEmoji && !("image" in meal && meal.image)) {
+                    return (
+                      <div
+                        key={mi}
+                        className={`meal-cell-emoji ${isSelected ? "selected-slot" : ""}`}
+                        onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
+                      >
+                        <span className="cell-emoji-char">{meal.quickEmoji}</span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={mi}
                       className={`meal-cell-filled ${isSelected ? "selected-slot" : ""}`}
                       onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
                     >
-                      {"image" in meal && meal.image && (
+                      {"image" in meal && meal.image ? (
                         <img src={meal.image} alt="食事" className="meal-cell-image" />
+                      ) : (
+                        <span className="cell-emoji-char">🍚</span>
                       )}
                     </div>
                   );

@@ -18,9 +18,9 @@ interface FriendsViewProps {
 export default function FriendsView({
   friends,
   encouragements = [],
-  currentDayIndex,
-  currentMealIndex,
-  myFriendCode,
+  currentDayIndex: _currentDayIndex,
+  currentMealIndex: _currentMealIndex,
+  myFriendCode: _myFriendCode,
   onOpenAddFriend,
   onOpenNotifications,
   onSendEncouragement,

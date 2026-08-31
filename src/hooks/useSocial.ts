@@ -10,7 +10,6 @@ import {
   generateFriendCode
 } from "../lib/socialStorage";
 import { useProfile } from "./useProfile";
-import { ENCOURAGE_MESSAGES } from "../constants";
 
 export function useSocial() {
   const { profile, updateProfile } = useProfile();

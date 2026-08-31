@@ -295,6 +295,7 @@ export default function App(): React.JSX.Element {
           meal={selectedMeal}
           onClose={() => setActiveModal(null)}
           onDelete={deleteMeal}
+          onSave={saveMeal}
         />
       )}
 
