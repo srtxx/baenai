@@ -87,7 +87,9 @@
 }
 
 [data-theme="night"] .btn-quick-action,
-[data-theme="night"] .btn-tag {
+[data-theme="night"] .btn-tag,
+[data-theme="night"] .emoji-tab-btn,
+[data-theme="night"] .emoji-grid-item {
   background-color: var(--white);
   border-color: var(--border);
   color: var(--text);
@@ -884,6 +886,140 @@
   background-color: var(--accent-faint);
   box-shadow: 0 0 0 2px var(--accent);
   transform: scale(1.05);
+}
+
+/* Extended Emoji Palette & Tabs */
+.emoji-category-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.emoji-category-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.emoji-tab-btn {
+  padding: 5px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  color: var(--text-mid);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.emoji-tab-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.emoji-tab-btn.active {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.emoji-grid-extended {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 4px 2px 8px;
+  box-sizing: border-box;
+}
+
+.emoji-grid-extended::-webkit-scrollbar {
+  width: 4px;
+}
+
+.emoji-grid-extended::-webkit-scrollbar-thumb {
+  background: rgba(107, 138, 122, 0.3);
+  border-radius: 4px;
+}
+
+.emoji-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background-color: var(--white);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.emoji-grid-item:hover {
+  border-color: var(--accent);
+  background-color: var(--accent-faint);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.emoji-grid-item:active {
+  transform: scale(0.95);
+}
+
+.emoji-grid-icon {
+  font-size: 22px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.emoji-grid-label {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-mid);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.emoji-grid-item:hover .emoji-grid-label {
+  color: var(--accent);
+}
+
+/* Modal Accordion Details */
+.modal-accordion-toggle {
+  background: none;
+  border: none;
+  color: var(--text-mid);
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-accordion-toggle:hover {
+  color: var(--accent);
+}
+
+.modal-optional-section {
+  animation: fadeIn 0.2s ease forwards;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
 }
 
 .modal-input-label {
