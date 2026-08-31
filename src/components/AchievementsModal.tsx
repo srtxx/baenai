@@ -11,20 +11,29 @@ export default function AchievementsModal({
   onClose
 }: AchievementsModalProps): React.JSX.Element {
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const percent = Math.round((unlockedCount / achievements.length) * 100);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">ふりかえりの足跡</div>
-        <div className="modal-subtitle">
-          灯ったきろく: {unlockedCount} / {achievements.length}
+      <div className="modal-content achievements-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">ふりかえりの足跡</h2>
+            <p className="modal-subtitle">
+              灯ったきろく: <strong>{unlockedCount}</strong> / {achievements.length}（{percent}%）
+            </p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
         </div>
 
         {/* Progress Bar */}
         <div className="achievement-progress-bar-wrap">
           <div
             className="achievement-progress-bar-fill"
-            style={{ width: `${(unlockedCount / achievements.length) * 100}%` }}
+            style={{ width: `${percent}%` }}
           />
         </div>
 
@@ -40,13 +49,16 @@ export default function AchievementsModal({
               </div>
 
               <div className="achievement-info">
-                <div className="achievement-title">{item.title}</div>
+                <div className="achievement-title-row">
+                  <span className="achievement-title">{item.title}</span>
+                  {item.unlocked && <span className="achievement-sparkle">✨</span>}
+                </div>
                 <div className="achievement-desc">{item.description}</div>
                 {item.unlocked ? (
-                  <div className="achievement-date">灯った日: {item.unlockedAt}</div>
+                  <div className="achievement-date">🌱 灯った日: {item.unlockedAt}</div>
                 ) : item.progress ? (
                   <div className="achievement-progress-text">
-                    {item.progress.current} / {item.progress.max}
+                    進行状況: {item.progress.current} / {item.progress.max}
                   </div>
                 ) : (
                   <div className="achievement-locked-label">静かに待機中</div>
@@ -55,10 +67,6 @@ export default function AchievementsModal({
             </div>
           ))}
         </div>
-
-        <button onClick={onClose} className="btn-cancel" style={{ marginTop: "18px" }}>
-          閉じる
-        </button>
       </div>
     </div>
   );

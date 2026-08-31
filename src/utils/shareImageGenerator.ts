@@ -328,7 +328,7 @@ export async function generateShareImage(
         try {
           const img = await loadImage(meal.image);
           drawImageCover(ctx, img, colX, rowY, CELL_WIDTH, CELL_HEIGHT, RADIUS, colors.cardBorder);
-        } catch (_e) {
+        } catch {
           drawEmptySlot(ctx, colX, rowY, CELL_WIDTH, CELL_HEIGHT, RADIUS, isDark);
         }
       } else if (meal && "quickEmoji" in meal && meal.quickEmoji) {

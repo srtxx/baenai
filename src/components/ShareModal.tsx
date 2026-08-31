@@ -117,26 +117,34 @@ export default function ShareModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content share-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">今週のmogをシェア</div>
-        <div className="modal-subtitle">ありのままの一週間を画像として残す</div>
+        {/* Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">今週のmogをシェア</h2>
+            <p className="modal-subtitle">ありのままの一週間を画像として残す 📸</p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
+        </div>
 
         {/* Ratio & Theme Selectors */}
-        <div className="share-controls-row">
+        <div className="share-controls-card">
           <div className="share-control-group">
-            <span className="share-control-label">比率</span>
-            <div className="share-pill-selector">
+            <span className="modal-input-label">画像サイズ</span>
+            <div className="segmented-control">
               {(
                 [
-                  { id: "4:5", label: "4:5 (標準)" },
-                  { id: "9:16", label: "9:16 (縦長)" },
-                  { id: "1:1", label: "1:1 (正方形)" },
+                  { id: "4:5", label: "4:5（標準）" },
+                  { id: "9:16", label: "9:16（縦長）" },
+                  { id: "1:1", label: "1:1（正方形）" },
                 ] as const
               ).map((r) => (
                 <button
                   key={r.id}
                   type="button"
                   onClick={() => setRatio(r.id)}
-                  className={`share-pill-btn ${ratio === r.id ? "active" : ""}`}
+                  className={`segmented-btn ${ratio === r.id ? "active" : ""}`}
                 >
                   {r.label}
                 </button>
@@ -144,21 +152,21 @@ export default function ShareModal({
             </div>
           </div>
 
-          <div className="share-control-group" style={{ marginTop: "8px" }}>
-            <span className="share-control-label">テーマ</span>
-            <div className="share-pill-selector">
+          <div className="share-control-group" style={{ marginTop: "10px" }}>
+            <span className="modal-input-label">カラーテーマ</span>
+            <div className="segmented-control">
               {(
                 [
-                  { id: "ecru", label: "生成り" },
-                  { id: "dark", label: "ダーク" },
-                  { id: "sage", label: "セージ" },
+                  { id: "ecru", label: "🌿 生成り" },
+                  { id: "dark", label: "🌙 ダーク" },
+                  { id: "sage", label: "🍃 セージ" },
                 ] as const
               ).map((t) => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={() => setTheme(t.id)}
-                  className={`share-pill-btn ${theme === t.id ? "active" : ""}`}
+                  className={`segmented-btn ${theme === t.id ? "active" : ""}`}
                 >
                   {t.label}
                 </button>
@@ -193,25 +201,25 @@ export default function ShareModal({
             />
 
             <div className="share-name-input-wrap">
-              <label className="share-input-label">ユーザー名</label>
+              <label className="modal-input-label">ユーザー名</label>
               <input
                 type="text"
                 value={profile.name}
                 onChange={(e) => updateProfile({ name: e.target.value })}
                 placeholder="表示名"
-                className="share-name-input"
+                className="modal-text-input"
                 maxLength={20}
               />
             </div>
           </div>
 
-          <div className="share-comment-wrap">
-            <label className="share-input-label">今週のひとこと（画像に刻印）</label>
+          <div className="share-comment-wrap" style={{ marginTop: "10px" }}>
+            <label className="modal-input-label">今週のひとこと（画像に刻印）</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="例: 今週は仕事が忙しくて鶏ハムばかり食べてました"
-              className="share-comment-textarea"
+              className="modal-textarea"
               maxLength={60}
               rows={2}
             />
@@ -222,11 +230,11 @@ export default function ShareModal({
         <div className="share-preview-container">
           {isGenerating && !objectUrl ? (
             <div className="share-generating">
-              <div className="loading-spinner" style={{ marginBottom: 0 }} />
+              <div className="loading-spinner" />
               <span>画像を生成中...</span>
             </div>
           ) : error ? (
-            <div className="share-error">{error}</div>
+            <div className="modal-error-text">{error}</div>
           ) : (
             <div className="share-preview-wrapper">
               <img src={objectUrl!} alt="Share Preview" className="share-preview-image" />
@@ -238,25 +246,23 @@ export default function ShareModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="btn-group-vertical" style={{ marginTop: "20px" }}>
+        <div className="btn-modal-actions-row" style={{ marginTop: "16px" }}>
           {objectUrl && !error && (
             <>
               {canShare && (
-                <button onClick={handleShare} className="btn-share-primary">
-                  <Icon.Share /> シェア
+                <button type="button" onClick={handleShare} className="btn-modal-primary">
+                  <Icon.Share /> シェアする
                 </button>
               )}
               <button
+                type="button"
                 onClick={handleDownload}
-                className={canShare ? "btn-share-secondary" : "btn-share-primary"}
+                className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
               >
-                画像を保存
+                📥 画像を保存
               </button>
             </>
           )}
-          <button onClick={onClose} className="btn-cancel">
-            閉じる
-          </button>
         </div>
       </div>
     </div>

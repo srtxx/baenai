@@ -25,8 +25,12 @@ export default function App(): React.JSX.Element {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
   const weekKey = getWeekKey(currentWeekStart);
 
-  const { profile } = useProfile();
+  const { profile, updateProfile } = useProfile();
   const { meals, isLoading, saveMeal, deleteMeal, resetAllData, stats } = useMeals(weekKey);
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', profile.themePreference || 'ecru');
+  }, [profile.themePreference]);
   const {
     friends,
     encouragements,
@@ -279,6 +283,7 @@ export default function App(): React.JSX.Element {
             currentDayIndex={currentDayIndex}
             currentMealIndex={currentMealIndex}
             myFriendCode={myFriendCode}
+            datesList={datesList}
             onOpenAddFriend={() => setActiveModal("add_friend")}
             onOpenNotifications={() => setActiveModal("notifications")}
             onSendEncouragement={handleSendEncouragementWrapped}
@@ -335,6 +340,8 @@ export default function App(): React.JSX.Element {
 
       {activeModal === "settings" && (
         <SettingsModal
+          profile={profile}
+          onUpdateProfile={updateProfile}
           onClose={() => setActiveModal(null)}
           onResetAll={resetAllData}
         />

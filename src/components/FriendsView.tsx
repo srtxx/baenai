@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Friend, DayIndex, MealIndex, ReactionType, Encouragement, EncourageType } from "../types";
 import { Icon } from "./icons/Icons";
 import { ENCOURAGE_MESSAGES } from "../constants";
+import FriendGridModal from "./FriendGridModal";
 
 interface FriendsViewProps {
   friends: Friend[];
@@ -9,6 +10,7 @@ interface FriendsViewProps {
   currentDayIndex: DayIndex;
   currentMealIndex: MealIndex;
   myFriendCode: string;
+  datesList?: string[];
   onOpenAddFriend: () => void;
   onOpenNotifications: () => void;
   onSendEncouragement: (friendId: string, type: EncourageType) => void;
@@ -21,15 +23,15 @@ export default function FriendsView({
   currentDayIndex: _currentDayIndex,
   currentMealIndex: _currentMealIndex,
   myFriendCode: _myFriendCode,
+  datesList = [],
   onOpenAddFriend,
   onOpenNotifications,
   onSendEncouragement,
   onSendReaction
 }: FriendsViewProps): React.JSX.Element {
   const [viewMode, setViewMode] = useState<"companions" | "timeline">("companions");
+  const [selectedFriendForGrid, setSelectedFriendForGrid] = useState<Friend | null>(null);
   const [selectedFriendForMsg, setSelectedFriendForMsg] = useState<string | null>(null);
-
-  // 最新の届いたことば
   const latestEncouragement = encouragements[0];
 
   return (
@@ -47,11 +49,12 @@ export default function FriendsView({
         <div className="friends-header-actions">
           <button
             onClick={onOpenNotifications}
-            className="btn-notif-bell"
+            className="btn-header-action notif-btn"
             title="届いたことば"
+            aria-label="届いたことば"
           >
             ✉️
-            {encouragements.length > 0 && <span className="notif-dot" />}
+            {encouragements.length > 0 && <span className="header-notif-dot" />}
           </button>
           <button onClick={onOpenAddFriend} className="btn-add-friend-top" title="ともだち追加">
             <Icon.Plus /> 追加
@@ -102,7 +105,11 @@ export default function FriendsView({
 
               return (
                 <div key={friend.id} className="companion-item-card">
-                  <div className="companion-card-main">
+                  <div
+                    className="companion-card-main"
+                    onClick={() => setSelectedFriendForGrid(friend)}
+                    title={`${friend.name}の1週間を見る`}
+                  >
                     <div className="companion-avatar-box">
                       {friend.avatar ? (
                         <img src={friend.avatar} alt={friend.name} className="avatar-img" />
@@ -116,6 +123,7 @@ export default function FriendsView({
                     <div className="companion-info-box">
                       <div className="companion-name-row">
                         <span className="companion-name">{friend.name}</span>
+                        <span className="companion-handle">{friend.handle}</span>
                       </div>
                       <div className="companion-active-sub">
                         {friend.lastActiveAt ? `${friend.lastActiveAt}に記録` : "静かに過ごしています"}
@@ -144,7 +152,7 @@ export default function FriendsView({
                         onClick={() => setSelectedFriendForMsg(friend.id)}
                         className="btn-send-encourage-toggle"
                       >
-                        🍵 ことばを送る
+                        🍵 やさしいことばを送る
                       </button>
                     ) : (
                       <div className="encourage-palette">
@@ -192,7 +200,6 @@ export default function FriendsView({
         /* Timeline Feed Mode */
         <div className="feed-list-wrap">
           {friends.map((friend) => {
-            // 直近の記録された食事を探す
             let latestMeal: { di: DayIndex; mi: MealIndex; meal: import("../types").Meal } | null = null;
             for (let di = 6; di >= 0; di--) {
               for (let mi = 2; mi >= 0; mi--) {
@@ -231,7 +238,15 @@ export default function FriendsView({
 
                 {"image" in m && m.image ? (
                   <div className="feed-image-wrap">
-                    <img src={m.image} alt="食事" className="feed-main-image" />
+                    <img
+                      src={m.image}
+                      alt="食事"
+                      className="feed-main-image"
+                      onError={(e) => {
+                        // 画像がロードできない場合は絵文字フォールバック
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
                   </div>
                 ) : "quickEmoji" in m && m.quickEmoji ? (
                   <div className="feed-emoji-wrap">
@@ -240,7 +255,7 @@ export default function FriendsView({
                 ) : null}
 
                 {"note" in m && m.note && (
-                  <div className="feed-note">💬 {m.note}</div>
+                  <div className="feed-note">💬 “{m.note}”</div>
                 )}
 
                 <div className="feed-reaction-bar">
@@ -273,6 +288,16 @@ export default function FriendsView({
             );
           })}
         </div>
+      )}
+
+      {/* Friend Grid Modal */}
+      {selectedFriendForGrid && (
+        <FriendGridModal
+          friend={selectedFriendForGrid}
+          datesList={datesList}
+          onClose={() => setSelectedFriendForGrid(null)}
+          onSendReaction={onSendReaction}
+        />
       )}
     </div>
   );

@@ -16,11 +16,31 @@ export default function NotificationModal({
 }: NotificationModalProps): React.JSX.Element {
   const hasNotifications = encouragements.length > 0 || reactions.length > 0;
 
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return "今日";
+    if (timeStr.includes("前") || timeStr.includes("今日") || timeStr.includes("昨日")) return timeStr;
+    try {
+      const d = new Date(timeStr);
+      if (isNaN(d.getTime())) return timeStr;
+      return d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return timeStr;
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">届いたことば</div>
-        <div className="modal-subtitle">ともだちからのやさしいやりとり</div>
+      <div className="modal-content notification-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">届いたことば</h2>
+            <p className="modal-subtitle">ともだちからのやさしいやりとり ✉️</p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
+        </div>
 
         <div className="notification-list-wrap">
           {!hasNotifications ? (
@@ -46,11 +66,11 @@ export default function NotificationModal({
                       <div className="notif-info">
                         <div className="notif-title">
                           <span className="notif-sender">{enc.senderName}</span> から
+                          <span className="notif-time">{formatTime(enc.createdAt)}</span>
                         </div>
-                        <div className="notif-body">
-                          「{enc.message}」
+                        <div className="notif-speech-bubble">
+                          {enc.message}
                         </div>
-                        <div className="notif-time">{new Date(enc.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</div>
                       </div>
                     </div>
 
@@ -60,8 +80,9 @@ export default function NotificationModal({
                         onQuickRecord();
                       }}
                       className="btn-notif-action"
+                      title="mogする"
                     >
-                      mogする
+                      mogする 📸
                     </button>
                   </div>
                 );
@@ -86,10 +107,11 @@ export default function NotificationModal({
                       <span className="reaction-stamp-icon">{stampEmoji}</span>
                       <div className="notif-info">
                         <div className="notif-title">
-                          <span className="notif-sender">{r.userName}</span> があなたのmogに
+                          <span className="notif-sender">{r.userName || "ともだち"}</span> がリアクション
+                          <span className="notif-time">{formatTime(r.createdAt)}</span>
                         </div>
-                        <div className="notif-body">
-                          「{stampLabel}」とリアクションしました
+                        <div className="notif-reaction-text">
+                          「{stampLabel}」を送りました
                         </div>
                       </div>
                     </div>
@@ -99,10 +121,6 @@ export default function NotificationModal({
             </div>
           )}
         </div>
-
-        <button onClick={onClose} className="btn-cancel" style={{ marginTop: "16px" }}>
-          閉じる
-        </button>
       </div>
     </div>
   );

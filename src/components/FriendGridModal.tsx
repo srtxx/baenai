@@ -153,7 +153,7 @@ export default function FriendGridModal({
                     return (
                       <div
                         key={mi}
-                        className={`meal-cell-empty ${isSelected ? "selected-slot" : ""}`}
+                        className={`meal-cell meal-cell-empty ${isSelected ? "selected-slot" : ""}`}
                         onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
                       >
                         <span className="plus-icon">—</span>
@@ -165,9 +165,11 @@ export default function FriendGridModal({
                     return (
                       <div
                         key={mi}
-                        className={`meal-cell-skipped ${isSelected ? "selected-slot" : ""}`}
+                        className={`meal-cell meal-cell-rested ${isSelected ? "selected-slot" : ""}`}
                         onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
-                      />
+                      >
+                        <span className="rested-mark">—</span>
+                      </div>
                     );
                   }
 
@@ -175,7 +177,7 @@ export default function FriendGridModal({
                     return (
                       <div
                         key={mi}
-                        className={`meal-cell-emoji ${isSelected ? "selected-slot" : ""}`}
+                        className={`meal-cell meal-cell-emoji ${isSelected ? "selected-slot" : ""}`}
                         onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
                       >
                         <span className="cell-emoji-char">{meal.quickEmoji}</span>
@@ -186,10 +188,10 @@ export default function FriendGridModal({
                   return (
                     <div
                       key={mi}
-                      className={`meal-cell-filled ${isSelected ? "selected-slot" : ""}`}
+                      className={`meal-cell meal-cell-filled ${isSelected ? "selected-slot" : ""}`}
                       onClick={() => setSelectedCell({ di: dayIndex, mi: mealIndex })}
                     >
-                      {"image" in meal && meal.image ? (
+                      {"image" in meal && meal.image && !meal.image.startsWith("http") ? (
                         <img src={meal.image} alt="食事" className="meal-cell-image" />
                       ) : (
                         <span className="cell-emoji-char">🍚</span>

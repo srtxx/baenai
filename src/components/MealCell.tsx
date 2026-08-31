@@ -24,11 +24,15 @@ const MealCell = React.memo(function MealCell({
     return (
       <div
         onClick={onClick}
-        className={`meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""} ${isFuture ? "is-future" : ""}`}
+        className={`meal-cell meal-cell-empty ${isToday ? "today" : ""} ${isCurrentSlot ? "current-slot" : ""} ${isFuture ? "is-future" : ""}`}
         title={isFuture ? "これからの食事（タップして予定または先取り記録）" : "食事を記録"}
       >
         <span className="plus-icon"><Icon.Plus /></span>
-        {isCurrentSlot && <span className="now-badge">いま</span>}
+        {isCurrentSlot && (
+          <span className="now-badge">
+            <span className="now-dot" />いま
+          </span>
+        )}
       </div>
     );
   }
@@ -37,10 +41,11 @@ const MealCell = React.memo(function MealCell({
     return (
       <div
         onClick={onClick}
-        className={`meal-cell-rested ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        className={`meal-cell meal-cell-rested ${isJustSaved ? "meal-cell-just-saved" : ""}`}
         title="おやすみ"
       >
         <span className="rested-mark">—</span>
+        <span className="rested-label">おやすみ</span>
       </div>
     );
   }
@@ -51,10 +56,10 @@ const MealCell = React.memo(function MealCell({
     return (
       <div
         onClick={onClick}
-        className={`meal-cell-emoji ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        className={`meal-cell meal-cell-emoji ${isJustSaved ? "meal-cell-just-saved" : ""}`}
       >
         <span className="cell-emoji-char">{meal.quickEmoji}</span>
-        {hasMeta && <div className="cell-indicator-dot" />}
+        {hasMeta && <div className="cell-indicator-dot" title="メモまたはタグあり" />}
       </div>
     );
   }
@@ -71,18 +76,19 @@ const MealCell = React.memo(function MealCell({
   return (
     <div
       onClick={onClick}
-      className={`meal-cell-filled ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+      className={`meal-cell meal-cell-filled ${isJustSaved ? "meal-cell-just-saved" : ""}`}
     >
       {imgSrc ? (
         <img
           src={imgSrc}
           alt="食事の写真"
           className="meal-cell-image"
+          loading="lazy"
         />
       ) : (
         <span className="cell-emoji-char">🍚</span>
       )}
-      {hasMeta && <div className="cell-indicator-dot" />}
+      {hasMeta && <div className="cell-indicator-dot" title="メモまたはタグあり" />}
     </div>
   );
 });

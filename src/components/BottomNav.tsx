@@ -16,45 +16,63 @@ export default function BottomNav({
   onSettingsClick,
 }: BottomNavProps): React.JSX.Element {
   return (
-    <div className="bottom-nav">
-      <div
-        onClick={() => onTabChange("home")}
-        className={`nav-item ${activeTab === "home" ? "active" : ""}`}
-        title="きろく"
-      >
-        <div className="nav-icon"><Icon.Log /></div>
-        <div className="nav-label">きろく</div>
-      </div>
+    <nav className="bottom-nav">
+      <div className="bottom-nav-inner">
+        <button
+          type="button"
+          onClick={() => onTabChange("home")}
+          className={`nav-item ${activeTab === "home" ? "active" : ""}`}
+          title="きろく"
+          aria-label="きろく"
+        >
+          <div className="nav-icon-box">
+            <Icon.Log />
+            {activeTab === "home" && <span className="nav-active-pill" />}
+          </div>
+          <span className="nav-label">きろく</span>
+        </button>
 
-      <div
-        onClick={() => onTabChange("friends")}
-        className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
-        title="ともだち"
-      >
-        <div className="nav-icon">
-          <Icon.Friends />
+        <button
+          type="button"
+          onClick={() => onTabChange("friends")}
+          className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
+          title="ともだち"
+          aria-label="ともだち"
+        >
+          <div className="nav-icon-box">
+            <Icon.Friends />
+            {activeTab === "friends" && <span className="nav-active-pill" />}
+          </div>
+          <span className="nav-label">ともだち</span>
+        </button>
+
+        <div className="nav-center-action-wrap">
+          <button
+            type="button"
+            onClick={onCameraClick}
+            className="nav-primary-btn"
+            aria-label="mogする（記録する）"
+            title="mogする（記録する）"
+          >
+            <span className="primary-btn-glow" />
+            <Icon.Camera />
+          </button>
         </div>
-        <div className="nav-label">ともだち</div>
-      </div>
 
-      <div
-        onClick={onCameraClick}
-        className="nav-primary-btn"
-        aria-label="mogする"
-        title="mogする"
-      >
-        <Icon.Camera />
+        <button
+          type="button"
+          onClick={onSettingsClick}
+          className="nav-item"
+          title="設定"
+          aria-label="設定"
+        >
+          <div className="nav-icon-box">
+            <Icon.Settings />
+          </div>
+          <span className="nav-label">設定</span>
+        </button>
       </div>
-
-      <div
-        onClick={onSettingsClick}
-        className="nav-item"
-        title="設定"
-      >
-        <div className="nav-icon"><Icon.Settings /></div>
-        <div className="nav-label">設定</div>
-      </div>
-    </div>
+    </nav>
   );
 }
 

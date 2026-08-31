@@ -1,5 +1,4 @@
 import React, { useState, useRef, ChangeEvent } from "react";
-import { Icon } from "./icons/Icons";
 import { DAYS, MEAL_LABELS, EMOJI_CATEGORIES } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 import { compressImage } from "../utils/imageCompressor";
@@ -99,33 +98,56 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content add-meal-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">
-          {DAYS[di]}曜日 — {mealLabel}
-        </div>
-        <div className="modal-subtitle">
-          写真または絵文字をタップして即時記録 📸
+        {/* Modal Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">
+              {DAYS[di]}曜日 — {mealLabel}
+            </h2>
+            <p className="modal-subtitle">
+              写真または絵文字をタップして即時記録 📸
+            </p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
         </div>
 
-        {/* 写真アップロード（選択したら即登録完了） */}
-        <div
-          onClick={() => !isCompressing && fileInputRef.current?.click()}
-          className="upload-box"
-          style={{ cursor: "pointer", marginBottom: "14px" }}
-          title="タップして写真を選ぶと即座に記録されます"
-        >
-          {isCompressing ? (
-            <div className="upload-placeholder">
-              <div className="loading-spinner" style={{ width: "20px", height: "20px", marginBottom: "8px" }} />
-              <span className="upload-text">画像を最適化して保存中...</span>
+        {/* Top Quick Actions: Photo & Skip */}
+        <div className="add-quick-hero-row">
+          <div
+            onClick={() => !isCompressing && fileInputRef.current?.click()}
+            className={`hero-photo-box ${isCompressing ? "compressing" : ""}`}
+            title="タップして写真を選ぶと即座に記録されます"
+          >
+            {isCompressing ? (
+              <div className="upload-placeholder">
+                <div className="loading-spinner" />
+                <span className="upload-text">画像を最適化中...</span>
+              </div>
+            ) : (
+              <div className="hero-photo-inner">
+                <span className="hero-camera-icon">📷</span>
+                <div className="hero-photo-texts">
+                  <span className="hero-photo-title">写真で記録</span>
+                  <span className="hero-photo-sub">撮影 or アルバム</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleQuickEmojiClick("🌙")}
+            className="hero-skip-btn"
+            title="食べなかった時はおやすみ"
+          >
+            <span className="hero-skip-icon">🌙</span>
+            <div className="hero-skip-texts">
+              <span className="hero-skip-title">おやすみ</span>
+              <span className="hero-skip-sub">スキップ</span>
             </div>
-          ) : (
-            <div className="upload-placeholder">
-              <span className="upload-icon"><Icon.Upload /></span>
-              <span className="upload-text" style={{ fontWeight: 600 }}>
-                📷 写真を選んで即登録（撮影 or アルバム）
-              </span>
-            </div>
-          )}
+          </button>
         </div>
 
         <input
@@ -137,11 +159,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           style={{ display: "none" }}
         />
 
-        <div className="modal-section-divider" style={{ marginBottom: "10px" }}>
-          <span>または 絵文字をタップで即記録</span>
+        <div className="modal-section-divider">
+          <span>絵文字をタップで即記録</span>
         </div>
 
-        {/* ジャンル切り替えタブ */}
+        {/* Emoji Category Tabs */}
         <div className="emoji-category-tabs">
           {EMOJI_CATEGORIES.map(cat => (
             <button
@@ -150,13 +172,13 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               className={`emoji-tab-btn ${activeCategory === cat.id ? "active" : ""}`}
               onClick={() => setActiveCategory(cat.id)}
             >
-              <span>{cat.icon}</span>
-              <span>{cat.name}</span>
+              <span className="tab-cat-icon">{cat.icon}</span>
+              <span className="tab-cat-name">{cat.name}</span>
             </button>
           ))}
         </div>
 
-        {/* 豊富な絵文字グリッドパレット */}
+        {/* Emoji Grid */}
         <div className="emoji-grid-extended">
           {currentCategoryData.items.map((item) => (
             <button
@@ -172,34 +194,34 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           ))}
         </div>
 
-        {/* メモ・タグ追加用アコーディオン */}
-        <div style={{ marginTop: "10px" }}>
+        {/* Note / Tag Accordion */}
+        <div className="modal-accordion-wrap">
           <button
             type="button"
             className="modal-accordion-toggle"
             onClick={() => setShowNoteSection(prev => !prev)}
           >
-            <span>{showNoteSection ? "▲ メモ入力を閉じる" : "▼ ひとことメモやタグも残す"}</span>
+            <span>{showNoteSection ? "▲ メモ入力を閉じる" : "✏️ ひとことメモやタグも残す"}</span>
           </button>
 
           {showNoteSection && (
             <div className="modal-optional-section">
-              <div className="modal-input-group" style={{ marginBottom: "10px" }}>
+              <div className="modal-input-group">
                 <label className="modal-input-label">
-                  選択中のアイコン: <strong style={{ fontSize: "14px" }}>{selectedEmojiForNote}</strong>
+                  選んだ絵文字: <strong className="selected-emoji-badge">{selectedEmojiForNote}</strong>
                 </label>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="メニュー名やメモなど"
+                  placeholder="メニュー名やひと言メモ..."
                   className="modal-textarea"
                   rows={2}
                   autoFocus
                 />
               </div>
 
-              <div className="modal-input-group" style={{ marginBottom: "12px" }}>
-                <label className="modal-input-label">カテゴリー</label>
+              <div className="modal-input-group">
+                <label className="modal-input-label">カテゴリータグ</label>
                 <div className="tag-chips">
                   {tagsList.map(tag => (
                     <button
@@ -217,24 +239,12 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               <button
                 type="button"
                 onClick={handleSaveWithNote}
-                className="btn-save active"
-                style={{ width: "100%", padding: "10px", marginTop: "4px" }}
+                className="btn-modal-primary"
               >
                 メモをつけて保存
               </button>
             </div>
           )}
-        </div>
-
-        {/* 閉じるボタン */}
-        <div className="btn-group" style={{ marginTop: "14px" }}>
-          <button
-            onClick={onClose}
-            className="btn-cancel"
-            style={{ width: "100%" }}
-          >
-            閉じる
-          </button>
         </div>
       </div>
     </div>

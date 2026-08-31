@@ -108,26 +108,52 @@ export default function MealDetailModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">
-          {DAYS[di]}曜日 — {mealLabel}
+      <div className="modal-content meal-detail-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">
+              {DAYS[di]}曜日 — {mealLabel}
+            </h2>
+            <p className="modal-subtitle">もぐの記録</p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
         </div>
-        <div className="modal-subtitle-detail">もぐの記録</div>
 
-        {/* Meal Photo or Emoji */}
-        {imgSrc ? (
-          <div className="detail-preview">
-            <img src={imgSrc} alt="食事の写真" className="detail-image" />
-          </div>
-        ) : quickEmoji ? (
-          <div className="detail-emoji-preview">
-            <span className="detail-emoji-large">{quickEmoji}</span>
-          </div>
-        ) : null}
+        {/* Meal Photo or Emoji: Polaroid Card Style */}
+        <div className="detail-polaroid-frame">
+          {imgSrc ? (
+            <div className="detail-preview">
+              <img src={imgSrc} alt="食事の写真" className="detail-image" />
+            </div>
+          ) : quickEmoji ? (
+            <div className="detail-emoji-preview">
+              <span className="detail-emoji-large">{quickEmoji}</span>
+            </div>
+          ) : null}
 
-        {/* 編集モード */}
+          {/* Meta Info within Card */}
+          {!isEditing && (hasNote || hasTags) && (
+            <div className="detail-meta-box">
+              {hasNote && <p className="detail-notes">“{meal.note}”</p>}
+              {hasTags && meal.tags && (
+                <div className="detail-tags">
+                  {meal.tags.map((tag) => (
+                    <span key={tag} className="detail-tag-badge">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Edit Form Mode */}
         {isEditing ? (
-          <div className="detail-edit-form" style={{ marginTop: "14px", textAlign: "left" }}>
+          <div className="detail-edit-form">
             <div className="modal-input-group">
               <label className="modal-input-label">ひとこと（メモ）</label>
               <textarea
@@ -136,11 +162,12 @@ export default function MealDetailModal({
                 placeholder="メニューや感想など"
                 className="modal-textarea"
                 rows={2}
+                autoFocus
               />
             </div>
 
             <div className="modal-input-group">
-              <label className="modal-input-label">カテゴリー</label>
+              <label className="modal-input-label">カテゴリータグ</label>
               <div className="tag-chips">
                 {tagsList.map((tag) => (
                   <button
@@ -155,67 +182,46 @@ export default function MealDetailModal({
               </div>
             </div>
 
-            <div className="btn-group" style={{ marginTop: "16px" }}>
+            <div className="btn-modal-actions-row">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="btn-cancel"
+                className="btn-modal-secondary"
               >
                 キャンセル
               </button>
               <button
                 type="button"
                 onClick={handleSaveEdit}
-                className="btn-save active"
+                className="btn-modal-primary"
               >
                 保存する
               </button>
             </div>
           </div>
         ) : (
-          /* 閲覧モード */
-          <>
-            {(hasNote || hasTags) ? (
-              <div className="detail-meta-box">
-                {hasNote && <div className="detail-notes">{meal.note}</div>}
-                {hasTags && meal.tags && (
-                  <div className="detail-tags">
-                    {meal.tags.map((tag) => (
-                      <span key={tag} className="detail-tag-badge">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : null}
-
-            {/* Action Buttons */}
-            <div className="btn-group-vertical" style={{ marginTop: "16px" }}>
-              {onSave && (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="btn-edit-meal"
-                >
-                  ✏️ メモやタグを編集する
-                </button>
-              )}
+          /* View Mode Actions */
+          <div className="detail-action-list">
+            {onSave && (
               <button
                 type="button"
-                onClick={() => {
-                  onDelete(di, mi);
-                  onClose();
-                }}
-                className="btn-delete"
+                onClick={() => setIsEditing(true)}
+                className="btn-detail-edit"
               >
-                この記録を取り消す
+                ✏️ メモやタグを編集する
               </button>
-              <button type="button" onClick={onClose} className="btn-cancel">
-                閉じる
-              </button>
-            </div>
-          </>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                onDelete(di, mi);
+                onClose();
+              }}
+              className="btn-detail-delete"
+            >
+              🗑️ この記録を取り消す
+            </button>
+          </div>
         )}
       </div>
     </div>

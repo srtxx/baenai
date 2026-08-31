@@ -6,7 +6,7 @@ import { DayIndex } from "../types";
 interface HeaderProps {
   weekLabel: string;
   isCurrentWeek: boolean;
-  currentDayIndex: DayIndex;
+  currentDayIndex?: DayIndex;
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onToday: () => void;
@@ -25,7 +25,7 @@ interface HeaderProps {
 export default function Header({
   weekLabel,
   isCurrentWeek,
-  currentDayIndex,
+  currentDayIndex: _currentDayIndex,
   onPrevWeek,
   onNextWeek,
   onToday,
@@ -35,83 +35,90 @@ export default function Header({
   hasUnreadNudges = false,
   stats,
 }: HeaderProps): React.JSX.Element {
-  const todayEpigraph = currentDayIndex >= 0 ? DAILY_EPIGRAPHS[currentDayIndex] : DAILY_EPIGRAPHS[0];
+  const percentage = Math.round(((stats.photoCount + stats.skipCount) / stats.totalSlots) * 100);
+  const todayEpigraph = DAILY_EPIGRAPHS[new Date().getDay() % DAILY_EPIGRAPHS.length];
 
   return (
-    <div className="app-header">
-      <div className="header-flex">
-        <div className="header-title-container">
-          <div className="app-title-row">
-            <div className="brand-wrap">
-              <span className="app-title">{APP_NAME}</span>
-              <span className="app-tagline">{APP_TAGLINE}</span>
-            </div>
+    <header className="app-header">
+      <div className="header-top-row">
+        <div className="brand-group">
+          <h1 className="app-title">{APP_NAME}</h1>
+          <p className="app-tagline">{APP_TAGLINE}</p>
+        </div>
 
-            {!isCurrentWeek && (
-              <button onClick={onToday} className="today-jump-btn" title="今週に戻る">
-                今週
-              </button>
-            )}
-
-            <div className="header-right-actions">
-              {onAchievementsClick && (
-                <button
-                  onClick={onAchievementsClick}
-                  className="header-action-btn"
-                  title="ふりかえり"
-                  aria-label="ふりかえり"
-                >
-                  🌿
-                </button>
-              )}
-              {onNotificationsClick && (
-                <button
-                  onClick={onNotificationsClick}
-                  className="header-action-btn"
-                  title="届いたことば"
-                  aria-label="届いたことば"
-                >
-                  ✉️
-                  {hasUnreadNudges && <span className="header-notif-dot" />}
-                </button>
-              )}
-              <button onClick={onShareClick} className="share-btn" title="今週のmogをシェア" aria-label="シェア">
-                <Icon.Share />
-              </button>
-            </div>
-          </div>
-
-          <div className="week-nav">
-            <button onClick={onPrevWeek} className="week-nav-btn" aria-label="前の週">
-              <Icon.ChevronLeft />
+        <div className="header-action-group">
+          {!isCurrentWeek && (
+            <button onClick={onToday} className="btn-today-pill" title="今週に戻る">
+              今週
             </button>
-            <span className="week-nav-date">{weekLabel}</span>
-            <button onClick={onNextWeek} className="week-nav-btn" aria-label="次の週">
-              <Icon.ChevronRight />
+          )}
+
+          {onAchievementsClick && (
+            <button
+              onClick={onAchievementsClick}
+              className="btn-header-action"
+              title="ふりかえり・足跡"
+              aria-label="ふりかえり・足跡"
+            >
+              🌿
             </button>
-          </div>
+          )}
+          {onNotificationsClick && (
+            <button
+              onClick={onNotificationsClick}
+              className="btn-header-action notif-btn"
+              title="届いたことば"
+              aria-label="届いたことば"
+            >
+              ✉️
+              {hasUnreadNudges && <span className="header-notif-dot" />}
+            </button>
+          )}
+          <button onClick={onShareClick} className="btn-header-action share-btn" title="今週のmogをシェア" aria-label="シェア">
+            <Icon.Share />
+          </button>
         </div>
       </div>
 
-      {/* 今日のエピグラフ */}
-      <div className="daily-epigraph-banner">
+      {/* Week Navigator */}
+      <div className="week-nav-container">
+        <button onClick={onPrevWeek} className="week-nav-arrow" aria-label="前の週">
+          <Icon.ChevronLeft />
+        </button>
+        <div className="week-nav-center">
+          <span className="week-nav-calendar-icon">🗓️</span>
+          <span className="week-nav-label">{weekLabel}</span>
+        </div>
+        <button onClick={onNextWeek} className="week-nav-arrow" aria-label="次の週">
+          <Icon.ChevronRight />
+        </button>
+      </div>
+
+      {/* Epigraph */}
+      <div className="epigraph-card">
         <span className="epigraph-quote">“{todayEpigraph}”</span>
       </div>
 
-      {/* 静かな数字 */}
-      <div className="badge-list">
-        <div className="badge-item">
-          <span className="badge-label">
-            記録 <strong>{stats.photoCount}</strong> / {stats.totalSlots}
-          </span>
-        </div>
-        {stats.skipCount > 0 && (
-          <div className="badge-item">
-            <span className="badge-label">おやすみ <strong>{stats.skipCount}</strong>食</span>
+      {/* Weekly Progress Card */}
+      <div className="weekly-stats-card">
+        <div className="stats-info-row">
+          <div className="stats-left">
+            <span className="stats-title">今週のあしあと</span>
+            <span className="stats-counts">
+              記録 <strong>{stats.photoCount}</strong> / {stats.totalSlots}
+              {stats.skipCount > 0 && <span className="stats-skip">（おやすみ {stats.skipCount}食）</span>}
+            </span>
           </div>
-        )}
+          <div className="stats-percent-pill">{percentage}%</div>
+        </div>
+        <div className="stats-progress-bar-bg">
+          <div
+            className="stats-progress-bar-fill"
+            style={{ width: `${Math.min(percentage, 100)}%` }}
+          />
+        </div>
       </div>
-    </div>
+    </header>
   );
 }
 

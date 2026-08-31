@@ -36,17 +36,29 @@ export default function AddFriendModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">ともだちを追加</div>
-        <div className="modal-subtitle">同じ時間を生きる人と、ゆるくつながる</div>
+      <div className="modal-content add-friend-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header-row">
+          <div>
+            <h2 className="modal-title">ともだちを追加</h2>
+            <p className="modal-subtitle">同じ時間を生きる人と、ゆるくつながる 🌱</p>
+          </div>
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
+          </button>
+        </div>
 
         {/* My Friend Code Box */}
         <div className="friend-code-card">
-          <div className="friend-code-label">あなたのコード</div>
+          <div className="friend-code-label">あなたのフレンドコード</div>
           <div className="friend-code-display-row">
             <span className="friend-code-text">{myFriendCode}</span>
-            <button onClick={handleCopy} className="btn-copy-code">
-              {copied ? "コピー完了！" : "コードをコピー"}
+            <button
+              type="button"
+              onClick={handleCopy}
+              className={`btn-copy-code ${copied ? "copied" : ""}`}
+            >
+              {copied ? "✨ コピー完了！" : "📋 コードをコピー"}
             </button>
           </div>
           <p className="friend-code-desc">
@@ -56,26 +68,22 @@ export default function AddFriendModal({
 
         {/* Add Friend Form */}
         <form onSubmit={handleSubmit} className="add-friend-form">
-          <label className="share-input-label">ともだちのコードを入力</label>
+          <label className="modal-input-label">ともだちのコードを入力</label>
           <div className="add-friend-input-row">
             <input
               type="text"
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               placeholder="例: RN-8821"
-              className="share-name-input"
+              className="modal-text-input"
               maxLength={10}
             />
-            <button type="submit" className="btn-add-friend-submit">
-              追加
+            <button type="submit" className="btn-modal-primary btn-add-friend-submit">
+              追加する
             </button>
           </div>
-          {error && <div className="share-error" style={{ padding: "8px 0 0", textAlign: "left" }}>{error}</div>}
+          {error && <div className="modal-error-text">{error}</div>}
         </form>
-
-        <button onClick={onClose} className="btn-cancel" style={{ marginTop: "20px" }}>
-          閉じる
-        </button>
       </div>
     </div>
   );
