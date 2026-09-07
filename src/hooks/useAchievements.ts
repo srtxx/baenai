@@ -1,141 +1,133 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { Achievement, WeekMeals } from "../types";
 
-const REFLECTIONS_STORAGE_KEY = "mog_reflections_v3";
-
-const INITIAL_REFLECTIONS: Achievement[] = [
-  {
-    id: "first_meal",
-    title: "最初の記録",
-    description: "日々の食の記録をはじめました",
-    icon: "leaf",
-    unlocked: false,
-  },
-  {
-    id: "three_meals",
-    title: "ある日の3食",
-    description: "朝・昼・夜を記録した一日",
-    icon: "log",
-    unlocked: false,
-  },
-  {
-    id: "home_cook",
-    title: "台所に立った週",
-    description: "5食以上、自炊で過ごした",
-    icon: "fire",
-    unlocked: false,
-  },
-  {
-    id: "rest_kindness",
-    title: "休息の多い週",
-    description: "食べない時間も大切にした",
-    icon: "moon",
-    unlocked: false,
-  },
-  {
-    id: "weekly_record",
-    title: "ウィークリーログ",
-    description: "週15食以上を記録した",
-    icon: "calendar",
-    unlocked: false,
-  },
-  {
-    id: "share_week",
-    title: "週報の保存",
-    description: "週報画像を生成・保存した",
-    icon: "share",
-    unlocked: false,
-  },
-  {
-    id: "all_week_logged",
-    title: "21マスの記録",
-    description: "1週間の全スロットを記録した",
-    icon: "sparkle",
-    unlocked: false,
-  },
-];
+export interface RhythmSummary {
+  totalLogged: number;
+  photoCount: number;
+  skipCount: number;
+  cookCount: number;
+  convenienceCount: number;
+  outCount: number;
+  cafeCount: number;
+  reflections: {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    count?: number;
+    active: boolean;
+  }[];
+}
 
 export function useAchievements(meals?: WeekMeals) {
-  const [achievements, setAchievements] = useState<Achievement[]>(() => {
-    try {
-      const saved = localStorage.getItem(REFLECTIONS_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return INITIAL_REFLECTIONS;
-  });
-
-  const [recentlyUnlocked, setRecentlyUnlocked] = useState<Achievement | null>(null);
-
-  const unlock = useCallback((id: string) => {
-    setAchievements((prev) => {
-      let newlyUnlockedItem: Achievement | null = null;
-      const next = prev.map((a) => {
-        if (a.id === id && !a.unlocked) {
-          newlyUnlockedItem = {
-            ...a,
-            unlocked: true,
-            unlockedAt: new Date().toLocaleDateString("ja-JP"),
-          };
-          return newlyUnlockedItem;
-        }
-        return a;
-      });
-      if (newlyUnlockedItem) {
-        setRecentlyUnlocked(newlyUnlockedItem);
-        try {
-          localStorage.setItem(REFLECTIONS_STORAGE_KEY, JSON.stringify(next));
-        } catch {}
-        setTimeout(() => setRecentlyUnlocked(null), 4000);
-      }
-      return next;
-    });
-  }, []);
-
-  // 自動アンロック判定
-  useEffect(() => {
-    if (!meals) return;
-
+  const summary = useMemo<RhythmSummary>(() => {
     let totalLogged = 0;
+    let photoCount = 0;
+    let skipCount = 0;
     let cookCount = 0;
-    let restCount = 0;
-    let hasFullDay = false;
+    let convenienceCount = 0;
+    let outCount = 0;
+    let cafeCount = 0;
 
-    meals.forEach((day) => {
-      let dayFilledCount = 0;
-      day.forEach((m) => {
-        if (m) {
-          dayFilledCount++;
-          if ("skipped" in m && m.skipped) {
-            restCount++;
-          }
+    if (meals) {
+      meals.forEach((day) => {
+        day.forEach((m) => {
+          if (!m) return;
           totalLogged++;
+          if ("skipped" in m && m.skipped) {
+            skipCount++;
+          } else if ("image" in m && m.image) {
+            photoCount++;
+          }
           if ("tags" in m && m.tags) {
             if (m.tags.includes("自炊")) cookCount++;
+            if (m.tags.includes("コンビニ")) convenienceCount++;
+            if (m.tags.includes("外食")) outCount++;
+            if (m.tags.includes("カフェ")) cafeCount++;
           }
-        }
+        });
       });
-      if (dayFilledCount === 3) {
-        hasFullDay = true;
-      }
-    });
+    }
 
-    if (totalLogged >= 1) unlock("first_meal");
-    if (hasFullDay) unlock("three_meals");
-    if (cookCount >= 5) unlock("home_cook");
-    if (restCount >= 3) unlock("rest_kindness");
-    if (totalLogged >= 15) unlock("weekly_record");
-    if (totalLogged >= 21) unlock("all_week_logged");
-  }, [meals, unlock]);
+    const reflections = [
+      {
+        id: "rest",
+        title: "体を休めた時間",
+        description: "食べない時間も選べる、静かな休息",
+        icon: "moon",
+        count: skipCount,
+        active: skipCount > 0,
+      },
+      {
+        id: "photo",
+        title: "写真に残した食卓",
+        description: "日常のそのままの景色",
+        icon: "log",
+        count: photoCount,
+        active: photoCount > 0,
+      },
+      {
+        id: "cook",
+        title: "台所に立った日",
+        description: "自分のために手を動かした記録",
+        icon: "fire",
+        count: cookCount,
+        active: cookCount > 0,
+      },
+      {
+        id: "convenience",
+        title: "コンビニの支え",
+        description: "忙しい日を助けてくれた身近な食",
+        icon: "leaf",
+        count: convenienceCount,
+        active: convenienceCount > 0,
+      },
+      {
+        id: "out",
+        title: "外で食べたごはん",
+        description: "街の味や誰かと囲んだ食卓",
+        icon: "sparkle",
+        count: outCount,
+        active: outCount > 0,
+      },
+      {
+        id: "cafe",
+        title: "ひと息ついたカフェ",
+        description: "飲み物と静かな時間",
+        icon: "calendar",
+        count: cafeCount,
+        active: cafeCount > 0,
+      },
+    ];
 
-  const recordShareGenerated = useCallback(() => {
-    unlock("share_week");
-  }, [unlock]);
+    return {
+      totalLogged,
+      photoCount,
+      skipCount,
+      cookCount,
+      convenienceCount,
+      outCount,
+      cafeCount,
+      reflections,
+    };
+  }, [meals]);
+
+  const achievements: Achievement[] = useMemo(() => {
+    return summary.reflections.map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.description,
+      icon: r.icon,
+      unlocked: r.active,
+      progress: r.count ? { current: r.count, max: r.count } : undefined,
+    }));
+  }, [summary]);
 
   return {
+    summary,
     achievements,
-    recentlyUnlocked,
-    unlock,
-    recordShareGenerated,
+    recentlyUnlocked: null,
+    recordShareGenerated: () => {},
   };
 }
 

@@ -10,21 +10,21 @@ interface AchievementsModalProps {
 function renderAchievementIcon(iconKey: string): React.JSX.Element {
   switch (iconKey) {
     case "leaf":
-      return <Icon.Leaf size={22} />;
+      return <Icon.Leaf size={20} />;
     case "log":
-      return <Icon.Log size={22} />;
+      return <Icon.Log size={20} />;
     case "fire":
-      return <Icon.Fire size={22} />;
+      return <Icon.Fire size={20} />;
     case "moon":
-      return <Icon.Moon size={22} />;
+      return <Icon.Moon size={20} />;
     case "calendar":
-      return <Icon.Calendar size={22} />;
+      return <Icon.Calendar size={20} />;
     case "share":
-      return <Icon.Share size={22} />;
+      return <Icon.Share size={20} />;
     case "sparkle":
-      return <Icon.Sparkle size={22} />;
+      return <Icon.Sparkle size={20} />;
     default:
-      return <Icon.Leaf size={22} />;
+      return <Icon.Leaf size={20} />;
   }
 }
 
@@ -32,62 +32,58 @@ export default function AchievementsModal({
   achievements,
   onClose
 }: AchievementsModalProps): React.JSX.Element {
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
-  const percent = Math.round((unlockedCount / achievements.length) * 100);
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content achievements-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="modal-header-row">
           <div>
-            <h2 className="modal-title">ふりかえりのしるし</h2>
+            <h2 className="modal-title">週の生活リズム</h2>
             <p className="modal-subtitle">
-              記録のしるし: <strong>{unlockedCount}</strong> / {achievements.length}
+              今週の食卓と休息の波形
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            <Icon.Close />
+            <Icon.Close size={18} />
           </button>
         </div>
 
-        {/* Progress Bar */}
-        <div className="achievement-progress-bar-wrap">
-          <div
-            className="achievement-progress-bar-fill"
-            style={{ width: `${percent}%` }}
-          />
+        {/* Philosophy Message Card */}
+        <div className="rhythm-philosophy-card">
+          <p className="rhythm-philosophy-quote">
+            「きれいに並べなくていい。栄養が偏っていてもいい。今日まで生きた、あなただけの確かな記録。」
+          </p>
         </div>
 
-        {/* Badge Grid */}
+        {/* Life Rhythm Reflection Grid */}
         <div className="achievement-grid">
-          {achievements.map((item) => (
-            <div
-              key={item.id}
-              className={`achievement-card ${item.unlocked ? "unlocked" : "locked"}`}
-            >
-              <div className="achievement-icon-wrap">
-                <span className="achievement-icon">{renderAchievementIcon(item.icon)}</span>
-              </div>
-
-              <div className="achievement-info">
-                <div className="achievement-title-row">
-                  <span className="achievement-title">{item.title}</span>
-                  {item.unlocked && <span className="achievement-sparkle"><Icon.Check /></span>}
+          {achievements.map((item) => {
+            const count = item.progress?.current || 0;
+            return (
+              <div
+                key={item.id}
+                className={`achievement-card ${count > 0 ? "unlocked" : "locked"}`}
+              >
+                <div className="achievement-icon-wrap">
+                  <span className="achievement-icon">{renderAchievementIcon(item.icon)}</span>
                 </div>
-                <div className="achievement-desc">{item.description}</div>
-                {item.unlocked ? (
-                  <div className="achievement-date">達成日: {item.unlockedAt}</div>
-                ) : item.progress ? (
-                  <div className="achievement-progress-text">
-                    進行状況: {item.progress.current} / {item.progress.max}
+
+                <div className="achievement-info">
+                  <div className="achievement-title-row">
+                    <span className="achievement-title">{item.title}</span>
                   </div>
-                ) : (
-                  <div className="achievement-locked-label">未達成</div>
-                )}
+                  <div className="achievement-desc">{item.description}</div>
+                  <div className="rhythm-count-label">
+                    {count > 0 ? (
+                      <span className="rhythm-count-active">{count} 回の記録</span>
+                    ) : (
+                      <span className="rhythm-count-empty">今週はなし</span>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

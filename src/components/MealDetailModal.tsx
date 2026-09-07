@@ -70,7 +70,7 @@ export default function MealDetailModal({
               <span className="detail-emoji-large"><Icon.Moon size={44} /></span>
             </div>
             <div className="detail-meta-box">
-              <p className="detail-notes">この食事は休食（スキップ）しました</p>
+              <p className="detail-notes">この時間は体を休めました（休食）</p>
             </div>
           </div>
 

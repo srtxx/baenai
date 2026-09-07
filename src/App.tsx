@@ -40,7 +40,6 @@ export default function App(): React.JSX.Element {
 
   const {
     achievements,
-    recentlyUnlocked,
     recordShareGenerated
   } = useAchievements(meals);
 
@@ -202,8 +201,8 @@ export default function App(): React.JSX.Element {
   const handleToggleToastTag = (tag: string) => {
     if (!toast?.slot) return;
     const { di, mi } = toast.slot;
-    const currentMeal = meals[di][mi];
-    if (!currentMeal) return;
+    const currentMeal = meals[di]?.[mi];
+    if (!currentMeal || ("skipped" in currentMeal && currentMeal.skipped)) return;
 
     const currentTags = ("tags" in currentMeal && currentMeal.tags) ? currentMeal.tags : [];
     const newTags = currentTags.includes(tag)
@@ -211,7 +210,9 @@ export default function App(): React.JSX.Element {
       : [...currentTags, tag];
 
     const updatedMeal: Meal = {
-      ...currentMeal,
+      image: "image" in currentMeal ? currentMeal.image : undefined,
+      quickEmoji: "quickEmoji" in currentMeal ? currentMeal.quickEmoji : undefined,
+      note: "note" in currentMeal ? currentMeal.note : undefined,
       tags: newTags.length > 0 ? newTags : undefined,
     };
 
@@ -384,19 +385,6 @@ export default function App(): React.JSX.Element {
         onChange={handleDirectPhotoChange}
         style={{ display: "none" }}
       />
-
-      {/* Achievement Unlocked Banner */}
-      {recentlyUnlocked && (
-        <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
-          <span className="unlocked-badge-icon">
-            <Icon.Sparkle size={20} />
-          </span>
-          <div>
-            <div className="unlocked-badge-tag">新しいしるし</div>
-            <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
-          </div>
-        </div>
-      )}
 
       {/* Global Gentle Interactive Toast */}
       {toast && (

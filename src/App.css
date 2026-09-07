@@ -420,38 +420,40 @@
 /* Empty Cell (Past / Unfilled) */
 .meal-cell-empty {
   background-color: var(--card-bg);
-  border: 1.5px dashed var(--border);
+  border: 1px dashed var(--border);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .meal-cell-empty:hover {
   border-color: var(--accent);
   background-color: var(--accent-faint);
+  border-style: solid;
 }
 
 /* Empty Cell (Future) */
 .meal-cell-empty.is-future {
   background-color: transparent;
   border: 1px dashed var(--cell-future-border);
-  opacity: 0.55;
+  opacity: 0.4;
 }
 
 .meal-cell-empty.is-future:hover {
-  opacity: 1;
+  opacity: 0.9;
   border-color: var(--accent);
   background-color: var(--accent-faint);
 }
 
 .meal-cell-empty.today {
-  border-color: var(--accent);
+  border-color: var(--accent-border);
   border-style: dashed;
   background-color: var(--card-bg);
-  opacity: 1;
+  opacity: 0.95;
 }
 
 .meal-cell-empty.current-slot {
-  border: 2px solid var(--accent);
+  border: 1.8px solid var(--accent);
   background-color: var(--card-bg);
-  box-shadow: 0 0 0 1.5px rgba(91, 130, 102, 0.18), inset 0 0 6px rgba(91, 130, 102, 0.06);
+  box-shadow: 0 0 0 1.5px rgba(91, 130, 102, 0.15), inset 0 0 6px rgba(91, 130, 102, 0.05);
   animation: current-slot-pulse 2.8s ease-in-out infinite;
   opacity: 1;
   z-index: 1;
@@ -459,25 +461,32 @@
 
 @keyframes current-slot-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 1.5px rgba(91, 130, 102, 0.18), inset 0 0 4px rgba(91, 130, 102, 0.04);
+    box-shadow: 0 0 0 1.5px rgba(91, 130, 102, 0.15), inset 0 0 4px rgba(91, 130, 102, 0.04);
   }
   50% {
-    box-shadow: 0 0 0 2px rgba(91, 130, 102, 0.32), inset 0 0 8px rgba(91, 130, 102, 0.12);
+    box-shadow: 0 0 0 2px rgba(91, 130, 102, 0.28), inset 0 0 8px rgba(91, 130, 102, 0.1);
   }
 }
 
 .plus-icon {
   font-size: 13px;
   color: var(--text-light);
+  opacity: 0.35;
   font-weight: 300;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meal-cell-empty.current-slot .plus-icon {
+  color: var(--accent);
+  opacity: 0.85;
 }
 
 .meal-cell-empty:hover .plus-icon {
   color: var(--accent);
+  opacity: 1;
   transform: scale(1.15);
 }
 
@@ -1606,22 +1615,22 @@
 
 
 
-/* Achievements Modal */
-.achievement-progress-bar-wrap {
-  width: 100%;
-  height: 8px;
-  background-color: var(--bg);
-  border-radius: 9999px;
-  overflow: hidden;
+/* Achievements & Life Rhythm Modal */
+.rhythm-philosophy-card {
+  background-color: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 14px;
+  padding: 10px 14px;
   margin-bottom: 14px;
-  border: 1px solid var(--border);
 }
 
-.achievement-progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), #78A78D);
-  border-radius: 9999px;
-  transition: width 0.4s ease;
+.rhythm-philosophy-quote {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  margin: 0;
+  text-align: left;
+  font-style: italic;
 }
 
 .achievement-grid {
@@ -1659,12 +1668,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  color: var(--text-mid);
   flex-shrink: 0;
 }
 
 .achievement-card.unlocked .achievement-icon-wrap {
   border-color: var(--accent-border);
+  color: var(--accent);
 }
 
 .achievement-info {
@@ -1689,18 +1699,19 @@
   margin-top: 1px;
 }
 
-.achievement-date {
-  font-size: 10px;
-  color: var(--accent);
-  font-weight: 600;
+.rhythm-count-label {
   margin-top: 3px;
+  font-size: 10.5px;
 }
 
-.achievement-locked-label,
-.achievement-progress-text {
-  font-size: 10px;
+.rhythm-count-active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rhythm-count-empty {
   color: var(--text-light);
-  margin-top: 3px;
+  opacity: 0.8;
 }
 
 /* Settings Modal */

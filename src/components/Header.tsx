@@ -25,19 +25,14 @@ export default function Header({
   onPrevWeek,
   onNextWeek,
   onToday,
-  stats,
+  stats: _stats,
 }: HeaderProps): React.JSX.Element {
-  const loggedCount = stats.photoCount + stats.skipCount;
-
   return (
     <header className="app-header-slim">
       {/* Top Bar: Brand & Week Nav */}
       <div className="header-slim-main-row">
         <div className="header-slim-brand">
           <span className="brand-logo-text">{APP_NAME}</span>
-          <span className="brand-stat-pill" title="今週の記録マス数">
-            {loggedCount}/{stats.totalSlots}
-          </span>
         </div>
 
         {/* Week Navigator */}

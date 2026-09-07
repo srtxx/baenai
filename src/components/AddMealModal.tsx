@@ -91,7 +91,18 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     setCustomTagInput("");
   };
 
-  const handleEmojiSelect = (emoji: string, _label: string, defaultTag?: string) => {
+  const handleEmojiSelect = (emoji: string, label: string, defaultTag?: string) => {
+    if (!isDetailOpen) {
+      // アコーディオンが閉じている時はゼロ摩擦のワンタップ保存
+      recordRecentEmoji(emoji, label, defaultTag);
+      onSave(di, mi, {
+        quickEmoji: emoji,
+        tags: defaultTag ? [defaultTag] : undefined,
+      });
+      onClose();
+      return;
+    }
+    // 詳細入力モードが開いている時は選択状態を保持して編集
     setSelectedEmoji(emoji);
     setSelectedImage(null); // 絵文字を選択したら写真プレビューはクリア
     if (defaultTag && !selectedTags.includes(defaultTag)) {
@@ -99,7 +110,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     }
   };
 
-  // 休食（スキップ）はワンタップで即時記録
+  // 休食はワンタップで即時記録
   const handleSkipMeal = () => {
     onSave(di, mi, { skipped: true });
     onClose();
@@ -137,7 +148,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               {DAYS[di]}曜日 — {mealLabel}
             </h2>
             <p className="modal-subtitle">
-              {selectedImage ? "写真とメモを残せます" : "ワンタップで食事を記録"}
+              {selectedImage ? "写真とメモを残せます" : isDetailOpen ? "メモやタグを入力して保存" : "タップで即時記録"}
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
@@ -196,12 +207,12 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             type="button"
             onClick={handleSkipMeal}
             className="hero-skip-btn"
-            title="食べなかった時は休食をワンタップ記録"
+            title="食事をとらずに体を休めたときは休食をワンタップ記録"
           >
             <span className="hero-skip-icon"><Icon.Moon size={20} /></span>
             <div className="hero-skip-texts">
               <span className="hero-skip-title">休食</span>
-              <span className="hero-skip-sub">スキップ</span>
+              <span className="hero-skip-sub">体を休める</span>
             </div>
           </button>
         </div>
@@ -221,7 +232,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             <div className="modal-quick-header">
               <span className="modal-quick-label">定番・よく使う食事</span>
               <span className="selected-emoji-indicator">
-                選択中: <strong>{selectedEmoji}</strong>
+                {isDetailOpen ? <>選択中: <strong>{selectedEmoji}</strong></> : "1タップで記録"}
               </span>
             </div>
             <div className="modal-quick-row">
@@ -229,9 +240,9 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
                 <button
                   key={item.emoji}
                   type="button"
-                  className={`quick-emoji-card ${selectedEmoji === item.emoji ? "selected" : ""}`}
+                  className={`quick-emoji-card ${selectedEmoji === item.emoji && isDetailOpen ? "selected" : ""}`}
                   onClick={() => handleEmojiSelect(item.emoji, item.label, item.defaultTag)}
-                  title={`${item.label} を選択`}
+                  title={`${item.label} を記録`}
                 >
                   <span className="quick-emoji-char">{item.emoji}</span>
                   <span className="quick-emoji-label">{item.label}</span>
