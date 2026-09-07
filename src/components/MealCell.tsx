@@ -50,16 +50,22 @@ const MealCell = React.memo(function MealCell({
     );
   }
 
+  const noteText = "note" in meal && meal.note ? meal.note : "";
+  const firstTag = "tags" in meal && meal.tags && meal.tags.length > 0 ? meal.tags[0] : "";
+  const displayLabel = noteText || (firstTag ? `#${firstTag}` : "");
+
   // クイック絵文字記録の場合
   if ("quickEmoji" in meal && meal.quickEmoji && !("image" in meal && meal.image)) {
-    const hasMeta = ("note" in meal && !!meal.note) || ("tags" in meal && !!meal.tags && meal.tags.length > 0);
     return (
       <div
         onClick={onClick}
-        className={`meal-cell meal-cell-emoji ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        className={`meal-cell meal-cell-emoji ${displayLabel ? "has-text" : ""} ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        title={noteText || meal.quickEmoji}
       >
         <span className="cell-emoji-char">{meal.quickEmoji}</span>
-        {hasMeta && <div className="cell-indicator-dot" title="メモまたはタグあり" />}
+        {displayLabel && (
+          <span className="cell-inline-text">{displayLabel}</span>
+        )}
       </div>
     );
   }
@@ -71,26 +77,35 @@ const MealCell = React.memo(function MealCell({
     imgSrc = photoUrl(meal.seed, 120, 90);
   }
 
-  const hasMeta = ("note" in meal && !!meal.note) || ("tags" in meal && !!meal.tags && meal.tags.length > 0);
-
   return (
     <div
       onClick={onClick}
       className={`meal-cell meal-cell-filled ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+      title={noteText || "食事の写真"}
     >
       {imgSrc ? (
-        <img
-          src={imgSrc}
-          alt="食事の写真"
-          className="meal-cell-image"
-          loading="lazy"
-        />
+        <div className="meal-cell-photo-wrap">
+          <img
+            src={imgSrc}
+            alt="食事の写真"
+            className="meal-cell-image"
+            loading="lazy"
+          />
+          {displayLabel && (
+            <div className="cell-photo-overlay-label">
+              <span>{displayLabel}</span>
+            </div>
+          )}
+        </div>
       ) : (
-        <span className="cell-emoji-char">🍚</span>
+        <div className="meal-cell-emoji has-text">
+          <span className="cell-emoji-char">🍚</span>
+          {displayLabel && <span className="cell-inline-text">{displayLabel}</span>}
+        </div>
       )}
-      {hasMeta && <div className="cell-indicator-dot" title="メモまたはタグあり" />}
     </div>
   );
 });
 
 export default MealCell;
+

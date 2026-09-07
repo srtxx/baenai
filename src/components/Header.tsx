@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon } from "./icons/Icons";
-import { APP_NAME, APP_TAGLINE, DAILY_EPIGRAPHS } from "../constants";
+import { APP_NAME } from "../constants";
 import { DayIndex } from "../types";
 
 interface HeaderProps {
@@ -27,57 +27,58 @@ export default function Header({
   onToday,
   stats,
 }: HeaderProps): React.JSX.Element {
-  const percentage = Math.round(((stats.photoCount + stats.skipCount) / stats.totalSlots) * 100);
-  const todayEpigraph = DAILY_EPIGRAPHS[new Date().getDay() % DAILY_EPIGRAPHS.length];
+  const loggedCount = stats.photoCount + stats.skipCount;
 
   return (
-    <header className="app-header">
-      {/* Brand & Status Row */}
-      <div className="header-top-row">
-        <div className="brand-group">
-          <h1 className="app-title">{APP_NAME}</h1>
-          <p className="app-tagline">{APP_TAGLINE}</p>
+    <header className="app-header-slim">
+      {/* Top Bar: Brand & Week Nav */}
+      <div className="header-slim-main-row">
+        <div className="header-slim-brand">
+          <span className="brand-logo-text">{APP_NAME}</span>
+          <span className="brand-stat-pill" title="今週の記録マス数">
+            {loggedCount}/{stats.totalSlots}
+          </span>
+        </div>
+
+        {/* Week Navigator */}
+        <div className="week-nav-slim">
+          <button
+            onClick={onPrevWeek}
+            className="week-nav-btn"
+            aria-label="前の週"
+            title="前の週"
+          >
+            <Icon.ChevronLeft size={16} />
+          </button>
+          <div className="week-nav-label-box" onClick={!isCurrentWeek ? onToday : undefined} title={!isCurrentWeek ? "タップで今週に戻る" : undefined}>
+            <span className="week-nav-calendar-icon"><Icon.Calendar size={13} /></span>
+            <span className="week-nav-label-text">{weekLabel}</span>
+          </div>
+          <button
+            onClick={onNextWeek}
+            className="week-nav-btn"
+            aria-label="次の週"
+            title="次の週"
+          >
+            <Icon.ChevronRight size={16} />
+          </button>
         </div>
 
         {!isCurrentWeek && (
-          <button onClick={onToday} className="btn-today-pill" title="今週に戻る" aria-label="今週に戻る">
-            今週に戻る
+          <button
+            onClick={onToday}
+            className="btn-today-mini"
+            title="今週に戻る"
+            aria-label="今週に戻る"
+          >
+            今週
           </button>
         )}
-      </div>
-
-      {/* Week Navigator */}
-      <div className="week-nav-container">
-        <button onClick={onPrevWeek} className="week-nav-arrow" aria-label="前の週">
-          <Icon.ChevronLeft size={18} />
-        </button>
-        <div className="week-nav-center">
-          <span className="week-nav-calendar-icon"><Icon.Calendar size={14} /></span>
-          <span className="week-nav-label">{weekLabel}</span>
-        </div>
-        <button onClick={onNextWeek} className="week-nav-arrow" aria-label="次の週">
-          <Icon.ChevronRight size={18} />
-        </button>
-      </div>
-
-      {/* Compact Epigraph & Progress Combined Card */}
-      <div className="header-summary-card">
-        <div className="header-summary-top">
-          <span className="epigraph-quote-compact">“{todayEpigraph}”</span>
-          <div className="summary-count-badge">
-            <strong>{stats.photoCount + stats.skipCount}</strong> / {stats.totalSlots}
-          </div>
-        </div>
-        <div className="stats-progress-bar-bg">
-          <div
-            className="stats-progress-bar-fill"
-            style={{ width: `${Math.min(percentage, 100)}%` }}
-          />
-        </div>
       </div>
     </header>
   );
 }
+
 
 
 
