@@ -11,7 +11,7 @@ const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrom
 const PORT = 4173;
 const BASE_URL = `http://localhost:${PORT}`;
 const OUTPUT_DIR = path.resolve(ROOT_DIR, "docs/demo");
-const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/5d766754-f676-4e91-8ed2-5a60d8558544";
+const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/8269469e-763b-4f5a-a289-cfd88b002770";
 
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -28,19 +28,19 @@ async function injectTouchIndicator(page) {
     style.innerHTML = `
       .touch-indicator {
         position: fixed;
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
-        background: rgba(43, 90, 83, 0.35);
+        background: rgba(43, 90, 83, 0.4);
         border: 2px solid rgba(43, 90, 83, 0.85);
         pointer-events: none;
         z-index: 9999999;
         transform: translate(-50%, -50%) scale(0.2);
-        transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.35s ease-out;
-        box-shadow: 0 0 12px rgba(43, 90, 83, 0.4);
+        transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.32s ease-out;
+        box-shadow: 0 0 14px rgba(43, 90, 83, 0.45);
       }
       .touch-indicator.active {
-        transform: translate(-50%, -50%) scale(1.3);
+        transform: translate(-50%, -50%) scale(1.35);
         opacity: 0;
       }
     `;
@@ -55,7 +55,7 @@ async function injectTouchIndicator(page) {
       requestAnimationFrame(() => {
         dot.classList.add("active");
       });
-      setTimeout(() => dot.remove(), 400);
+      setTimeout(() => dot.remove(), 380);
     };
 
     document.addEventListener("click", (e) => {
@@ -64,9 +64,11 @@ async function injectTouchIndicator(page) {
   });
 }
 
-// 指定セレクタをタップ演出付きでクリック
-async function clickWithTouch(page, selector, waitAfter = 800) {
+// 指定セレクタをタップ演出付きでクリック（自動スクロール対応）
+async function clickWithTouch(page, selector, waitAfter = 600) {
   const el = await page.waitForSelector(selector, { state: "visible", timeout: 8000 });
+  await el.scrollIntoViewIfNeeded().catch(() => {});
+  await sleep(150);
   const box = await el.boundingBox();
   if (box) {
     const x = box.x + box.width / 2;
@@ -77,21 +79,55 @@ async function clickWithTouch(page, selector, waitAfter = 800) {
   await sleep(waitAfter);
 }
 
+// 要素直接クリック（自動スクロール対応＆タップ波紋付き）
+async function clickElement(page, element, waitAfter = 600) {
+  await element.scrollIntoViewIfNeeded().catch(() => {});
+  await sleep(150);
+  const box = await element.boundingBox();
+  if (box) {
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.evaluate(({ x, y }) => window.showTouch && window.showTouch(x, y), { x, y });
+  }
+  await element.click();
+  await sleep(waitAfter);
+}
+
+// モーダルが完全に閉じるのを待つ
+async function waitModalClosed(page) {
+  await sleep(400);
+  await page.waitForSelector(".modal-overlay", { state: "detached", timeout: 4000 }).catch(() => {});
+  await sleep(350);
+}
+
 // モーダルを確実に閉じる
 async function closeModal(page) {
   const closeBtn = await page.$(".modal-close-icon-btn, .modal-close-btn");
   if (closeBtn) {
-    const box = await closeBtn.boundingBox();
-    if (box) await page.evaluate(({ x, y }) => window.showTouch && window.showTouch(x, y), { x: box.x + box.width / 2, y: box.y + box.height / 2 });
-    await closeBtn.click();
+    await clickElement(page, closeBtn, 500);
   } else {
     await page.keyboard.press("Escape");
+    await sleep(500);
   }
-  await sleep(900);
+  await waitModalClosed(page);
+}
+
+// 人間らしいタイピング（自動スクロール対応）
+async function humanType(page, selector, text, clearFirst = true) {
+  const el = await page.waitForSelector(selector, { state: "visible", timeout: 8000 });
+  await el.scrollIntoViewIfNeeded().catch(() => {});
+  await sleep(200);
+  await clickElement(page, el, 200);
+  if (clearFirst) {
+    await el.fill("");
+    await sleep(150);
+  }
+  await page.type(selector, text, { delay: 45 });
+  await sleep(400);
 }
 
 async function main() {
-  console.log("=== Starting High Quality Demo Recording (Latest Settings & UI) ===");
+  console.log("=== Starting Comprehensive Monkey-Style Demo Recording ===");
 
   // 1. Vite preview サーバーを起動
   console.log("Launching Vite preview server...");
@@ -133,7 +169,7 @@ async function main() {
     await injectTouchIndicator(page);
     await sleep(800);
 
-    // データベースを一度クリーンにして初期画面からスタート
+    // データベースを初期化してクリーンな初期状態からスタート
     await page.evaluate(async () => {
       return new Promise((resolve) => {
         const req = indexedDB.open("ration_db", 1);
@@ -153,101 +189,148 @@ async function main() {
 
     await page.reload({ waitUntil: "networkidle" });
     await injectTouchIndicator(page);
-    await sleep(1200);
+    await sleep(1000);
 
-    // ==========================================
-    // シーン 1: 初期状態の7×3グリッド
-    // ==========================================
-    console.log("Scene 1: Initial Blank Grid");
-    await page.mouse.wheel(0, 180);
-    await sleep(700);
-    await page.mouse.wheel(0, -180);
-    await sleep(900);
+    // =========================================================================
+    // シーン 1: 週移動ナビゲーションのモンキー探索（前週・次週・今週ジャンプ）
+    // =========================================================================
+    console.log("Scene 1: Interactive Week Navigation");
+    await clickWithTouch(page, "button.week-nav-btn[aria-label='前の週']", 500);
+    await clickWithTouch(page, "button.week-nav-btn[aria-label='前の週']", 600);
+    await clickWithTouch(page, "button.btn-today-mini", 700);
 
-    // ==========================================
-    // シーン 2: 進化した食事記録モーダル（AddMealModal）
-    // ==========================================
-    console.log("Scene 2: New Lean AddMealModal Interaction");
+    await clickWithTouch(page, "button.week-nav-btn[aria-label='次の週']", 500);
+    await clickWithTouch(page, "button.btn-today-mini", 800);
+
+    // 初期空グリッドを上下にスワイプ・スクロール
+    await page.mouse.wheel(0, 200);
+    await sleep(400);
+    await page.mouse.wheel(0, -200);
+    await sleep(600);
+
+    // =========================================================================
+    // シーン 2: ゼロ摩擦のワンタップ絵文字記録
+    // =========================================================================
+    console.log("Scene 2: Zero-Friction One-Tap Emoji Record");
     const emptyCells = await page.$$(".meal-cell-empty");
     if (emptyCells.length > 0) {
-      const box = await emptyCells[0].boundingBox();
-      if (box) {
-        await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      }
-      await emptyCells[0].click();
-      await sleep(1000);
+      await clickElement(page, emptyCells[0], 800);
 
-      // 定番食事（おにぎり）を選択
-      const onigiriCard = await page.$(".quick-emoji-card:has-text('おにぎり')");
-      if (onigiriCard) {
-        const bbox = await onigiriCard.boundingBox();
-        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await onigiriCard.click();
-        await sleep(600);
+      // クイック絵文字カード「自炊 🍳」をワンタップ記録！
+      const quickCards = await page.$$(".quick-emoji-card");
+      if (quickCards.length > 0) {
+        await clickElement(page, quickCards[0], 600);
+        await waitModalClosed(page);
       }
+    }
 
-      // 詳細入力アコーディオンを開く
+    // =========================================================================
+    // シーン 3: 詳細入力モードの探索（アコーディオン・タブ・タグ・メモ・タイピング）
+    // =========================================================================
+    console.log("Scene 3: Rich AddMealModal Exploration (Accordion, Tabs, Custom Tag, Typing)");
+    const emptyCells2 = await page.$$(".meal-cell-empty");
+    if (emptyCells2.length > 0) {
+      await clickElement(page, emptyCells2[0], 800);
+
+      // 「メモ・タグ・他の食事を追加」アコーディオンを展開
       const toggleDetailsBtn = await page.$(".btn-toggle-details");
       if (toggleDetailsBtn) {
-        const bbox = await toggleDetailsBtn.boundingBox();
-        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await toggleDetailsBtn.click();
-        await sleep(700);
+        await clickElement(page, toggleDetailsBtn, 600);
       }
 
-      // メモ入力欄に入力
-      const noteInput = await page.$(".modal-text-input");
-      if (noteInput) {
-        await noteInput.fill("焼きおにぎりと温かいお茶");
-        await sleep(700);
+      // 展開された追加絵文字カテゴリタブを軽快に切り替え
+      const tabNames = ["おかず・主菜", "おやつ・果物", "飲み物・カフェ", "主食・ごはん"];
+      for (const tName of tabNames) {
+        const tabEl = await page.$(`.emoji-tab-btn:has-text('${tName}')`);
+        if (tabEl) {
+          await clickElement(page, tabEl, 350);
+        }
       }
 
-      // プリセットタグ「自炊」を選択
-      const selfCookTag = await page.$(".tag-chip:has-text('自炊')");
-      if (selfCookTag) {
-        const bbox = await selfCookTag.boundingBox();
-        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await selfCookTag.click();
-        await sleep(500);
-      }
+      // ラーメンを選択
+      const ramenItem = await page.$(".emoji-grid-item:has-text('ラーメン')");
+      if (ramenItem) await clickElement(page, ramenItem, 400);
 
-      // 保存ボタンをクリック（トースト通知が出現）
-      const saveBtn = await page.$(".btn-modal-primary");
-      if (saveBtn) {
-        const bbox = await saveBtn.boundingBox();
-        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await saveBtn.click();
-        await sleep(1600);
-      }
+      // プリセットタグ「外食」を選択
+      const tagOut = await page.$(".tag-chip:has-text('外食')");
+      if (tagOut) await clickElement(page, tagOut, 300);
+
+      // カスタムタグを入力して追加してみる
+      await humanType(page, ".custom-tag-input", "特製", true);
+      const addTagBtn = await page.$(".btn-add-custom-tag");
+      if (addTagBtn) await clickElement(page, addTagBtn, 400);
+
+      // メモを入力
+      await humanType(page, ".modal-text-input", "濃厚味噌ラーメン味玉つき", true);
+
+      // 保存する -> トースト通知が表示される
+      await clickWithTouch(page, ".btn-modal-primary", 800);
+      await waitModalClosed(page);
     }
 
-    // ==========================================
-    // シーン 3: 休食（スキップ）ワンタップ記録
-    // ==========================================
-    console.log("Scene 3: Record Skip Meal");
-    const emptyCellsAfter = await page.$$(".meal-cell-empty");
-    if (emptyCellsAfter.length > 0) {
-      const box = await emptyCellsAfter[0].boundingBox();
-      if (box) {
-        await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      }
-      await emptyCellsAfter[0].click();
-      await sleep(800);
+    // =========================================================================
+    // シーン 4: 休食（スキップ）記録
+    // =========================================================================
+    console.log("Scene 4: Record Skip Meal");
+    const emptyCells3 = await page.$$(".meal-cell-empty");
+    if (emptyCells3.length > 0) {
+      await clickElement(page, emptyCells3[0], 700);
 
-      // 休食ボタンをクリック
-      const skipBtn = await page.$(".hero-skip-btn");
-      if (skipBtn) {
-        const bbox = await skipBtn.boundingBox();
-        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await skipBtn.click();
-        await sleep(1500);
-      }
+      // 休食（スキップ）ボタンをタップ
+      await clickWithTouch(page, ".hero-skip-btn", 800);
+      await waitModalClosed(page);
     }
 
-    // ==========================================
-    // シーン 4: 1週間のフル記録データ投入 & スムーズスクロール
-    // ==========================================
-    console.log("Scene 4: Populate Full Week Meals and Scroll");
+    // 休食セル（— おやすみ）をタップして詳細確認し、閉じる
+    const restedCell = await page.$(".meal-cell.meal-cell-rested");
+    if (restedCell) {
+      await clickElement(page, restedCell, 1200);
+      await closeModal(page);
+    }
+
+    // =========================================================================
+    // シーン 5: 下部FABカメラボタンからのクイック記録
+    // =========================================================================
+    console.log("Scene 5: Bottom Camera FAB Quick Add");
+    await clickWithTouch(page, ".nav-primary-btn", 900);
+
+    // クイック絵文字「🍙 コンビニ」をワンタップ記録
+    const quickCards2 = await page.$$(".quick-emoji-card");
+    if (quickCards2.length > 1) {
+      await clickElement(page, quickCards2[1], 600);
+      await waitModalClosed(page);
+    } else {
+      await closeModal(page);
+    }
+
+    // =========================================================================
+    // シーン 6: 登録済みセルのインライン編集（メモ・タグ書き換え）
+    // =========================================================================
+    console.log("Scene 6: Inline Edit Meal Details");
+    const emojiCells = await page.$$(".meal-cell.meal-cell-emoji");
+    if (emojiCells.length > 0) {
+      // 登録セルを開く
+      await clickElement(page, emojiCells[0], 1000);
+
+      // 「メモやタグを編集する」ボタンをタップ
+      const editBtn = await page.$(".btn-detail-edit");
+      if (editBtn) {
+        await clickElement(page, editBtn, 600);
+
+        // メモを書き換える
+        await humanType(page, "textarea.modal-textarea", "サクサクのバタートースト", true);
+
+        // 保存する
+        await clickWithTouch(page, "button.btn-modal-primary:has-text('保存する')", 1000);
+      }
+
+      await closeModal(page);
+    }
+
+    // =========================================================================
+    // シーン 7: 1週間分のフルデータ投入 ＆ 活発なグリッドスクロール
+    // =========================================================================
+    console.log("Scene 7: Populate Full Week and Smooth Scroll");
     await page.evaluate(async () => {
       const d = new Date();
       const day = d.getDay();
@@ -262,9 +345,9 @@ async function main() {
       const fullWeek = [
         // 月
         [
-          { quickEmoji: "🍞", note: "トーストと目玉焼き、コーヒー", tags: ["自炊"] },
-          { quickEmoji: "🍜", note: "オフィス近くの濃厚味噌ラーメン", tags: ["外食"] },
-          { image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80", note: "自炊ステーキとごはん", tags: ["自炊"] }
+          { quickEmoji: "🍞", note: "サクサクのバタートースト", tags: ["自炊"] },
+          { quickEmoji: "🍜", note: "濃厚味噌ラーメン味玉つき", tags: ["外食", "特製"] },
+          { image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80", note: "自炊ステーキとガーリックライス", tags: ["自炊"] }
         ],
         // 火
         [
@@ -316,118 +399,119 @@ async function main() {
       });
     });
 
-    await sleep(500);
+    await sleep(400);
     await page.reload({ waitUntil: "networkidle" });
     await injectTouchIndicator(page);
-    await sleep(1400);
+    await sleep(1000);
 
-    // グリッドをスクロールして1週間の記録を見せる
-    await page.mouse.wheel(0, 320);
+    // 1週間の満たされたグリッドを軽快にスクロール探索
+    await page.mouse.wheel(0, 300);
+    await sleep(600);
+    await page.mouse.wheel(0, 350);
+    await sleep(700);
+    await page.mouse.wheel(0, -400);
+    await sleep(600);
+    await page.mouse.wheel(0, -250);
+    await sleep(800);
+
+    // 写真付きセルをタップしてポラロイド詳細モーダルを開く
+    console.log("Scene 7b: View Photo Meal Polaroid Detail");
+    const photoCell = await page.$(".meal-cell.meal-cell-filled");
+    if (photoCell) {
+      await clickElement(page, photoCell, 1800);
+      await closeModal(page);
+    }
+
+    // =========================================================================
+    // シーン 8: 振り返り・実績モーダルのじっくり探索
+    // =========================================================================
+    console.log("Scene 8: Explore Achievements and Progress");
+    await clickWithTouch(page, "button[aria-label='振り返り'], .nav-item:has-text('振り返り')", 1400);
+
+    // 実績カード一覧をスクロールして見せる
+    await page.mouse.wheel(0, 240);
+    await sleep(800);
+    await page.mouse.wheel(0, 240);
+    await sleep(800);
+    await page.mouse.wheel(0, -480);
     await sleep(900);
-    await page.mouse.wheel(0, 320);
-    await sleep(900);
-    await page.mouse.wheel(0, -640);
-    await sleep(1100);
+    await closeModal(page);
 
-    // ==========================================
-    // シーン 5: 食事詳細モーダルの表示（MealDetailModal）
-    // ==========================================
-    console.log("Scene 5: Open Meal Detail Modal");
-    const filledCells = await page.$$(".meal-cell.meal-cell-filled");
-    if (filledCells.length > 0) {
-      const box = await filledCells[0].boundingBox();
-      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await filledCells[0].click();
-      await sleep(2000);
+    // =========================================================================
+    // シーン 9: 週報シェアモーダルのリッチ操作（比率切り替え・コメント編集・ズーム）
+    // =========================================================================
+    console.log("Scene 9: Share Modal Interaction (Ratio, Custom Comment, Zoom)");
+    await clickWithTouch(page, "button[aria-label='シェア'], .nav-item:has-text('シェア')", 2200);
 
-      // モーダルを閉じる
-      await closeModal(page);
+    // アスペクト比を切り替えてレイアウトの変化を見せる
+    const ratio916 = await page.$(".segmented-btn:has-text('9:16')");
+    if (ratio916) await clickElement(page, ratio916, 1500);
+
+    const ratio11 = await page.$(".segmented-btn:has-text('1:1')");
+    if (ratio11) await clickElement(page, ratio11, 1500);
+
+    const ratio45 = await page.$(".segmented-btn:has-text('4:5')");
+    if (ratio45) await clickElement(page, ratio45, 1200);
+
+    // モーダルを少し下へスクロール
+    const shareModalContent = await page.$(".share-modal-content");
+    if (shareModalContent) {
+      await shareModalContent.evaluate((el) => el.scrollTo({ top: 160, behavior: "smooth" }));
+      await sleep(400);
     }
 
-    // ==========================================
-    // シーン 6: 実績・あしあとモーダルの確認（AchievementsModal）
-    // ==========================================
-    console.log("Scene 6: View Achievements / Milestones");
-    const ashiaotoBtn = await page.$(".nav-item:has-text('あしあと')");
-    if (ashiaotoBtn) {
-      const box = await ashiaotoBtn.boundingBox();
-      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await ashiaotoBtn.click();
-      await sleep(1800);
+    // 週報コメントをタイピングで編集してみる（Canvasが再生成される）
+    await humanType(page, "textarea.modal-textarea", "今週も美味しく自炊多めで乗り切った！", true);
+    await sleep(1500);
 
-      // モーダル内を少しスクロール
-      await page.mouse.wheel(0, 220);
-      await sleep(1000);
-      await closeModal(page);
+    // 画像プレビューをタップして拡大（ズーム）
+    const previewWrapper = await page.$(".share-preview-wrapper");
+    if (previewWrapper) {
+      await clickElement(page, previewWrapper, 1200);
+      // もう一度タップしてズーム解除
+      await clickElement(page, previewWrapper, 900);
     }
 
-    // ==========================================
-    // シーン 7: 週報画像生成 & シェアモーダル（ShareModal）
-    // ==========================================
-    console.log("Scene 7: Share Modal / Weekly Report Generation");
-    const shareNavBtn = await page.$(".nav-item:has-text('シェア')");
-    if (shareNavBtn) {
-      const box = await shareNavBtn.boundingBox();
-      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await shareNavBtn.click();
-      await sleep(2200);
+    await closeModal(page);
 
-      // アスペクト比の切り替え演出 (4:5 -> 9:16 -> 1:1)
-      const ratioBtns = await page.$$(".segmented-btn");
-      if (ratioBtns.length >= 3) {
-        // 9:16 縦長
-        const box1 = await ratioBtns[1].boundingBox();
-        if (box1) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box1.x + box1.width/2, y: box1.y + box1.height/2 });
-        await ratioBtns[1].click();
-        await sleep(1800);
+    // =========================================================================
+    // シーン 10: 設定でのプロフィール編集＆ナイトモードへの切り替え
+    // =========================================================================
+    console.log("Scene 10: Settings Customization & Night Mode");
+    await clickWithTouch(page, "button[aria-label='設定'], .nav-item:has-text('設定')", 1200);
 
-        // 1:1 正方形
-        const box2 = await ratioBtns[2].boundingBox();
-        if (box2) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box2.x + box2.width/2, y: box2.y + box2.height/2 });
-        await ratioBtns[2].click();
-        await sleep(1800);
+    // お名前を変更
+    await humanType(page, ".modal-text-input", "りょうへい", true);
+    await sleep(500);
 
-        // 4:5 標準に戻す
-        const box0 = await ratioBtns[0].boundingBox();
-        if (box0) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box0.x + box0.width/2, y: box0.y + box0.height/2 });
-        await ratioBtns[0].click();
-        await sleep(1500);
-      }
+    // ナイトモードに切り替え
+    const nightOption = await page.$(".theme-card-option:has-text('ナイト')");
+    if (nightOption) await clickElement(page, nightOption, 1200);
 
-      await closeModal(page);
-    }
+    await closeModal(page);
 
-    // ==========================================
-    // シーン 8: 設定 & ナイトモード（SettingsModal）
-    // ==========================================
-    console.log("Scene 8: Theme Switch to Night Mode in Settings");
-    const settingsNavBtn = await page.$(".nav-item:has-text('設定')");
-    if (settingsNavBtn) {
-      const box = await settingsNavBtn.boundingBox();
-      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await settingsNavBtn.click();
-      await sleep(1400);
+    // ナイトモードでの美しいダークUIをスクロール探索
+    console.log("Scene 11: Night Mode Smooth Navigation");
+    await page.mouse.wheel(0, 260);
+    await sleep(700);
+    await page.mouse.wheel(0, -260);
+    await sleep(800);
 
-      // ナイトモード選択
-      const nightOption = await page.$(".theme-card-option:has-text('ナイト')");
-      if (nightOption) {
-        const box = await nightOption.boundingBox();
-        if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-        await nightOption.click();
-        await sleep(1500);
-      }
+    // ナイトモード下で下部FABカメラボタンを押してみる
+    await clickWithTouch(page, ".nav-primary-btn", 1000);
+    await closeModal(page);
 
-      // 設定を閉じる
-      await closeModal(page);
+    // もう一度設定を開いて「生成り（エクリュ）」に戻してあたたかみのある画面を提示
+    await clickWithTouch(page, "button[aria-label='設定'], .nav-item:has-text('設定')", 900);
+    const ecruOption = await page.$(".theme-card-option:has-text('生成り')");
+    if (ecruOption) await clickElement(page, ecruOption, 1000);
+    await closeModal(page);
 
-      // ナイトモードでグリッドをスクロールして見せる
-      await page.mouse.wheel(0, 260);
-      await sleep(1000);
-      await page.mouse.wheel(0, -260);
-      await sleep(1500);
-    }
+    // 最終シーン: 余韻とグリッド全体ビュー
+    console.log("Final Scene: Overview & Completion");
+    await sleep(1500);
 
-    console.log("All scenes completed successfully with latest UI!");
+    console.log("All comprehensive monkey-style scenes finished successfully!");
   } catch (err) {
     console.error("Recording error:", err);
   } finally {
@@ -445,7 +529,7 @@ async function main() {
     const artifactVideo = path.join(ARTIFACT_DIR, "demo_app.webm");
     fs.copyFileSync(srcVideo, destVideo);
     fs.copyFileSync(srcVideo, artifactVideo);
-    console.log(`\n🎉 Success! Updated Demo video saved to:`);
+    console.log(`\n🎉 Success! Comprehensive demo video saved to:`);
     console.log(`- ${destVideo}`);
     console.log(`- ${artifactVideo}`);
   } else {

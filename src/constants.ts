@@ -17,13 +17,23 @@ export const DAILY_EPIGRAPHS = [
 /** 食事の時間帯ラベル */
 export const MEAL_LABELS = ["あさごはん", "ひるごはん", "よるごはん"] as const;
 
-/** ワンタップ記録のクイックアクション */
-export const QUICK_MEAL_OPTIONS = [
-  { emoji: "🍚", label: "食べた", tags: [] },
-  { emoji: "🍙", label: "コンビニ", tags: ["コンビニ"] },
-  { emoji: "🍳", label: "自炊", tags: ["自炊"] },
-  { emoji: "🍜", label: "外食", tags: ["外食"] },
-] as const;
+/** ワンタップ記録のクイックアクション（ファーストビュー） */
+export interface QuickMealOption {
+  emoji: string;
+  label: string;
+  defaultTag?: string;
+}
+
+export const QUICK_MEAL_OPTIONS: QuickMealOption[] = [
+  { emoji: "🍳", label: "自炊", defaultTag: "自炊" },
+  { emoji: "🍙", label: "コンビニ", defaultTag: "コンビニ" },
+  { emoji: "🥗", label: "ヘルシー系", defaultTag: "ヘルシー" },
+  { emoji: "🥩", label: "ガッツリ系", defaultTag: "ガッツリ" },
+  { emoji: "🍻", label: "飲み会", defaultTag: "飲み会" },
+];
+
+/** 食事記録のプリセットタグ */
+export const PRESET_TAGS = ["自炊", "コンビニ", "ヘルシー", "ガッツリ", "飲み会", "外食", "カフェ", "テイクアウト"] as const;
 
 export interface EmojiItem {
   emoji: string;
@@ -130,6 +140,7 @@ export const EMOJI_CATEGORIES: EmojiCategory[] = [
       { emoji: "🧃", label: "ジュース" },
       { emoji: "🥛", label: "牛乳・豆乳" },
       { emoji: "🍺", label: "ビール" },
+      { emoji: "🍻", label: "乾杯・飲み会", defaultTag: "飲み会" },
       { emoji: "🍷", label: "ワイン" },
       { emoji: "🍶", label: "日本酒" },
       { emoji: "🍸", label: "カクテル・お酒" },
@@ -141,6 +152,11 @@ export const EMOJI_CATEGORIES: EmojiCategory[] = [
     name: "状況・スタイル",
     icon: "🏪",
     items: [
+      { emoji: "🍳", label: "自炊", defaultTag: "自炊" },
+      { emoji: "🍙", label: "コンビニ", defaultTag: "コンビニ" },
+      { emoji: "🥗", label: "ヘルシー系", defaultTag: "ヘルシー" },
+      { emoji: "🥩", label: "ガッツリ系", defaultTag: "ガッツリ" },
+      { emoji: "🍻", label: "飲み会", defaultTag: "飲み会" },
       { emoji: "🏪", label: "コンビニ", defaultTag: "コンビニ" },
       { emoji: "🥡", label: "テイクアウト", defaultTag: "テイクアウト" },
       { emoji: "🍽️", label: "外食", defaultTag: "外食" },

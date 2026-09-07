@@ -1,6 +1,6 @@
 import React, { useState, useRef, ChangeEvent } from "react";
 import { Icon } from "./icons/Icons";
-import { DAYS, MEAL_LABELS, EMOJI_CATEGORIES } from "../constants";
+import { DAYS, MEAL_LABELS, EMOJI_CATEGORIES, QUICK_MEAL_OPTIONS, PRESET_TAGS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 import { compressImage } from "../utils/imageCompressor";
 
@@ -11,44 +11,16 @@ interface AddMealModalProps {
   onSave: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
 }
 
-const RECENT_EMOJIS_KEY = "mog_recent_emojis";
-const DEFAULT_RECENTS = [
-  { emoji: "🍚", label: "ごはん" },
-  { emoji: "🍙", label: "おにぎり", defaultTag: "コンビニ" },
-  { emoji: "🍳", label: "自炊", defaultTag: "自炊" },
-  { emoji: "🍜", label: "外食", defaultTag: "外食" },
-  { emoji: "☕️", label: "カフェ" },
-];
-
-const PRESET_TAGS = ["自炊", "外食", "コンビニ", "テイクアウト", "カフェ", "お弁当"] as const;
-
 export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalProps): React.JSX.Element {
   const [activeCategory, setActiveCategory] = useState<string>("staple");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedEmoji, setSelectedEmoji] = useState<string>("🍚");
+  const [selectedEmoji, setSelectedEmoji] = useState<string>(QUICK_MEAL_OPTIONS[0].emoji);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState<string>("");
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [recentEmojis, setRecentEmojis] = useState<{ emoji: string; label: string; defaultTag?: string }[]>(() => {
-    try {
-      const saved = localStorage.getItem(RECENT_EMOJIS_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return DEFAULT_RECENTS;
-  });
-
-  const recordRecentEmoji = (emoji: string, label: string, defaultTag?: string) => {
-    try {
-      const filtered = recentEmojis.filter(r => r.emoji !== emoji);
-      const next = [{ emoji, label, defaultTag }, ...filtered].slice(0, 5);
-      setRecentEmojis(next);
-      localStorage.setItem(RECENT_EMOJIS_KEY, JSON.stringify(next));
-    } catch {}
-  };
 
   // 写真選択時：圧縮完了と同時に即時保存してモーダルを閉じる（摩擦ゼロ）
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,10 +63,9 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     setCustomTagInput("");
   };
 
-  const handleEmojiSelect = (emoji: string, label: string, defaultTag?: string) => {
+  const handleEmojiSelect = (emoji: string, _label: string, defaultTag?: string) => {
     if (!isDetailOpen) {
       // アコーディオンが閉じている時はゼロ摩擦のワンタップ保存
-      recordRecentEmoji(emoji, label, defaultTag);
       onSave(di, mi, {
         quickEmoji: emoji,
         tags: defaultTag ? [defaultTag] : undefined,
@@ -125,7 +96,6 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
         tags: selectedTags.length > 0 ? selectedTags : undefined,
       });
     } else {
-      recordRecentEmoji(selectedEmoji, "食事", selectedTags[0]);
       onSave(di, mi, {
         quickEmoji: selectedEmoji,
         note: note.trim() || undefined,
@@ -230,15 +200,15 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
         {!selectedImage && (
           <div className="modal-quick-emojis-section">
             <div className="modal-quick-header">
-              <span className="modal-quick-label">定番・よく使う食事</span>
+              <span className="modal-quick-label">定番の食事スタイル</span>
               <span className="selected-emoji-indicator">
                 {isDetailOpen ? <>選択中: <strong>{selectedEmoji}</strong></> : "1タップで記録"}
               </span>
             </div>
             <div className="modal-quick-row">
-              {recentEmojis.map((item) => (
+              {QUICK_MEAL_OPTIONS.map((item) => (
                 <button
-                  key={item.emoji}
+                  key={item.label}
                   type="button"
                   className={`quick-emoji-card ${selectedEmoji === item.emoji && isDetailOpen ? "selected" : ""}`}
                   onClick={() => handleEmojiSelect(item.emoji, item.label, item.defaultTag)}

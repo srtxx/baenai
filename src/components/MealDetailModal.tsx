@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Icon } from "./icons/Icons";
 import { photoUrl } from "../utils/helpers";
-import { DAYS, MEAL_LABELS } from "../constants";
+import { DAYS, MEAL_LABELS, PRESET_TAGS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 
 interface MealDetailModalProps {
@@ -12,8 +12,6 @@ interface MealDetailModalProps {
   onDelete: (di: DayIndex, mi: MealIndex) => void;
   onSave?: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
 }
-
-const PRESET_TAGS = ["自炊", "外食", "コンビニ", "テイクアウト", "カフェ", "お弁当"] as const;
 
 export default function MealDetailModal({
   di,
