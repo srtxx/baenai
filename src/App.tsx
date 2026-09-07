@@ -146,13 +146,7 @@ export default function App(): React.JSX.Element {
     }, 850);
 
     if (mealData && "skipped" in mealData && mealData.skipped) {
-      const skipMessages = [
-        "休食を記録しました",
-        "無理のないペースで 🍵",
-        "適当にいこう 🌿",
-      ];
-      const randomMsg = skipMessages[Math.floor(Math.random() * skipMessages.length)];
-      showToast(randomMsg);
+      showToast("休食を記録しました");
     } else if (mealData) {
       showToast("記録しました");
     }
