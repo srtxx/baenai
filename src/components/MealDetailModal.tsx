@@ -56,7 +56,7 @@ export default function MealDetailModal({
               <h2 className="modal-title">
                 {DAYS[di]}曜日 — {mealLabel}
               </h2>
-              <p className="modal-subtitle">もぐの記録</p>
+              <p className="modal-subtitle">食事の記録</p>
             </div>
             <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
               ✕
@@ -68,7 +68,7 @@ export default function MealDetailModal({
               <span className="detail-emoji-large">🌙</span>
             </div>
             <div className="detail-meta-box">
-              <p className="detail-notes">この食事はおやすみ（スキップ）しました</p>
+              <p className="detail-notes">この食事は休食（スキップ）しました</p>
             </div>
           </div>
 
@@ -130,7 +130,7 @@ export default function MealDetailModal({
             <h2 className="modal-title">
               {DAYS[di]}曜日 — {mealLabel}
             </h2>
-            <p className="modal-subtitle">もぐの記録</p>
+            <p className="modal-subtitle">食事の記録</p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
             ✕

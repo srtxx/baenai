@@ -146,7 +146,7 @@ function drawSkippedPattern(
     ctx.stroke();
   }
 
-  const text = "おやすみ";
+  const text = "休食";
   ctx.fillStyle = isDark ? "#777777" : "#9C968E";
   ctx.font = "14px sans-serif";
   ctx.textAlign = "center";
@@ -277,7 +277,7 @@ export async function generateShareImage(
     ctx.fillText(userHandle.startsWith("@") ? userHandle : "@" + userHandle, 168 + ctx.measureText(userName).width + 10, profileCardY + 25);
   }
 
-  const displayComment = comment?.trim() || "今週も自分らしく、もぐもぐ記録 🍵";
+  const displayComment = comment?.trim() || "今週の食事ログ。なんとか生き延びました 🍵";
   ctx.fillStyle = isDark ? "#D0D0D0" : "#55524E";
   ctx.font = "15px sans-serif";
   ctx.fillText("💬 " + displayComment, 168, profileCardY + (ratio === "1:1" ? 54 : 60));
@@ -376,7 +376,7 @@ export async function generateShareImage(
 
   const statsParts = [
     `📸 記録 ${stats.photoCount}/${stats.totalSlots}`,
-    stats.skipCount > 0 ? `🌙 おやすみ ${stats.skipCount}食` : "",
+    stats.skipCount > 0 ? `🌙 休食 ${stats.skipCount}食` : "",
     cookCount > 0 ? `🍳 自炊 ${cookCount}食` : "",
     outCount > 0 ? `🍽️ 外食 ${outCount}食` : "",
     convCount > 0 ? `🏪 コンビニ ${convCount}食` : "",

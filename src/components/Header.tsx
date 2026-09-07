@@ -53,13 +53,13 @@ export default function Header({
             <button
               onClick={onAchievementsClick}
               className="btn-header-action"
-              title="ふりかえり・足跡"
-              aria-label="ふりかえり・足跡"
+              title="振り返り・記録"
+              aria-label="振り返り・記録"
             >
               🌿
             </button>
           )}
-          <button onClick={onShareClick} className="btn-header-action share-btn" title="今週のmogをシェア" aria-label="シェア">
+          <button onClick={onShareClick} className="btn-header-action share-btn" title="週報をシェア" aria-label="シェア">
             <Icon.Share />
           </button>
         </div>
@@ -88,13 +88,13 @@ export default function Header({
       <div className="weekly-stats-card">
         <div className="stats-info-row">
           <div className="stats-left">
-            <span className="stats-title">今週のあしあと</span>
+            <span className="stats-title">今週のログ</span>
             <span className="stats-counts">
               記録 <strong>{stats.photoCount}</strong> / {stats.totalSlots}
-              {stats.skipCount > 0 && <span className="stats-skip">（おやすみ {stats.skipCount}食）</span>}
+              {stats.skipCount > 0 && <span className="stats-skip">（休食 {stats.skipCount}）</span>}
             </span>
           </div>
-          <div className="stats-percent-pill">{percentage}%</div>
+          <div className="stats-percent-pill">{stats.photoCount + stats.skipCount}食</div>
         </div>
         <div className="stats-progress-bar-bg">
           <div

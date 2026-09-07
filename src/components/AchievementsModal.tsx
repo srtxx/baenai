@@ -19,9 +19,9 @@ export default function AchievementsModal({
         {/* Header */}
         <div className="modal-header-row">
           <div>
-            <h2 className="modal-title">ふりかえりの足跡</h2>
+            <h2 className="modal-title">ふりかえりのしるし</h2>
             <p className="modal-subtitle">
-              灯ったきろく: <strong>{unlockedCount}</strong> / {achievements.length}（{percent}%）
+              記録のしるし: <strong>{unlockedCount}</strong> / {achievements.length}
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
@@ -51,17 +51,17 @@ export default function AchievementsModal({
               <div className="achievement-info">
                 <div className="achievement-title-row">
                   <span className="achievement-title">{item.title}</span>
-                  {item.unlocked && <span className="achievement-sparkle">✨</span>}
+                  {item.unlocked && <span className="achievement-sparkle">🌱</span>}
                 </div>
                 <div className="achievement-desc">{item.description}</div>
                 {item.unlocked ? (
-                  <div className="achievement-date">🌱 灯った日: {item.unlockedAt}</div>
+                  <div className="achievement-date">達成日: {item.unlockedAt}</div>
                 ) : item.progress ? (
                   <div className="achievement-progress-text">
                     進行状況: {item.progress.current} / {item.progress.max}
                   </div>
                 ) : (
-                  <div className="achievement-locked-label">静かに待機中</div>
+                  <div className="achievement-locked-label">未達成</div>
                 )}
               </div>
             </div>

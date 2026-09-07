@@ -42,10 +42,10 @@ const MealCell = React.memo(function MealCell({
       <div
         onClick={onClick}
         className={`meal-cell meal-cell-rested ${isJustSaved ? "meal-cell-just-saved" : ""}`}
-        title="おやすみ"
+        title="休食（スキップ）"
       >
         <span className="rested-mark">—</span>
-        <span className="rested-label">おやすみ</span>
+        <span className="rested-label">休食</span>
       </div>
     );
   }

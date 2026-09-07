@@ -147,15 +147,14 @@ export default function App(): React.JSX.Element {
 
     if (mealData && "skipped" in mealData && mealData.skipped) {
       const skipMessages = [
-        "休むことも、生きること 🌙",
-        "無理せずいこう 🌱",
-        "おやすみも立派なきろく 🍵",
-        "大丈夫、また次のごはん 🌿",
+        "休食を記録しました",
+        "無理のないペースで 🍵",
+        "適当にいこう 🌿",
       ];
       const randomMsg = skipMessages[Math.floor(Math.random() * skipMessages.length)];
       showToast(randomMsg);
     } else if (mealData) {
-      showToast("きろくが灯りました 🌱");
+      showToast("記録しました");
     }
   };
 
@@ -292,7 +291,7 @@ export default function App(): React.JSX.Element {
         <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
           <span className="unlocked-badge-icon">{recentlyUnlocked.icon}</span>
           <div>
-            <div className="unlocked-badge-tag">きろくが灯りました 🌱</div>
+            <div className="unlocked-badge-tag">新しいしるし 🌱</div>
             <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
           </div>
         </div>

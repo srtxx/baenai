@@ -105,7 +105,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               {DAYS[di]}曜日 — {mealLabel}
             </h2>
             <p className="modal-subtitle">
-              写真または絵文字をタップして即時記録 📸
+              写真または絵文字を選んで記録
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
@@ -130,7 +130,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
                 <span className="hero-camera-icon">📷</span>
                 <div className="hero-photo-texts">
                   <span className="hero-photo-title">写真で記録</span>
-                  <span className="hero-photo-sub">撮影 or アルバム</span>
+                  <span className="hero-photo-sub">撮影・ライブラリ</span>
                 </div>
               </div>
             )}
@@ -140,11 +140,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             type="button"
             onClick={() => handleQuickEmojiClick("🌙")}
             className="hero-skip-btn"
-            title="食べなかった時はおやすみ"
+            title="食べなかった時は休食を記録"
           >
             <span className="hero-skip-icon">🌙</span>
             <div className="hero-skip-texts">
-              <span className="hero-skip-title">おやすみ</span>
+              <span className="hero-skip-title">休食</span>
               <span className="hero-skip-sub">スキップ</span>
             </div>
           </button>
@@ -160,7 +160,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
         />
 
         <div className="modal-section-divider">
-          <span>絵文字をタップで即記録</span>
+          <span>または絵文字で記録</span>
         </div>
 
         {/* Emoji Category Tabs */}

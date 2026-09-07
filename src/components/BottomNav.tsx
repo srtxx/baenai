@@ -23,26 +23,26 @@ export default function BottomNav({
           type="button"
           onClick={onHomeClick}
           className="nav-item active"
-          title="きろく"
-          aria-label="きろく"
+          title="記録"
+          aria-label="記録"
         >
           <div className="nav-icon-box">
             <Icon.Log />
           </div>
-          <span className="nav-label">きろく</span>
+          <span className="nav-label">記録</span>
         </button>
 
         <button
           type="button"
           onClick={onAchievementsClick}
           className="nav-item"
-          title="あしあと"
-          aria-label="あしあと"
+          title="振り返り"
+          aria-label="振り返り"
         >
           <div className="nav-icon-box">
             <Icon.Leaf />
           </div>
-          <span className="nav-label">あしあと</span>
+          <span className="nav-label">振り返り</span>
         </button>
 
         <div className="nav-center-action-wrap">
@@ -50,8 +50,8 @@ export default function BottomNav({
             type="button"
             onClick={onCameraClick}
             className="nav-primary-btn"
-            aria-label="mogする（記録する）"
-            title="mogする（記録する）"
+            aria-label="記録する"
+            title="記録する"
           >
             <span className="primary-btn-glow" />
             <Icon.Camera />

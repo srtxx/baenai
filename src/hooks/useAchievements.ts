@@ -1,55 +1,55 @@
 import { useState, useEffect, useCallback } from "react";
 import { Achievement, WeekMeals } from "../types";
 
-const REFLECTIONS_STORAGE_KEY = "mog_reflections_v2";
+const REFLECTIONS_STORAGE_KEY = "mog_reflections_v3";
 
 const INITIAL_REFLECTIONS: Achievement[] = [
   {
     id: "first_meal",
-    title: "はじめの一歩",
-    description: "最初の食事を記録した",
+    title: "最初の記録",
+    description: "日々の食の記録をはじめました",
     icon: "🌱",
     unlocked: false,
   },
   {
     id: "three_meals",
-    title: "三食のめぐみ",
-    description: "1日で朝・昼・夜の3食すべてを記録した",
+    title: "ある日の3食",
+    description: "朝・昼・夜を記録した一日",
     icon: "🍱",
     unlocked: false,
   },
   {
     id: "home_cook",
-    title: "つくるよろこび",
-    description: "1週間に5食以上自炊で記録した",
+    title: "台所に立った週",
+    description: "5食以上、自炊で過ごした",
     icon: "🍳",
     unlocked: false,
   },
   {
     id: "rest_kindness",
-    title: "無理しない勇気",
-    description: "おやすみを3回以上記録した",
+    title: "休息の多い週",
+    description: "食べない時間も大切にした",
     icon: "🌙",
     unlocked: false,
   },
   {
     id: "weekly_record",
-    title: "一週間のmog",
-    description: "1週間のうち15食以上を記録した",
+    title: "ウィークリーログ",
+    description: "週15食以上を記録した",
     icon: "📓",
     unlocked: false,
   },
   {
     id: "share_week",
-    title: "今週のふりかえり",
+    title: "週報の保存",
     description: "週報画像を生成・保存した",
     icon: "🖼",
     unlocked: false,
   },
   {
     id: "all_week_logged",
-    title: "満ち足りた一週間",
-    description: "1週間の全21マスを記録またはおやすみで埋めた",
+    title: "21マスの記録",
+    description: "1週間の全スロットを記録した",
     icon: "✨",
     unlocked: false,
   },
