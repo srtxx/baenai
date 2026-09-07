@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "..");
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const PORT = 4173;
+const PORT = 5199;
 const BASE_URL = `http://localhost:${PORT}`;
 const OUTPUT_DIR = path.resolve(ROOT_DIR, "docs/demo");
 const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/8269469e-763b-4f5a-a289-cfd88b002770";
@@ -130,13 +130,13 @@ async function main() {
   console.log("=== Starting Comprehensive Monkey-Style Demo Recording ===");
 
   // 1. Vite preview サーバーを起動
-  console.log("Launching Vite preview server...");
-  const vite = spawn("npx", ["vite", "preview", "--port", String(PORT)], {
+  console.log("Launching Vite preview server on port " + PORT + "...");
+  const vite = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort"], {
     cwd: ROOT_DIR,
     stdio: "inherit",
   });
 
-  await sleep(1500);
+  await sleep(2000);
 
   const tempVideoDir = path.resolve(ROOT_DIR, "tmp_recordings");
   if (fs.existsSync(tempVideoDir)) {
@@ -165,7 +165,7 @@ async function main() {
 
   try {
     console.log("Navigating to app...");
-    await page.goto(BASE_URL, { waitUntil: "networkidle" });
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await injectTouchIndicator(page);
     await sleep(800);
 
@@ -187,7 +187,7 @@ async function main() {
       });
     });
 
-    await page.reload({ waitUntil: "networkidle" });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await injectTouchIndicator(page);
     await sleep(1000);
 
@@ -260,12 +260,19 @@ async function main() {
       const addTagBtn = await page.$(".btn-add-custom-tag");
       if (addTagBtn) await clickElement(page, addTagBtn, 400);
 
-      // メモを入力
-      await humanType(page, ".modal-text-input", "濃厚味噌ラーメン味玉つき", true);
-
       // 保存する -> トースト通知が表示される
       await clickWithTouch(page, ".btn-modal-primary", 800);
       await waitModalClosed(page);
+
+      // トーストの「メモを追加」からメモを追記する動線
+      const toastActionBtn = await page.$(".toast-action-btn");
+      if (toastActionBtn) {
+        await clickElement(page, toastActionBtn, 600);
+        await page.waitForSelector(".detail-edit-form", { timeout: 3000 }).catch(() => {});
+        await humanType(page, "textarea.modal-textarea", "濃厚味噌ラーメン味玉つき", true);
+        await clickWithTouch(page, "button.btn-modal-primary:has-text('保存する')", 700);
+        await waitModalClosed(page);
+      }
     }
 
     // =========================================================================
@@ -400,7 +407,7 @@ async function main() {
     });
 
     await sleep(400);
-    await page.reload({ waitUntil: "networkidle" });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await injectTouchIndicator(page);
     await sleep(1000);
 
@@ -467,9 +474,16 @@ async function main() {
     // 画像プレビューをタップして拡大（ズーム）
     const previewWrapper = await page.$(".share-preview-wrapper");
     if (previewWrapper) {
-      await clickElement(page, previewWrapper, 1200);
-      // もう一度タップしてズーム解除
-      await clickElement(page, previewWrapper, 900);
+      await clickElement(page, previewWrapper, 1400);
+
+      // ライトボックスの「閉じる」ボタンをタップしてズーム解除
+      const lightboxClose = await page.$(".lightbox-close-btn");
+      if (lightboxClose) {
+        await clickElement(page, lightboxClose, 800);
+      } else {
+        await page.keyboard.press("Escape");
+        await sleep(800);
+      }
     }
 
     await closeModal(page);

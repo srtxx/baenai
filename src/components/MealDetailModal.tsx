@@ -11,6 +11,7 @@ interface MealDetailModalProps {
   onClose: () => void;
   onDelete: (di: DayIndex, mi: MealIndex) => void;
   onSave?: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
+  initialEditing?: boolean;
 }
 
 export default function MealDetailModal({
@@ -20,10 +21,11 @@ export default function MealDetailModal({
   onClose,
   onDelete,
   onSave,
+  initialEditing = false,
 }: MealDetailModalProps): React.JSX.Element {
   const mealLabel = MEAL_LABELS[mi] || "ごはん";
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(initialEditing);
   const [note, setNote] = useState<string>(
     meal && "note" in meal && meal.note ? meal.note : ""
   );
@@ -183,11 +185,11 @@ export default function MealDetailModal({
         {isEditing ? (
           <div className="detail-edit-form">
             <div className="modal-input-group">
-              <label className="modal-input-label">ひとこと（メモ）</label>
+              <label className="modal-input-label">ひとことメモ（メニュー・店名など）</label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="メニューや感想など"
+                placeholder="例: 親子丼、近所の定食屋、自家製パスタ..."
                 className="modal-textarea"
                 rows={2}
                 autoFocus

@@ -16,7 +16,6 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedEmoji, setSelectedEmoji] = useState<string>(QUICK_MEAL_OPTIONS[0].emoji);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
-  const [note, setNote] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState<string>("");
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
@@ -92,13 +91,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     if (selectedImage) {
       onSave(di, mi, {
         image: selectedImage,
-        note: note.trim() || undefined,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
       });
     } else {
       onSave(di, mi, {
         quickEmoji: selectedEmoji,
-        note: note.trim() || undefined,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
       });
     }
@@ -118,7 +115,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               {DAYS[di]}曜日 — {mealLabel}
             </h2>
             <p className="modal-subtitle">
-              {selectedImage ? "写真とメモを残せます" : isDetailOpen ? "メモやタグを入力して保存" : "タップで即時記録"}
+              {selectedImage ? "写真で記録を保存" : isDetailOpen ? "タグや食事スタイルを選んで保存" : "タップで即時記録"}
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
@@ -230,12 +227,12 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
                 {isDetailOpen ? (
                   <>
                     <Icon.ChevronUp size={15} />
-                    <span>メモ・詳細入力を閉じる</span>
+                    <span>閉じる</span>
                   </>
                 ) : (
                   <>
                     <Icon.Plus size={13} />
-                    <span>メモ・タグ・他の食事を追加</span>
+                    <span>タグ・他の食事スタイルを選択</span>
                   </>
                 )}
               </div>
@@ -246,23 +243,8 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
         {/* Detail Input Area: Always shown if photo is selected, or conditionally for emoji */}
         {(selectedImage || isDetailOpen) && (
           <div className="modal-expanded-section">
-            {/* Note & Tags */}
+            {/* Tags */}
             <div className="modal-unified-note-section">
-              <div className="modal-input-group">
-                <label className="modal-input-label">
-                  {selectedImage ? "写真のひとことメモ" : "ひとことメモ（メニュー・店名など）"}
-                </label>
-                <input
-                  type="text"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder={selectedImage ? "例: 自家製パスタ、いつもの定食屋..." : "例: 親子丼、近所の定食屋..."}
-                  className="modal-text-input"
-                  maxLength={40}
-                  autoFocus={!selectedImage && isDetailOpen}
-                />
-              </div>
-
               <div className="modal-input-group" style={{ marginBottom: "2px" }}>
                 <div className="modal-input-label-row">
                   <label className="modal-input-label">タグ</label>

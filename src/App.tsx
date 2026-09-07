@@ -46,6 +46,7 @@ export default function App(): React.JSX.Element {
   const [activeModal, setActiveModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<MealSlot>({ di: 0, mi: 0 });
   const [justSavedSlot, setJustSavedSlot] = useState<MealSlot | null>(null);
+  const [detailInitialEditing, setDetailInitialEditing] = useState<boolean>(false);
 
   const directCameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -237,10 +238,11 @@ export default function App(): React.JSX.Element {
     }, 3800);
   };
 
-  // トースト内の「詳細」から直接詳細モーダルを開く
+  // トースト内の「メモを追加」から直接詳細モーダルを編集モードで開く
   const handleOpenToastDetail = () => {
     if (!toast?.slot) return;
     setSelectedSlot(toast.slot);
+    setDetailInitialEditing(true);
     setActiveModal("detail");
     setToast(null);
   };
@@ -257,6 +259,7 @@ export default function App(): React.JSX.Element {
 
   const handleCellClick = (di: DayIndex, mi: MealIndex, meal: unknown) => {
     setSelectedSlot({ di, mi });
+    setDetailInitialEditing(false);
     if (meal) {
       setActiveModal("detail");
     } else {
@@ -402,10 +405,16 @@ export default function App(): React.JSX.Element {
                 type="button"
                 className="toast-action-btn"
                 onClick={handleOpenToastDetail}
-                title="詳細・メモを入力"
+                title="ひとことメモを追加・編集"
               >
                 <Icon.Edit size={12} />
-                <span>詳細</span>
+                <span>
+                  {meals[toast.slot.di]?.[toast.slot.mi] &&
+                  "note" in meals[toast.slot.di][toast.slot.mi]! &&
+                  meals[toast.slot.di][toast.slot.mi]!.note
+                    ? "メモを編集"
+                    : "メモを追加"}
+                </span>
               </button>
             )}
           </div>
@@ -450,7 +459,11 @@ export default function App(): React.JSX.Element {
           di={selectedSlot.di}
           mi={selectedSlot.mi}
           meal={selectedMeal}
-          onClose={() => setActiveModal(null)}
+          initialEditing={detailInitialEditing}
+          onClose={() => {
+            setActiveModal(null);
+            setDetailInitialEditing(false);
+          }}
           onDelete={handleDeleteMeal}
           onSave={(di, mi, data) => handleSaveMeal(di, mi, data, true)}
         />

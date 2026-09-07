@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mog（映えない食事記録）- 実画面デモ動画プレビュー</title>
+  <title>mog（映えない食事記録）- 実画面フル操作デモ動画プレビュー</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,26 +12,27 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #18191c;
+      background: #141518;
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px;
+      padding: 36px 16px 60px;
     }
     header {
       text-align: center;
       margin-bottom: 24px;
     }
     h1 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #faf7f2;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
     }
     p.subtitle {
-      font-size: 14px;
+      font-size: 13px;
       color: #94a3b8;
     }
     .video-container {
@@ -39,50 +40,55 @@
       width: 100%;
       max-width: 380px;
       background: #000;
-      border-radius: 40px;
+      border-radius: 44px;
       padding: 12px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
     }
     .phone-speaker {
-      width: 80px;
+      width: 72px;
       height: 4px;
-      background: #333;
+      background: #2a2a2a;
       border-radius: 2px;
       margin: 8px auto 14px;
     }
     video {
       width: 100%;
-      border-radius: 28px;
+      border-radius: 32px;
       display: block;
       outline: none;
+      background: #2b302c;
     }
     .scene-list {
       margin-top: 32px;
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
-      background: #232529;
-      border-radius: 16px;
-      padding: 20px;
+      background: #1e2025;
+      border-radius: 18px;
+      padding: 22px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .scene-list h2 {
-      font-size: 16px;
-      margin-bottom: 12px;
+      font-size: 15px;
+      margin-bottom: 14px;
       color: #f1f5f9;
+      font-weight: 600;
     }
     .scene-list ol {
       padding-left: 20px;
       font-size: 13px;
       color: #cbd5e1;
-      line-height: 1.8;
+      line-height: 1.85;
+    }
+    .scene-list li {
+      margin-bottom: 4px;
     }
     .badge {
       display: inline-block;
-      background: rgba(43, 90, 83, 0.3);
+      background: rgba(43, 90, 83, 0.25);
       color: #5eead4;
       border: 1px solid rgba(94, 234, 212, 0.3);
-      padding: 2px 8px;
-      border-radius: 6px;
+      padding: 1px 7px;
+      border-radius: 5px;
       font-size: 11px;
       margin-left: 6px;
     }
@@ -90,8 +96,8 @@
 </head>
 <body>
   <header>
-    <h1>mog — 実画面デモ動画</h1>
-    <p class="subtitle">iPhone 15 Pro ビューポート（解像度 2x）での実機操作レコーディング</p>
+    <h1>mog — 実画面フル操作デモ動画</h1>
+    <p class="subtitle">自然で活発なユーザーの使用感を網羅したiPhone実機スケールレコーディング（解像度 2x / 4.5 MB）</p>
   </header>
 
   <div class="video-container">
@@ -102,17 +108,19 @@
   </div>
 
   <div class="scene-list">
-    <h2>デモ動画に含まれる操作シナリオ</h2>
+    <h2>収録されている操作フロー（全11シーン）</h2>
     <ol>
-      <li><strong>初期グリッド</strong>: 7×3マス（月〜日の朝昼夕）と週進捗の表示</li>
-      <li><strong>ワンタップ絵文字記録</strong>: 朝食セルをタップして即時保存</li>
-      <li><strong>タグ＆メモ付き記録</strong>: 外食タグ＋メモ「濃厚味噌ラーメン」の登録</li>
-      <li><strong>クイック撮影（下部ボタン）</strong>: スキップ（おやすみ）の記録</li>
-      <li><strong>1週間のフルグリッド</strong>: 美しく埋まった食事ログのスムーズスクロール</li>
-      <li><strong>食事詳細モーダル</strong>: 写真・撮影日時・タグの詳細ビュー</li>
-      <li><strong>あしあと・実績</strong>: 獲得バッジとアンロック率の確認</li>
-      <li><strong>週報画像生成（シェア）</strong>: 4:5 / 9:16 / 1:1 比率切り替えプレビュー</li>
-      <li><strong>テーマ切り替え</strong>: 生成り（エクリュ）からナイトモードへ切り替え</li>
+      <li><strong>週移動の探索</strong>: 前週・次週へ軽快に切り替え、「今週」ボタンで瞬時に復帰</li>
+      <li><strong>ゼロ摩擦ワンタップ記録</strong>: 朝食枠を開き、クイックカード「自炊」を1タップで即時保存（トースト表示）</li>
+      <li><strong>詳細入力モードの探索</strong>: アコーディオン展開、カテゴリタブ切り替え、ラーメン選択、タグ「外食」選択、カスタムタグ「特製」追加、キーボードタイピングでメモ入力</li>
+      <li><strong>休食（スキップ）記録</strong>: 食べなかった枠で「休食」を記録し、詳細ビューで確認</li>
+      <li><strong>下部FABカメラボタンからのクイック記録</strong>: 画面中央下のボタンから「ごはん」をワンタップ記録</li>
+      <li><strong>登録済みセルのインライン編集</strong>: 詳細モーダルから「メモやタグを編集する」を開き、メモを更新して再保存</li>
+      <li><strong>1週間のフルグリッド＆スムーズスクロール</strong>: 7×3マスに写真・絵文字・休食が埋まった一週間を軽快にスクロール</li>
+      <li><strong>写真付き食事のポラロイド詳細</strong>: 大きな写真・タグ・コメントが表示された詳細ビューの確認</li>
+      <li><strong>振り返り・実績モーダル</strong>: 達成度プログレスバーとバッジ一覧をスクロールしてじっくり確認</li>
+      <li><strong>週報シェアモーダルのフル操作</strong>: 4:5 / 9:16 / 1:1 比率切り替え、週報コメントのタイピング編集（Canvasリアルタイム再生成）、画像プレビューのズーム拡大・解除</li>
+      <li><strong>設定＆ナイトモード切り替え</strong>: お名前編集、「ナイト」テーマへ切り替え、ダークトーンでのスクロール、再度「生成り」に戻す全体プレビュー</li>
     </ol>
   </div>
 </body>
