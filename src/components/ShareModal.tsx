@@ -170,7 +170,7 @@ export default function ShareModal({
                     {(profile.name || "U").slice(0, 1).toUpperCase()}
                   </div>
                 )}
-                <span className="share-avatar-badge"><Icon.Camera /></span>
+                <span className="share-avatar-badge"><Icon.Camera size={13} /></span>
               </div>
               <input
                 type="file"
@@ -222,7 +222,7 @@ export default function ShareModal({
                 title="タップして拡大表示"
               >
                 <img src={objectUrl!} alt="Share Preview" className="share-preview-image" />
-                <div className="share-preview-zoom-hint"><Icon.Search /> タップで拡大</div>
+                <div className="share-preview-zoom-hint"><Icon.Search size={14} /> タップで拡大</div>
                 {isGenerating && (
                   <div className="share-preview-updating-badge">更新中...</div>
                 )}
@@ -236,7 +236,7 @@ export default function ShareModal({
               <>
                 {canShare && (
                   <button type="button" onClick={handleShare} className="btn-modal-primary">
-                    <Icon.Share /> シェアする
+                    <Icon.Share size={18} /> シェアする
                   </button>
                 )}
                 <button
@@ -244,7 +244,7 @@ export default function ShareModal({
                   onClick={handleDownload}
                   className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
                 >
-                  <Icon.Download /> 画像を保存
+                  <Icon.Download size={18} /> 画像を保存
                 </button>
               </>
             )}
@@ -262,7 +262,7 @@ export default function ShareModal({
               className="lightbox-close-btn"
               onClick={() => setIsZoomed(false)}
             >
-              <Icon.Close /> 閉じる
+              <Icon.Close size={18} /> 閉じる
             </button>
           </div>
         </div>

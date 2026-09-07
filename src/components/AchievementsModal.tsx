@@ -7,6 +7,27 @@ interface AchievementsModalProps {
   onClose: () => void;
 }
 
+function renderAchievementIcon(iconKey: string): React.JSX.Element {
+  switch (iconKey) {
+    case "leaf":
+      return <Icon.Leaf size={22} />;
+    case "log":
+      return <Icon.Log size={22} />;
+    case "fire":
+      return <Icon.Fire size={22} />;
+    case "moon":
+      return <Icon.Moon size={22} />;
+    case "calendar":
+      return <Icon.Calendar size={22} />;
+    case "share":
+      return <Icon.Share size={22} />;
+    case "sparkle":
+      return <Icon.Sparkle size={22} />;
+    default:
+      return <Icon.Leaf size={22} />;
+  }
+}
+
 export default function AchievementsModal({
   achievements,
   onClose
@@ -46,7 +67,7 @@ export default function AchievementsModal({
               className={`achievement-card ${item.unlocked ? "unlocked" : "locked"}`}
             >
               <div className="achievement-icon-wrap">
-                <span className="achievement-icon">{item.icon}</span>
+                <span className="achievement-icon">{renderAchievementIcon(item.icon)}</span>
               </div>
 
               <div className="achievement-info">

@@ -10,8 +10,6 @@ interface HeaderProps {
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onToday: () => void;
-  onShareClick: () => void;
-  onAchievementsClick?: () => void;
   stats: {
     photoCount: number;
     skipCount: number;
@@ -27,8 +25,6 @@ export default function Header({
   onPrevWeek,
   onNextWeek,
   onToday,
-  onShareClick,
-  onAchievementsClick,
   stats,
 }: HeaderProps): React.JSX.Element {
   const percentage = Math.round(((stats.photoCount + stats.skipCount) / stats.totalSlots) * 100);
@@ -36,65 +32,41 @@ export default function Header({
 
   return (
     <header className="app-header">
+      {/* Brand & Status Row */}
       <div className="header-top-row">
         <div className="brand-group">
           <h1 className="app-title">{APP_NAME}</h1>
           <p className="app-tagline">{APP_TAGLINE}</p>
         </div>
 
-        <div className="header-action-group">
-          {!isCurrentWeek && (
-            <button onClick={onToday} className="btn-today-pill" title="今週に戻る">
-              今週
-            </button>
-          )}
-
-          {onAchievementsClick && (
-            <button
-              onClick={onAchievementsClick}
-              className="btn-header-action"
-              title="振り返り・記録"
-              aria-label="振り返り・記録"
-            >
-              <Icon.Leaf />
-            </button>
-          )}
-          <button onClick={onShareClick} className="btn-header-action share-btn" title="週報をシェア" aria-label="シェア">
-            <Icon.Share />
+        {!isCurrentWeek && (
+          <button onClick={onToday} className="btn-today-pill" title="今週に戻る" aria-label="今週に戻る">
+            今週に戻る
           </button>
-        </div>
+        )}
       </div>
 
       {/* Week Navigator */}
       <div className="week-nav-container">
         <button onClick={onPrevWeek} className="week-nav-arrow" aria-label="前の週">
-          <Icon.ChevronLeft />
+          <Icon.ChevronLeft size={18} />
         </button>
         <div className="week-nav-center">
-          <span className="week-nav-calendar-icon"><Icon.Calendar /></span>
+          <span className="week-nav-calendar-icon"><Icon.Calendar size={14} /></span>
           <span className="week-nav-label">{weekLabel}</span>
         </div>
         <button onClick={onNextWeek} className="week-nav-arrow" aria-label="次の週">
-          <Icon.ChevronRight />
+          <Icon.ChevronRight size={18} />
         </button>
       </div>
 
-      {/* Epigraph */}
-      <div className="epigraph-card">
-        <span className="epigraph-quote">“{todayEpigraph}”</span>
-      </div>
-
-      {/* Weekly Progress Card */}
-      <div className="weekly-stats-card">
-        <div className="stats-info-row">
-          <div className="stats-left">
-            <span className="stats-title">今週のログ</span>
-            <span className="stats-counts">
-              記録 <strong>{stats.photoCount}</strong> / {stats.totalSlots}
-              {stats.skipCount > 0 && <span className="stats-skip">（休食 {stats.skipCount}）</span>}
-            </span>
+      {/* Compact Epigraph & Progress Combined Card */}
+      <div className="header-summary-card">
+        <div className="header-summary-top">
+          <span className="epigraph-quote-compact">“{todayEpigraph}”</span>
+          <div className="summary-count-badge">
+            <strong>{stats.photoCount + stats.skipCount}</strong> / {stats.totalSlots}
           </div>
-          <div className="stats-percent-pill">{stats.photoCount + stats.skipCount}食</div>
         </div>
         <div className="stats-progress-bar-bg">
           <div
@@ -106,5 +78,6 @@ export default function Header({
     </header>
   );
 }
+
 
 

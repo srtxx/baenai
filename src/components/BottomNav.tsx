@@ -27,7 +27,7 @@ export default function BottomNav({
           aria-label="記録"
         >
           <div className="nav-icon-box">
-            <Icon.Log />
+            <Icon.Log size={20} />
           </div>
           <span className="nav-label">記録</span>
         </button>
@@ -40,7 +40,7 @@ export default function BottomNav({
           aria-label="振り返り"
         >
           <div className="nav-icon-box">
-            <Icon.Leaf />
+            <Icon.Leaf size={20} />
           </div>
           <span className="nav-label">振り返り</span>
         </button>
@@ -54,7 +54,7 @@ export default function BottomNav({
             title="記録する"
           >
             <span className="primary-btn-glow" />
-            <Icon.Camera />
+            <Icon.Camera size={24} />
           </button>
         </div>
 
@@ -66,7 +66,7 @@ export default function BottomNav({
           aria-label="シェア"
         >
           <div className="nav-icon-box">
-            <Icon.Share />
+            <Icon.Share size={20} />
           </div>
           <span className="nav-label">シェア</span>
         </button>
@@ -79,7 +79,7 @@ export default function BottomNav({
           aria-label="設定"
         >
           <div className="nav-icon-box">
-            <Icon.Settings />
+            <Icon.Settings size={20} />
           </div>
           <span className="nav-label">設定</span>
         </button>

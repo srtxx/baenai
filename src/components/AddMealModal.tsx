@@ -11,6 +11,15 @@ interface AddMealModalProps {
   onSave: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
 }
 
+const RECENT_EMOJIS_KEY = "mog_recent_emojis";
+const DEFAULT_RECENTS = [
+  { emoji: "🍚", label: "ごはん" },
+  { emoji: "🍙", label: "おにぎり", defaultTag: "コンビニ" },
+  { emoji: "🍳", label: "自炊", defaultTag: "自炊" },
+  { emoji: "🍜", label: "外食", defaultTag: "外食" },
+  { emoji: "☕️", label: "カフェ" },
+];
+
 export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalProps): React.JSX.Element {
   const [activeCategory, setActiveCategory] = useState<string>("staple");
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
@@ -19,6 +28,23 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
   const [note, setNote] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [recentEmojis, setRecentEmojis] = useState<{ emoji: string; label: string; defaultTag?: string }[]>(() => {
+    try {
+      const saved = localStorage.getItem(RECENT_EMOJIS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return DEFAULT_RECENTS;
+  });
+
+  const recordRecentEmoji = (emoji: string, label: string, defaultTag?: string) => {
+    try {
+      const filtered = recentEmojis.filter(r => r.emoji !== emoji);
+      const next = [{ emoji, label, defaultTag }, ...filtered].slice(0, 5);
+      setRecentEmojis(next);
+      localStorage.setItem(RECENT_EMOJIS_KEY, JSON.stringify(next));
+    } catch {}
+  };
 
   const tagsList = ["自炊", "外食", "コンビニ", "テイクアウト"] as const;
 
@@ -62,9 +88,8 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
   };
 
   // 絵文字をワンタップで即時記録
-  const handleQuickEmojiClick = (emoji: string, defaultTag?: string) => {
+  const handleQuickEmojiClick = (emoji: string, label: string, defaultTag?: string) => {
     if (showNoteSection) {
-      // メモ展開中は絵文字を選択状態にする
       setSelectedEmojiForNote(emoji);
       if (defaultTag && !selectedTags.includes(defaultTag)) {
         setSelectedTags(prev => [...prev, defaultTag]);
@@ -75,6 +100,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
     if (emoji === "🌙") {
       onSave(di, mi, { skipped: true });
     } else {
+      recordRecentEmoji(emoji, label, defaultTag);
       onSave(di, mi, {
         quickEmoji: emoji,
         tags: defaultTag ? [defaultTag] : undefined,
@@ -85,6 +111,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
 
   // メモセクションからの保存
   const handleSaveWithNote = () => {
+    recordRecentEmoji(selectedEmojiForNote, "記録", selectedTags[0]);
     onSave(di, mi, {
       quickEmoji: selectedEmojiForNote,
       note: note.trim() || undefined,
@@ -110,7 +137,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            <Icon.Close />
+            <Icon.Close size={18} />
           </button>
         </div>
 
@@ -128,7 +155,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               </div>
             ) : (
               <div className="hero-photo-inner">
-                <span className="hero-camera-icon"><Icon.Camera /></span>
+                <span className="hero-camera-icon"><Icon.Camera size={24} /></span>
                 <div className="hero-photo-texts">
                   <span className="hero-photo-title">写真で記録</span>
                   <span className="hero-photo-sub">撮影・ライブラリ</span>
@@ -139,11 +166,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
 
           <button
             type="button"
-            onClick={() => handleQuickEmojiClick("🌙")}
+            onClick={() => handleQuickEmojiClick("🌙", "休食")}
             className="hero-skip-btn"
             title="食べなかった時は休食を記録"
           >
-            <span className="hero-skip-icon">🌙</span>
+            <span className="hero-skip-icon"><Icon.Moon size={22} /></span>
             <div className="hero-skip-texts">
               <span className="hero-skip-title">休食</span>
               <span className="hero-skip-sub">スキップ</span>
@@ -160,8 +187,32 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
           style={{ display: "none" }}
         />
 
+        {/* Recent / Frequently Used Emojis Section */}
+        {recentEmojis.length > 0 && (
+          <div className="modal-recents-section">
+            <div className="modal-recents-header">
+              <Icon.History size={13} />
+              <span>よく使う食事</span>
+            </div>
+            <div className="modal-recents-row">
+              {recentEmojis.map((item) => (
+                <button
+                  key={item.emoji}
+                  type="button"
+                  className="recent-emoji-pill"
+                  onClick={() => handleQuickEmojiClick(item.emoji, item.label, item.defaultTag)}
+                  title={`${item.label} をワンタップ記録`}
+                >
+                  <span className="recent-emoji-char">{item.emoji}</span>
+                  <span className="recent-emoji-label">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="modal-section-divider">
-          <span>または絵文字で記録</span>
+          <span>カテゴリーから選ぶ</span>
         </div>
 
         {/* Emoji Category Tabs */}
@@ -173,7 +224,6 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               className={`emoji-tab-btn ${activeCategory === cat.id ? "active" : ""}`}
               onClick={() => setActiveCategory(cat.id)}
             >
-              <span className="tab-cat-icon">{cat.icon}</span>
               <span className="tab-cat-name">{cat.name}</span>
             </button>
           ))}
@@ -186,7 +236,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               key={item.label}
               type="button"
               className={`emoji-grid-item ${showNoteSection && selectedEmojiForNote === item.emoji ? "active" : ""}`}
-              onClick={() => handleQuickEmojiClick(item.emoji, item.defaultTag)}
+              onClick={() => handleQuickEmojiClick(item.emoji, item.label, item.defaultTag)}
               title={showNoteSection ? `${item.label} を選択` : `${item.label} をワンタップ記録`}
             >
               <span className="emoji-grid-icon">{item.emoji}</span>
@@ -202,7 +252,11 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             className="modal-accordion-toggle"
             onClick={() => setShowNoteSection(prev => !prev)}
           >
-            <span>{showNoteSection ? "▲ メモ入力を閉じる" : "ひとことメモやタグも残す"}</span>
+            <div className="accordion-toggle-inner">
+              <Icon.Edit size={14} />
+              <span>{showNoteSection ? "メモ入力を閉じる" : "ひとことメモやタグも残す"}</span>
+            </div>
+            {showNoteSection ? <Icon.ChevronUp size={14} /> : <Icon.ChevronDown size={14} />}
           </button>
 
           {showNoteSection && (

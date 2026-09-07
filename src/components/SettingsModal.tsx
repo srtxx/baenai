@@ -75,7 +75,7 @@ export default function SettingsModal({
                     {profile.name ? profile.name.slice(0, 1).toUpperCase() : "U"}
                   </div>
                 )}
-                <div className="settings-avatar-badge"><Icon.Camera /></div>
+                <div className="settings-avatar-badge"><Icon.Camera size={13} /></div>
               </div>
               <input
                 type="file"
@@ -111,7 +111,10 @@ export default function SettingsModal({
               >
                 <div className="theme-card-swatch ecru-swatch" />
                 <div className="theme-card-info">
-                  <div className="theme-card-title">生成り（エクリュ）</div>
+                  <div className="theme-card-title">
+                    <Icon.Leaf size={14} />
+                    <span>生成り（エクリュ）</span>
+                  </div>
                   <div className="theme-card-sub">あたたかみのあるセージと生成り</div>
                 </div>
               </button>
@@ -123,7 +126,10 @@ export default function SettingsModal({
               >
                 <div className="theme-card-swatch night-swatch" />
                 <div className="theme-card-info">
-                  <div className="theme-card-title">ナイト</div>
+                  <div className="theme-card-title">
+                    <Icon.Moon size={14} />
+                    <span>ナイト</span>
+                  </div>
                   <div className="theme-card-sub">目に優しいダークトーン</div>
                 </div>
               </button>
@@ -137,11 +143,14 @@ export default function SettingsModal({
               onClick={() => setShowCloudSync(prev => !prev)}
             >
               <div className="settings-accordion-title">
-                <span className="settings-accordion-name">クラウド同期（Supabase連携）</span>
+                <span className="settings-accordion-name">
+                  <Icon.Cloud size={15} />
+                  <span>クラウド同期（Supabase連携）</span>
+                </span>
                 <span className="settings-accordion-status">任意設定（未設定時は端末内IndexedDBで動作）</span>
               </div>
               <span className={`settings-accordion-arrow ${showCloudSync ? "open" : ""}`}>
-                {showCloudSync ? "▲" : "▼"}
+                {showCloudSync ? <Icon.ChevronUp size={16} /> : <Icon.ChevronDown size={16} />}
               </span>
             </div>
 
@@ -180,7 +189,7 @@ export default function SettingsModal({
                 onClick={() => setConfirmingReset(true)}
                 className="btn-danger-outline"
               >
-                <Icon.Trash />
+                <Icon.Trash size={16} />
                 <span>全データを初期化（まっさらにする）</span>
               </button>
             ) : (

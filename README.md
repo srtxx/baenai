@@ -1,16 +1,37 @@
-# React + Vite
+# mog（映えない食事記録）
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> 「たべる、のこす、いきる。」
 
-Currently, two official plugins are available:
+SNSの「映え」や「完璧な食事管理」によるプレッシャーを排除し、7日×3食（21マス）のグリッドで日々のリアルな食事（自炊、コンビニ、休食/スキップ、外食）をゆるく記録するWebアプリケーションです。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ドキュメント一覧
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [コンセプト & フィロソフィードキュメント](docs/CONCEPT.md) : プロダクトフィロソフィー、現代哲学的背景、ペルソナ定義、UI/UX設計原則
+- [ソーシャル要件定義書](docs/SOCIAL_REQUIREMENTS.md) : 週報画像生成・プライバシー・データ構造
+- [プロダクトバックログ](BACKLOG.md) : 開発ロードマップとタスク進捗
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 技術スタック
+
+- **フロントエンド**: React 19, TypeScript, Vite
+- **ストレージ・永続化**: IndexedDB (idb-keyval), localStorage, Supabase (任意クラウド同期)
+- **スタイル**: Pure CSS, CSS Variables (エクリュ/ナイト テーマ対応)
+- **画像処理**: HTML5 Canvas (EXIF除去・リサイズ・週報画像生成)
+
+---
+
+## 開発環境のセットアップ
+
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
+npm run dev
+
+# 型チェック & ビルド
+npm run build
+```

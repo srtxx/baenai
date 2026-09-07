@@ -66,7 +66,7 @@ export default function MealDetailModal({
 
           <div className="detail-polaroid-frame">
             <div className="detail-emoji-preview">
-              <span className="detail-emoji-large">🌙</span>
+              <span className="detail-emoji-large"><Icon.Moon size={44} /></span>
             </div>
             <div className="detail-meta-box">
               <p className="detail-notes">この食事は休食（スキップ）しました</p>
@@ -82,7 +82,7 @@ export default function MealDetailModal({
               }}
               className="btn-modal-primary"
             >
-              <Icon.Edit /> 記録をし直す
+              <Icon.Edit size={16} /> 記録をし直す
             </button>
             <button type="button" onClick={onClose} className="btn-modal-secondary">
               閉じる
@@ -224,7 +224,7 @@ export default function MealDetailModal({
                 onClick={() => setIsEditing(true)}
                 className="btn-detail-edit"
               >
-                <Icon.Edit /> メモやタグを編集する
+                <Icon.Edit size={16} /> メモやタグを編集する
               </button>
             )}
             <button
@@ -235,7 +235,7 @@ export default function MealDetailModal({
               }}
               className="btn-detail-delete"
             >
-              <Icon.Trash /> この記録を取り消す
+              <Icon.Trash size={16} /> この記録を取り消す
             </button>
           </div>
         )}

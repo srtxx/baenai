@@ -4,6 +4,7 @@ import { useAchievements } from "./hooks/useAchievements";
 import { useProfile } from "./hooks/useProfile";
 import { DAYS } from "./constants";
 import "./App.css";
+import { Icon } from "./components/icons/Icons";
 import StatusBar from "./components/StatusBar";
 import Header from "./components/Header";
 import MealCell from "./components/MealCell";
@@ -190,11 +191,6 @@ export default function App(): React.JSX.Element {
           onPrevWeek={handlePrevWeek}
           onNextWeek={handleNextWeek}
           onToday={handleJumpToToday}
-          onShareClick={() => {
-            setActiveModal("share");
-            recordShareGenerated();
-          }}
-          onAchievementsClick={() => setActiveModal("achievements")}
           stats={stats}
         />
 
@@ -283,7 +279,9 @@ export default function App(): React.JSX.Element {
       {/* Achievement Unlocked Banner */}
       {recentlyUnlocked && (
         <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
-          <span className="unlocked-badge-icon">{recentlyUnlocked.icon}</span>
+          <span className="unlocked-badge-icon">
+            <Icon.Sparkle size={20} />
+          </span>
           <div>
             <div className="unlocked-badge-tag">新しいしるし</div>
             <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
