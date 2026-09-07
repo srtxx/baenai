@@ -1,4 +1,5 @@
 import React from "react";
+import { Icon } from "./icons/Icons";
 import { Achievement } from "../types";
 
 interface AchievementsModalProps {
@@ -25,7 +26,7 @@ export default function AchievementsModal({
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            ✕
+            <Icon.Close />
           </button>
         </div>
 
@@ -51,7 +52,7 @@ export default function AchievementsModal({
               <div className="achievement-info">
                 <div className="achievement-title-row">
                   <span className="achievement-title">{item.title}</span>
-                  {item.unlocked && <span className="achievement-sparkle">🌱</span>}
+                  {item.unlocked && <span className="achievement-sparkle"><Icon.Check /></span>}
                 </div>
                 <div className="achievement-desc">{item.description}</div>
                 {item.unlocked ? (

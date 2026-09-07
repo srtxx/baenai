@@ -66,7 +66,7 @@ async function injectTouchIndicator(page) {
 
 // 指定セレクタをタップ演出付きでクリック
 async function clickWithTouch(page, selector, waitAfter = 800) {
-  const el = await page.waitForSelector(selector, { state: "visible", timeout: 6000 });
+  const el = await page.waitForSelector(selector, { state: "visible", timeout: 8000 });
   const box = await el.boundingBox();
   if (box) {
     const x = box.x + box.width / 2;
@@ -77,8 +77,21 @@ async function clickWithTouch(page, selector, waitAfter = 800) {
   await sleep(waitAfter);
 }
 
+// モーダルを確実に閉じる
+async function closeModal(page) {
+  const closeBtn = await page.$(".modal-close-icon-btn, .modal-close-btn");
+  if (closeBtn) {
+    const box = await closeBtn.boundingBox();
+    if (box) await page.evaluate(({ x, y }) => window.showTouch && window.showTouch(x, y), { x: box.x + box.width / 2, y: box.y + box.height / 2 });
+    await closeBtn.click();
+  } else {
+    await page.keyboard.press("Escape");
+  }
+  await sleep(800);
+}
+
 async function main() {
-  console.log("=== Starting Demo Recording ===");
+  console.log("=== Starting High Quality Demo Recording ===");
 
   // 1. Vite preview サーバーを起動
   console.log("Launching Vite preview server...");
@@ -100,7 +113,7 @@ async function main() {
     headless: true,
   });
 
-  // モバイル端末（iPhone 15 Pro相当）のビューポートとアスペクト比で録画
+  // モバイル端末（iPhone 15 Pro相当: 412x860, 高解像度 2x）
   const context = await browser.newContext({
     viewport: { width: 412, height: 860 },
     deviceScaleFactor: 2,
@@ -140,22 +153,21 @@ async function main() {
 
     await page.reload({ waitUntil: "networkidle" });
     await injectTouchIndicator(page);
-    await sleep(1000);
+    await sleep(1200);
 
     // ==========================================
     // シーン 1: 初期状態の7×3グリッド
     // ==========================================
     console.log("Scene 1: Initial Blank Grid");
     await page.mouse.wheel(0, 180);
-    await sleep(600);
+    await sleep(700);
     await page.mouse.wheel(0, -180);
-    await sleep(800);
+    await sleep(900);
 
     // ==========================================
     // シーン 2: 絵文字ワンタップで食事をクイック記録
     // ==========================================
     console.log("Scene 2: Quick Emoji Record");
-    // 月曜 朝食（最初の空セル）をクリック
     const emptyCells = await page.$$(".meal-cell-empty");
     if (emptyCells.length > 0) {
       const box = await emptyCells[0].boundingBox();
@@ -171,7 +183,7 @@ async function main() {
         const bbox = await breadEmoji.boundingBox();
         if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
         await breadEmoji.click();
-        await sleep(1200);
+        await sleep(1400);
       }
     }
 
@@ -203,7 +215,7 @@ async function main() {
       }
 
       // タグ「外食」を選択
-      const tagOut = await page.$("button:has-text('外食'), .tag-pill:has-text('外食')");
+      const tagOut = await page.$(".tags-selector-row button:has-text('外食')");
       if (tagOut) {
         await tagOut.click();
         await sleep(400);
@@ -220,7 +232,7 @@ async function main() {
       const saveBtn = await page.$(".btn-save-note");
       if (saveBtn) {
         await saveBtn.click();
-        await sleep(1200);
+        await sleep(1400);
       }
     }
 
@@ -234,7 +246,7 @@ async function main() {
       const box = await skipBtn.boundingBox();
       if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
       await skipBtn.click();
-      await sleep(1200);
+      await sleep(1400);
     }
 
     // ==========================================
@@ -242,7 +254,6 @@ async function main() {
     // ==========================================
     console.log("Scene 5: Populate Full Week Meals and Scroll");
     await page.evaluate(async () => {
-      // 日付ヘルパーと同様の週キーを計算
       const d = new Date();
       const day = d.getDay();
       const diff = d.getDate() - day + (day === 0 ? -6 : 1);
@@ -310,99 +321,118 @@ async function main() {
       });
     });
 
-    await sleep(400);
+    await sleep(500);
     await page.reload({ waitUntil: "networkidle" });
     await injectTouchIndicator(page);
-    await sleep(1200);
+    await sleep(1400);
 
-    // グリッドを優雅にスクロール
-    await page.mouse.wheel(0, 300);
+    // グリッドをスクロールして1週間の記録を見せる
+    await page.mouse.wheel(0, 320);
     await sleep(900);
-    await page.mouse.wheel(0, 300);
+    await page.mouse.wheel(0, 320);
     await sleep(900);
-    await page.mouse.wheel(0, -600);
-    await sleep(1000);
+    await page.mouse.wheel(0, -640);
+    await sleep(1100);
 
     // ==========================================
     // シーン 6: 食事詳細モーダルの表示
     // ==========================================
     console.log("Scene 6: Open Meal Detail Modal");
-    const photoCells = await page.$$(".meal-cell-photo");
-    if (photoCells.length > 0) {
-      const box = await photoCells[0].boundingBox();
+    const filledCells = await page.$$(".meal-cell.meal-cell-filled");
+    if (filledCells.length > 0) {
+      const box = await filledCells[0].boundingBox();
       if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await photoCells[0].click();
-      await sleep(1800);
+      await filledCells[0].click();
+      await sleep(2000);
 
       // モーダルを閉じる
-      await clickWithTouch(page, ".modal-close-icon-btn, .modal-close-btn", 800);
+      await closeModal(page);
     }
 
     // ==========================================
     // シーン 7: 実績・あしあとモーダルの確認
     // ==========================================
     console.log("Scene 7: View Achievements / Milestones");
-    await clickWithTouch(page, "button[aria-label='あしあと']", 1500);
-    // モーダル内スクロール
-    await page.mouse.wheel(0, 200);
-    await sleep(1000);
-    await clickWithTouch(page, ".modal-close-icon-btn", 800);
+    const ashiaotoBtn = await page.$(".nav-item:has-text('あしあと')");
+    if (ashiaotoBtn) {
+      const box = await ashiaotoBtn.boundingBox();
+      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
+      await ashiaotoBtn.click();
+      await sleep(1800);
+
+      // モーダル内を少しスクロール
+      await page.mouse.wheel(0, 200);
+      await sleep(1000);
+      await closeModal(page);
+    }
 
     // ==========================================
     // シーン 8: 週報画像生成 & シェアモーダル
     // ==========================================
     console.log("Scene 8: Share Modal / Weekly Report Generation");
-    await clickWithTouch(page, "button[aria-label='シェア']", 2000);
+    const shareNavBtn = await page.$(".nav-item:has-text('シェア')");
+    if (shareNavBtn) {
+      const box = await shareNavBtn.boundingBox();
+      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
+      await shareNavBtn.click();
+      await sleep(2200);
 
-    // アスペクト比の切り替え演出 (4:5 -> 9:16 -> 1:1)
-    const ratioBtns = await page.$$(".segmented-btn");
-    if (ratioBtns.length >= 3) {
-      // 9:16 縦長
-      const box1 = await ratioBtns[1].boundingBox();
-      if (box1) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box1.x + box1.width/2, y: box1.y + box1.height/2 });
-      await ratioBtns[1].click();
-      await sleep(1600);
+      // アスペクト比の切り替え演出 (4:5 -> 9:16 -> 1:1)
+      const ratioBtns = await page.$$(".segmented-btn");
+      if (ratioBtns.length >= 3) {
+        // 9:16 縦長
+        const box1 = await ratioBtns[1].boundingBox();
+        if (box1) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box1.x + box1.width/2, y: box1.y + box1.height/2 });
+        await ratioBtns[1].click();
+        await sleep(1800);
 
-      // 1:1 正方形
-      const box2 = await ratioBtns[2].boundingBox();
-      if (box2) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box2.x + box2.width/2, y: box2.y + box2.height/2 });
-      await ratioBtns[2].click();
-      await sleep(1600);
+        // 1:1 正方形
+        const box2 = await ratioBtns[2].boundingBox();
+        if (box2) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box2.x + box2.width/2, y: box2.y + box2.height/2 });
+        await ratioBtns[2].click();
+        await sleep(1800);
 
-      // 4:5 標準に戻す
-      const box0 = await ratioBtns[0].boundingBox();
-      if (box0) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box0.x + box0.width/2, y: box0.y + box0.height/2 });
-      await ratioBtns[0].click();
-      await sleep(1400);
+        // 4:5 標準に戻す
+        const box0 = await ratioBtns[0].boundingBox();
+        if (box0) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box0.x + box0.width/2, y: box0.y + box0.height/2 });
+        await ratioBtns[0].click();
+        await sleep(1500);
+      }
+
+      await closeModal(page);
     }
-
-    await clickWithTouch(page, ".modal-close-icon-btn", 800);
 
     // ==========================================
     // シーン 9: カラーテーマの切り替え（設定）
     // ==========================================
     console.log("Scene 9: Theme Switch to Night Mode");
-    await clickWithTouch(page, "button[aria-label='設定']", 1200);
-
-    // ナイトモード選択
-    const nightOption = await page.$(".theme-card-option:has-text('ナイト')");
-    if (nightOption) {
-      const box = await nightOption.boundingBox();
+    const settingsNavBtn = await page.$(".nav-item:has-text('設定')");
+    if (settingsNavBtn) {
+      const box = await settingsNavBtn.boundingBox();
       if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await nightOption.click();
+      await settingsNavBtn.click();
       await sleep(1400);
+
+      // ナイトモード選択
+      const nightOption = await page.$(".theme-card-option:has-text('ナイト')");
+      if (nightOption) {
+        const box = await nightOption.boundingBox();
+        if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
+        await nightOption.click();
+        await sleep(1500);
+      }
+
+      // 設定を閉じる
+      await closeModal(page);
+
+      // ナイトモードでグリッドをスクロールして見せる
+      await page.mouse.wheel(0, 260);
+      await sleep(1000);
+      await page.mouse.wheel(0, -260);
+      await sleep(1500);
     }
 
-    // 設定を閉じてナイトモードのグリッドを見せる
-    await clickWithTouch(page, ".modal-close-icon-btn", 1000);
-
-    // ナイトモードでグリッドをスクロール
-    await page.mouse.wheel(0, 250);
-    await sleep(900);
-    await page.mouse.wheel(0, -250);
-    await sleep(1500);
-
-    console.log("All scenes recorded successfully!");
+    console.log("All scenes completed successfully!");
   } catch (err) {
     console.error("Recording error:", err);
   } finally {

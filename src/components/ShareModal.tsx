@@ -23,7 +23,7 @@ export default function ShareModal({
   const { profile, updateProfile } = useProfile();
   const [ratio, setRatio] = useState<ShareRatio>("4:5");
   const theme: ShareTheme = "ecru"; // 週報は生成り（ecru）に統一
-  const [comment, setComment] = useState<string>("今週の食事ログ。なんとか生き延びました 🍵");
+  const [comment, setComment] = useState<string>("今週の食事ログ。なんとか生き延びました");
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
@@ -92,7 +92,7 @@ export default function ShareModal({
       try {
         const file = new File([imageBlob], "mog_share.png", { type: "image/png" });
         await navigator.share({
-          text: `${profile.name} の今週の食事ログ 📸 「${comment}」 #mog #たべるのこすいきる`,
+          text: `${profile.name} の今週の食事ログ「${comment}」 #mog #たべるのこすいきる`,
           url: "https://mog-app.vercel.app",
           files: [file]
         });
@@ -123,10 +123,10 @@ export default function ShareModal({
           <div className="modal-header-row">
             <div>
               <h2 className="modal-title">今週の記録をシェア</h2>
-              <p className="modal-subtitle">1週間の食事ログを画像として保存・共有 📸</p>
+              <p className="modal-subtitle">1週間の食事ログを画像として保存・共有</p>
             </div>
             <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-              ✕
+              <Icon.Close />
             </button>
           </div>
 
@@ -170,7 +170,7 @@ export default function ShareModal({
                     {(profile.name || "U").slice(0, 1).toUpperCase()}
                   </div>
                 )}
-                <span className="share-avatar-badge">📷</span>
+                <span className="share-avatar-badge"><Icon.Camera /></span>
               </div>
               <input
                 type="file"
@@ -222,7 +222,7 @@ export default function ShareModal({
                 title="タップして拡大表示"
               >
                 <img src={objectUrl!} alt="Share Preview" className="share-preview-image" />
-                <div className="share-preview-zoom-hint">🔍 タップで拡大</div>
+                <div className="share-preview-zoom-hint"><Icon.Search /> タップで拡大</div>
                 {isGenerating && (
                   <div className="share-preview-updating-badge">更新中...</div>
                 )}
@@ -244,7 +244,7 @@ export default function ShareModal({
                   onClick={handleDownload}
                   className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
                 >
-                  📥 画像を保存
+                  <Icon.Download /> 画像を保存
                 </button>
               </>
             )}
@@ -262,7 +262,7 @@ export default function ShareModal({
               className="lightbox-close-btn"
               onClick={() => setIsZoomed(false)}
             >
-              ✕ 閉じる
+              <Icon.Close /> 閉じる
             </button>
           </div>
         </div>

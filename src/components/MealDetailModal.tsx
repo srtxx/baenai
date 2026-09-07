@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Icon } from "./icons/Icons";
 import { photoUrl } from "../utils/helpers";
 import { DAYS, MEAL_LABELS } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
@@ -59,7 +60,7 @@ export default function MealDetailModal({
               <p className="modal-subtitle">食事の記録</p>
             </div>
             <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-              ✕
+              <Icon.Close />
             </button>
           </div>
 
@@ -81,7 +82,7 @@ export default function MealDetailModal({
               }}
               className="btn-modal-primary"
             >
-              ✏️ 記録をし直す
+              <Icon.Edit /> 記録をし直す
             </button>
             <button type="button" onClick={onClose} className="btn-modal-secondary">
               閉じる
@@ -133,7 +134,7 @@ export default function MealDetailModal({
             <p className="modal-subtitle">食事の記録</p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            ✕
+            <Icon.Close />
           </button>
         </div>
 
@@ -223,7 +224,7 @@ export default function MealDetailModal({
                 onClick={() => setIsEditing(true)}
                 className="btn-detail-edit"
               >
-                ✏️ メモやタグを編集する
+                <Icon.Edit /> メモやタグを編集する
               </button>
             )}
             <button
@@ -234,7 +235,7 @@ export default function MealDetailModal({
               }}
               className="btn-detail-delete"
             >
-              🗑️ この記録を取り消す
+              <Icon.Trash /> この記録を取り消す
             </button>
           </div>
         )}

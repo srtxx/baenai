@@ -56,7 +56,7 @@ export default function Header({
               title="振り返り・記録"
               aria-label="振り返り・記録"
             >
-              🌿
+              <Icon.Leaf />
             </button>
           )}
           <button onClick={onShareClick} className="btn-header-action share-btn" title="週報をシェア" aria-label="シェア">
@@ -71,7 +71,7 @@ export default function Header({
           <Icon.ChevronLeft />
         </button>
         <div className="week-nav-center">
-          <span className="week-nav-calendar-icon">🗓️</span>
+          <span className="week-nav-calendar-icon"><Icon.Calendar /></span>
           <span className="week-nav-label">{weekLabel}</span>
         </div>
         <button onClick={onNextWeek} className="week-nav-arrow" aria-label="次の週">

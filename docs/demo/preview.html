@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mog（映えない食事記録）- 実画面デモ動画プレビュー</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #18191c;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #faf7f2;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      background: #000;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    .phone-speaker {
+      width: 80px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin: 8px auto 14px;
+    }
+    video {
+      width: 100%;
+      border-radius: 28px;
+      display: block;
+      outline: none;
+    }
+    .scene-list {
+      margin-top: 32px;
+      max-width: 500px;
+      width: 100%;
+      background: #232529;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .scene-list h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #f1f5f9;
+    }
+    .scene-list ol {
+      padding-left: 20px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.8;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(43, 90, 83, 0.3);
+      color: #5eead4;
+      border: 1px solid rgba(94, 234, 212, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>mog — 実画面デモ動画</h1>
+    <p class="subtitle">iPhone 15 Pro ビューポート（解像度 2x）での実機操作レコーディング</p>
+  </header>
+
+  <div class="video-container">
+    <div class="phone-speaker"></div>
+    <video controls autoplay loop muted playsinline src="./demo_app.webm">
+      お使いのブラウザは動画タグに対応していません。
+    </video>
+  </div>
+
+  <div class="scene-list">
+    <h2>デモ動画に含まれる操作シナリオ</h2>
+    <ol>
+      <li><strong>初期グリッド</strong>: 7×3マス（月〜日の朝昼夕）と週進捗の表示</li>
+      <li><strong>ワンタップ絵文字記録</strong>: 朝食セルをタップして即時保存</li>
+      <li><strong>タグ＆メモ付き記録</strong>: 外食タグ＋メモ「濃厚味噌ラーメン」の登録</li>
+      <li><strong>クイック撮影（下部ボタン）</strong>: スキップ（おやすみ）の記録</li>
+      <li><strong>1週間のフルグリッド</strong>: 美しく埋まった食事ログのスムーズスクロール</li>
+      <li><strong>食事詳細モーダル</strong>: 写真・撮影日時・タグの詳細ビュー</li>
+      <li><strong>あしあと・実績</strong>: 獲得バッジとアンロック率の確認</li>
+      <li><strong>週報画像生成（シェア）</strong>: 4:5 / 9:16 / 1:1 比率切り替えプレビュー</li>
+      <li><strong>テーマ切り替え</strong>: 生成り（エクリュ）からナイトモードへ切り替え</li>
+    </ol>
+  </div>
+</body>
+</html>

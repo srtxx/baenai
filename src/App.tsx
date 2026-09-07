@@ -285,7 +285,7 @@ export default function App(): React.JSX.Element {
         <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
           <span className="unlocked-badge-icon">{recentlyUnlocked.icon}</span>
           <div>
-            <div className="unlocked-badge-tag">新しいしるし 🌱</div>
+            <div className="unlocked-badge-tag">新しいしるし</div>
             <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
           </div>
         </div>

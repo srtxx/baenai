@@ -1,4 +1,5 @@
 import React, { useState, useRef, ChangeEvent } from "react";
+import { Icon } from "./icons/Icons";
 import { DAYS, MEAL_LABELS, EMOJI_CATEGORIES } from "../constants";
 import { DayIndex, MealIndex, Meal } from "../types";
 import { compressImage } from "../utils/imageCompressor";
@@ -109,7 +110,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            ✕
+            <Icon.Close />
           </button>
         </div>
 
@@ -127,7 +128,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
               </div>
             ) : (
               <div className="hero-photo-inner">
-                <span className="hero-camera-icon">📷</span>
+                <span className="hero-camera-icon"><Icon.Camera /></span>
                 <div className="hero-photo-texts">
                   <span className="hero-photo-title">写真で記録</span>
                   <span className="hero-photo-sub">撮影・ライブラリ</span>
@@ -201,7 +202,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
             className="modal-accordion-toggle"
             onClick={() => setShowNoteSection(prev => !prev)}
           >
-            <span>{showNoteSection ? "▲ メモ入力を閉じる" : "✏️ ひとことメモやタグも残す"}</span>
+            <span>{showNoteSection ? "▲ メモ入力を閉じる" : "ひとことメモやタグも残す"}</span>
           </button>
 
           {showNoteSection && (

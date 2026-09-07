@@ -277,10 +277,10 @@ export async function generateShareImage(
     ctx.fillText(userHandle.startsWith("@") ? userHandle : "@" + userHandle, 168 + ctx.measureText(userName).width + 10, profileCardY + 25);
   }
 
-  const displayComment = comment?.trim() || "今週の食事ログ。なんとか生き延びました 🍵";
+  const displayComment = comment?.trim() || "今週の食事ログ。なんとか生き延びました";
   ctx.fillStyle = isDark ? "#D0D0D0" : "#55524E";
   ctx.font = "15px sans-serif";
-  ctx.fillText("💬 " + displayComment, 168, profileCardY + (ratio === "1:1" ? 54 : 60));
+  ctx.fillText(displayComment, 168, profileCardY + (ratio === "1:1" ? 54 : 60));
 
   // 4. Meal Grid
   const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
@@ -375,11 +375,11 @@ export async function generateShareImage(
   );
 
   const statsParts = [
-    `📸 記録 ${stats.photoCount}/${stats.totalSlots}`,
-    stats.skipCount > 0 ? `🌙 休食 ${stats.skipCount}食` : "",
-    cookCount > 0 ? `🍳 自炊 ${cookCount}食` : "",
-    outCount > 0 ? `🍽️ 外食 ${outCount}食` : "",
-    convCount > 0 ? `🏪 コンビニ ${convCount}食` : "",
+    `記録 ${stats.photoCount}/${stats.totalSlots}`,
+    stats.skipCount > 0 ? `休食 ${stats.skipCount}食` : "",
+    cookCount > 0 ? `自炊 ${cookCount}食` : "",
+    outCount > 0 ? `外食 ${outCount}食` : "",
+    convCount > 0 ? `コンビニ ${convCount}食` : "",
   ].filter(Boolean);
 
   const statsY = HEIGHT - (ratio === "9:16" ? 140 : 90);
