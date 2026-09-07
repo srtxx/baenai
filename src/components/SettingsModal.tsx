@@ -46,15 +46,15 @@ export default function SettingsModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content settings-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="modal-header">
+        <div className="modal-header-row">
           <div>
-            <h3 className="modal-title">設定</h3>
+            <h2 className="modal-title">設定</h2>
             <p className="modal-subtitle">mog — たべる、のこす、いきる。</p>
           </div>
-          <button className="modal-close-btn" onClick={onClose} aria-label="閉じる">
-            <Icon.Close />
+          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+            ✕
           </button>
         </div>
 
@@ -100,8 +100,8 @@ export default function SettingsModal({
 
           {/* Color Theme Preference */}
           <div className="settings-card">
-            <div className="settings-card-title">カラーテーマ</div>
-            <div className="settings-card-desc">お好みのトーンを選択できます。</div>
+            <div className="settings-card-title">アプリのカラーテーマ</div>
+            <div className="settings-card-desc">画面全体のトーンを選択できます。</div>
             
             <div className="theme-options-grid">
               <button
@@ -111,8 +111,8 @@ export default function SettingsModal({
               >
                 <div className="theme-card-swatch ecru-swatch" />
                 <div className="theme-card-info">
-                  <div className="theme-card-title">🌿 エクリュ</div>
-                  <div className="theme-card-sub">生成りとセージグリーン</div>
+                  <div className="theme-card-title">🌿 生成り（エクリュ）</div>
+                  <div className="theme-card-sub">あたたかみのあるセージと生成り</div>
                 </div>
               </button>
 
@@ -137,7 +137,7 @@ export default function SettingsModal({
               onClick={() => setShowCloudSync(prev => !prev)}
             >
               <div className="settings-accordion-title">
-                <span>☁️ クラウド同期（Supabase連携）</span>
+                <span className="settings-accordion-name">☁️ クラウド同期（Supabase連携）</span>
                 <span className="settings-accordion-status">任意設定（未設定時は端末内IndexedDBで動作）</span>
               </div>
               <span className={`settings-accordion-arrow ${showCloudSync ? "open" : ""}`}>
@@ -157,7 +157,7 @@ export default function SettingsModal({
                     onChange={(e) => onUpdateProfile({ supabaseUrl: e.target.value })}
                   />
                 </div>
-                <div className="settings-field-group">
+                <div className="settings-field-group" style={{ marginTop: "10px" }}>
                   <label className="settings-field-label">Anon Key</label>
                   <input
                     type="password"
@@ -176,6 +176,7 @@ export default function SettingsModal({
             <div className="settings-card-title danger-title">データ管理</div>
             {!confirmingReset ? (
               <button
+                type="button"
                 onClick={() => setConfirmingReset(true)}
                 className="btn-danger-outline"
               >
@@ -189,6 +190,7 @@ export default function SettingsModal({
                 </p>
                 <div className="btn-modal-actions-row">
                   <button
+                    type="button"
                     onClick={() => setConfirmingReset(false)}
                     disabled={isResetting}
                     className="btn-modal-secondary"
@@ -196,6 +198,7 @@ export default function SettingsModal({
                     やめる
                   </button>
                   <button
+                    type="button"
                     onClick={handleReset}
                     disabled={isResetting}
                     className="btn-modal-danger"
@@ -208,8 +211,8 @@ export default function SettingsModal({
           </div>
         </div>
 
-        <div className="btn-group" style={{ marginTop: "16px" }}>
-          <button onClick={onClose} className="btn-close">
+        <div className="btn-modal-actions-row" style={{ marginTop: "18px" }}>
+          <button type="button" onClick={onClose} className="btn-modal-secondary">
             閉じる
           </button>
         </div>

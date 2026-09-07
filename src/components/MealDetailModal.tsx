@@ -50,25 +50,40 @@ export default function MealDetailModal({
   if (isSkipped) {
     return (
       <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-title">
-            {DAYS[di]}曜日 — {mealLabel}
-          </div>
-          <div className="modal-subtitle-detail">
-            この食事はおやすみしました 🌙
+        <div className="modal-content meal-detail-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header-row">
+            <div>
+              <h2 className="modal-title">
+                {DAYS[di]}曜日 — {mealLabel}
+              </h2>
+              <p className="modal-subtitle">もぐの記録</p>
+            </div>
+            <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+              ✕
+            </button>
           </div>
 
-          <div className="btn-group-vertical" style={{ marginTop: "16px" }}>
+          <div className="detail-polaroid-frame">
+            <div className="detail-emoji-preview">
+              <span className="detail-emoji-large">🌙</span>
+            </div>
+            <div className="detail-meta-box">
+              <p className="detail-notes">この食事はおやすみ（スキップ）しました</p>
+            </div>
+          </div>
+
+          <div className="btn-modal-actions-row" style={{ marginTop: "16px" }}>
             <button
+              type="button"
               onClick={() => {
                 onDelete(di, mi);
                 onClose();
               }}
-              className="btn-action-restore"
+              className="btn-modal-primary"
             >
-              記録をし直す
+              ✏️ 記録をし直す
             </button>
-            <button onClick={onClose} className="btn-cancel">
+            <button type="button" onClick={onClose} className="btn-modal-secondary">
               閉じる
             </button>
           </div>

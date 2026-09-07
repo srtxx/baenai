@@ -22,15 +22,16 @@ export default function ShareModal({
 }: ShareModalProps): React.JSX.Element {
   const { profile, updateProfile } = useProfile();
   const [ratio, setRatio] = useState<ShareRatio>("4:5");
-  const [theme, setTheme] = useState<ShareTheme>("ecru");
+  const theme: ShareTheme = "ecru"; // 週報は生成り（ecru）に統一
   const [comment, setComment] = useState<string>("今週も自分らしく、もぐもぐ記録 🍵");
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
+  const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Debounced image generation when profile, comment, ratio or theme changes
+  // Debounced image generation when profile, comment, or ratio changes
   useEffect(() => {
     let active = true;
     let url = "";
@@ -115,157 +116,158 @@ export default function ShareModal({
   const canShare = typeof navigator !== "undefined" && !!navigator.share;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content share-modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="modal-header-row">
-          <div>
-            <h2 className="modal-title">今週のmogをシェア</h2>
-            <p className="modal-subtitle">ありのままの一週間を画像として残す 📸</p>
+    <>
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content share-modal-content" onClick={(e) => e.stopPropagation()}>
+          {/* Header */}
+          <div className="modal-header-row">
+            <div>
+              <h2 className="modal-title">今週のmogをシェア</h2>
+              <p className="modal-subtitle">ありのままの一週間を画像として残す 📸</p>
+            </div>
+            <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
+              ✕
+            </button>
           </div>
-          <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
-            ✕
-          </button>
-        </div>
 
-        {/* Ratio & Theme Selectors */}
-        <div className="share-controls-card">
-          <div className="share-control-group">
-            <span className="modal-input-label">画像サイズ</span>
-            <div className="segmented-control">
-              {(
-                [
-                  { id: "4:5", label: "4:5（標準）" },
-                  { id: "9:16", label: "9:16（縦長）" },
-                  { id: "1:1", label: "1:1（正方形）" },
-                ] as const
-              ).map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  onClick={() => setRatio(r.id)}
-                  className={`segmented-btn ${ratio === r.id ? "active" : ""}`}
-                >
-                  {r.label}
-                </button>
-              ))}
+          {/* Ratio Selector */}
+          <div className="share-controls-card">
+            <div className="share-control-group">
+              <span className="modal-input-label">画像サイズ</span>
+              <div className="segmented-control">
+                {(
+                  [
+                    { id: "4:5", label: "4:5（標準）" },
+                    { id: "9:16", label: "9:16（縦長）" },
+                    { id: "1:1", label: "1:1（正方形）" },
+                  ] as const
+                ).map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setRatio(r.id)}
+                    className={`segmented-btn ${ratio === r.id ? "active" : ""}`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="share-control-group" style={{ marginTop: "10px" }}>
-            <span className="modal-input-label">カラーテーマ</span>
-            <div className="segmented-control">
-              {(
-                [
-                  { id: "ecru", label: "🌿 生成り" },
-                  { id: "dark", label: "🌙 ダーク" },
-                  { id: "sage", label: "🍃 セージ" },
-                ] as const
-              ).map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTheme(t.id)}
-                  className={`segmented-btn ${theme === t.id ? "active" : ""}`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Profile & Comment Customization Section */}
-        <div className="share-customizer-box">
-          <div className="share-profile-row">
-            <div
-              className="share-avatar-uploader"
-              onClick={() => avatarInputRef.current?.click()}
-              title="アイコンを変更"
-            >
-              {profile.avatar ? (
-                <img src={profile.avatar} alt={profile.name} className="share-avatar-img" />
-              ) : (
-                <div className="share-avatar-placeholder">
-                  {(profile.name || "U").slice(0, 1).toUpperCase()}
-                </div>
-              )}
-              <span className="share-avatar-badge">📷</span>
-            </div>
-            <input
-              type="file"
-              ref={avatarInputRef}
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleAvatarChange}
-            />
-
-            <div className="share-name-input-wrap">
-              <label className="modal-input-label">ユーザー名</label>
+          {/* Profile & Comment Customization Section */}
+          <div className="share-customizer-box">
+            <div className="share-profile-row">
+              <div
+                className="share-avatar-uploader"
+                onClick={() => avatarInputRef.current?.click()}
+                title="アイコンを変更"
+              >
+                {profile.avatar ? (
+                  <img src={profile.avatar} alt={profile.name} className="share-avatar-img" />
+                ) : (
+                  <div className="share-avatar-placeholder">
+                    {(profile.name || "U").slice(0, 1).toUpperCase()}
+                  </div>
+                )}
+                <span className="share-avatar-badge">📷</span>
+              </div>
               <input
-                type="text"
-                value={profile.name}
-                onChange={(e) => updateProfile({ name: e.target.value })}
-                placeholder="表示名"
-                className="modal-text-input"
-                maxLength={20}
+                type="file"
+                ref={avatarInputRef}
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleAvatarChange}
+              />
+
+              <div className="share-name-input-wrap">
+                <label className="modal-input-label">ユーザー名</label>
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) => updateProfile({ name: e.target.value })}
+                  placeholder="表示名"
+                  className="modal-text-input"
+                  maxLength={20}
+                />
+              </div>
+            </div>
+
+            <div className="share-comment-wrap" style={{ marginTop: "10px" }}>
+              <label className="modal-input-label">今週のひとこと（画像に刻印）</label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="例: 今週は仕事が忙しくて鶏ハムばかり食べてました"
+                className="modal-textarea"
+                maxLength={60}
+                rows={2}
               />
             </div>
           </div>
 
-          <div className="share-comment-wrap" style={{ marginTop: "10px" }}>
-            <label className="modal-input-label">今週のひとこと（画像に刻印）</label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="例: 今週は仕事が忙しくて鶏ハムばかり食べてました"
-              className="modal-textarea"
-              maxLength={60}
-              rows={2}
-            />
+          {/* Image Preview Container */}
+          <div className="share-preview-container">
+            {isGenerating && !objectUrl ? (
+              <div className="share-generating">
+                <div className="loading-spinner" />
+                <span>画像を生成中...</span>
+              </div>
+            ) : error ? (
+              <div className="modal-error-text">{error}</div>
+            ) : (
+              <div
+                className="share-preview-wrapper"
+                onClick={() => setIsZoomed(true)}
+                title="タップして拡大表示"
+              >
+                <img src={objectUrl!} alt="Share Preview" className="share-preview-image" />
+                <div className="share-preview-zoom-hint">🔍 タップで拡大</div>
+                {isGenerating && (
+                  <div className="share-preview-updating-badge">更新中...</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="btn-modal-actions-row" style={{ marginTop: "16px" }}>
+            {objectUrl && !error && (
+              <>
+                {canShare && (
+                  <button type="button" onClick={handleShare} className="btn-modal-primary">
+                    <Icon.Share /> シェアする
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
+                >
+                  📥 画像を保存
+                </button>
+              </>
+            )}
           </div>
         </div>
-
-        {/* Image Preview Container */}
-        <div className="share-preview-container">
-          {isGenerating && !objectUrl ? (
-            <div className="share-generating">
-              <div className="loading-spinner" />
-              <span>画像を生成中...</span>
-            </div>
-          ) : error ? (
-            <div className="modal-error-text">{error}</div>
-          ) : (
-            <div className="share-preview-wrapper">
-              <img src={objectUrl!} alt="Share Preview" className="share-preview-image" />
-              {isGenerating && (
-                <div className="share-preview-updating-badge">更新中...</div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="btn-modal-actions-row" style={{ marginTop: "16px" }}>
-          {objectUrl && !error && (
-            <>
-              {canShare && (
-                <button type="button" onClick={handleShare} className="btn-modal-primary">
-                  <Icon.Share /> シェアする
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleDownload}
-                className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
-              >
-                📥 画像を保存
-              </button>
-            </>
-          )}
-        </div>
       </div>
-    </div>
+
+      {/* Lightbox Zoom Modal */}
+      {isZoomed && objectUrl && (
+        <div className="lightbox-overlay" onClick={() => setIsZoomed(false)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img src={objectUrl} alt="Zoomed Share Preview" className="lightbox-image" />
+            <button
+              type="button"
+              className="lightbox-close-btn"
+              onClick={() => setIsZoomed(false)}
+            >
+              ✕ 閉じる
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
