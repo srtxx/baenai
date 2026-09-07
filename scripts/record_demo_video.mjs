@@ -11,7 +11,7 @@ const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrom
 const PORT = 4173;
 const BASE_URL = `http://localhost:${PORT}`;
 const OUTPUT_DIR = path.resolve(ROOT_DIR, "docs/demo");
-const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/8269469e-763b-4f5a-a289-cfd88b002770";
+const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/5d766754-f676-4e91-8ed2-5a60d8558544";
 
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -87,11 +87,11 @@ async function closeModal(page) {
   } else {
     await page.keyboard.press("Escape");
   }
-  await sleep(800);
+  await sleep(900);
 }
 
 async function main() {
-  console.log("=== Starting High Quality Demo Recording ===");
+  console.log("=== Starting High Quality Demo Recording (Latest Settings & UI) ===");
 
   // 1. Vite preview サーバーを起動
   console.log("Launching Vite preview server...");
@@ -165,9 +165,9 @@ async function main() {
     await sleep(900);
 
     // ==========================================
-    // シーン 2: 絵文字ワンタップで食事をクイック記録
+    // シーン 2: 進化した食事記録モーダル（AddMealModal）
     // ==========================================
-    console.log("Scene 2: Quick Emoji Record");
+    console.log("Scene 2: New Lean AddMealModal Interaction");
     const emptyCells = await page.$$(".meal-cell-empty");
     if (emptyCells.length > 0) {
       const box = await emptyCells[0].boundingBox();
@@ -175,22 +175,56 @@ async function main() {
         await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
       }
       await emptyCells[0].click();
-      await sleep(900);
+      await sleep(1000);
 
-      // 朝食絵文字（パン 🍞）をワンタップ
-      const breadEmoji = await page.waitForSelector("button:has-text('🍞')", { timeout: 4000 });
-      if (breadEmoji) {
-        const bbox = await breadEmoji.boundingBox();
+      // 定番食事（おにぎり）を選択
+      const onigiriCard = await page.$(".quick-emoji-card:has-text('おにぎり')");
+      if (onigiriCard) {
+        const bbox = await onigiriCard.boundingBox();
         if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
-        await breadEmoji.click();
-        await sleep(1400);
+        await onigiriCard.click();
+        await sleep(600);
+      }
+
+      // 詳細入力アコーディオンを開く
+      const toggleDetailsBtn = await page.$(".btn-toggle-details");
+      if (toggleDetailsBtn) {
+        const bbox = await toggleDetailsBtn.boundingBox();
+        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
+        await toggleDetailsBtn.click();
+        await sleep(700);
+      }
+
+      // メモ入力欄に入力
+      const noteInput = await page.$(".modal-text-input");
+      if (noteInput) {
+        await noteInput.fill("焼きおにぎりと温かいお茶");
+        await sleep(700);
+      }
+
+      // プリセットタグ「自炊」を選択
+      const selfCookTag = await page.$(".tag-chip:has-text('自炊')");
+      if (selfCookTag) {
+        const bbox = await selfCookTag.boundingBox();
+        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
+        await selfCookTag.click();
+        await sleep(500);
+      }
+
+      // 保存ボタンをクリック（トースト通知が出現）
+      const saveBtn = await page.$(".btn-modal-primary");
+      if (saveBtn) {
+        const bbox = await saveBtn.boundingBox();
+        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
+        await saveBtn.click();
+        await sleep(1600);
       }
     }
 
     // ==========================================
-    // シーン 3: メモ・タグ付きで記録
+    // シーン 3: 休食（スキップ）ワンタップ記録
     // ==========================================
-    console.log("Scene 3: Record with Tag and Note");
+    console.log("Scene 3: Record Skip Meal");
     const emptyCellsAfter = await page.$$(".meal-cell-empty");
     if (emptyCellsAfter.length > 0) {
       const box = await emptyCellsAfter[0].boundingBox();
@@ -200,59 +234,20 @@ async function main() {
       await emptyCellsAfter[0].click();
       await sleep(800);
 
-      // 「メモやタグをつける」アコーディオンを開く
-      const toggleNoteBtn = await page.$(".btn-toggle-note");
-      if (toggleNoteBtn) {
-        await toggleNoteBtn.click();
-        await sleep(500);
-      }
-
-      // 絵文字を選択（ラーメン 🍜）
-      const ramenBtn = await page.$("button:has-text('🍜')");
-      if (ramenBtn) {
-        await ramenBtn.click();
-        await sleep(400);
-      }
-
-      // タグ「外食」を選択
-      const tagOut = await page.$(".tags-selector-row button:has-text('外食')");
-      if (tagOut) {
-        await tagOut.click();
-        await sleep(400);
-      }
-
-      // メモ入力
-      const noteInput = await page.$(".note-textarea, textarea");
-      if (noteInput) {
-        await noteInput.fill("オフィス近くの濃厚味噌ラーメン 🍜");
-        await sleep(600);
-      }
-
-      // 保存
-      const saveBtn = await page.$(".btn-save-note");
-      if (saveBtn) {
-        await saveBtn.click();
-        await sleep(1400);
+      // 休食ボタンをクリック
+      const skipBtn = await page.$(".hero-skip-btn");
+      if (skipBtn) {
+        const bbox = await skipBtn.boundingBox();
+        if (bbox) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: bbox.x + bbox.width/2, y: bbox.y + bbox.height/2 });
+        await skipBtn.click();
+        await sleep(1500);
       }
     }
 
     // ==========================================
-    // シーン 4: 下部FABカメラからのスキップ（おやすみ）記録
+    // シーン 4: 1週間のフル記録データ投入 & スムーズスクロール
     // ==========================================
-    console.log("Scene 4: Camera FAB / Skip Record");
-    await clickWithTouch(page, ".nav-primary-btn", 900);
-    const skipBtn = await page.$(".btn-skip-pill, .btn-skip-action, button:has-text('おやすみ')");
-    if (skipBtn) {
-      const box = await skipBtn.boundingBox();
-      if (box) await page.evaluate(({x, y}) => window.showTouch(x, y), { x: box.x + box.width/2, y: box.y + box.height/2 });
-      await skipBtn.click();
-      await sleep(1400);
-    }
-
-    // ==========================================
-    // シーン 5: 一週間のフル記録データ投入 & スムーズスクロール
-    // ==========================================
-    console.log("Scene 5: Populate Full Week Meals and Scroll");
+    console.log("Scene 4: Populate Full Week Meals and Scroll");
     await page.evaluate(async () => {
       const d = new Date();
       const day = d.getDay();
@@ -267,9 +262,9 @@ async function main() {
       const fullWeek = [
         // 月
         [
-          { quickEmoji: "🍞", note: "トーストと目玉焼き ☕️", tags: ["自炊"] },
-          { quickEmoji: "🍜", note: "オフィス近くの濃厚味噌ラーメン 🍜", tags: ["外食"] },
-          { image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80", note: "自炊ステーキとごはん 🥩", tags: ["自炊"] }
+          { quickEmoji: "🍞", note: "トーストと目玉焼き、コーヒー", tags: ["自炊"] },
+          { quickEmoji: "🍜", note: "オフィス近くの濃厚味噌ラーメン", tags: ["外食"] },
+          { image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80", note: "自炊ステーキとごはん", tags: ["自炊"] }
         ],
         // 火
         [
@@ -281,7 +276,7 @@ async function main() {
         [
           { quickEmoji: "🍙", note: "鮭おにぎりと緑茶", tags: ["自炊"] },
           { quickEmoji: "🥪", note: "BLTサンドウィッチ", tags: ["外食"] },
-          { image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80", note: "友達とデリバリーピザ 🍕", tags: ["テイクアウト"] }
+          { image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&q=80", note: "友達とデリバリーピザ", tags: ["テイクアウト"] }
         ],
         // 木
         [
@@ -292,12 +287,12 @@ async function main() {
         // 金
         [
           { quickEmoji: "☕️", note: "カフェラテのみ" },
-          { image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80", note: "金曜ご褒美バーガー 🍔", tags: ["外食"] },
+          { image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80", note: "金曜ご褒美バーガー", tags: ["外食"] },
           { quickEmoji: "🍣", note: "回転寿司10皿！", tags: ["外食"] }
         ],
         // 土
         [
-          { image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&q=80", note: "休日のふわふわパンケーキ 🥞", tags: ["自炊"] },
+          { image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&q=80", note: "休日のふわふわパンケーキ", tags: ["自炊"] },
           { quickEmoji: "🍝", note: "生ハムとトマトのパスタ", tags: ["自炊"] },
           { quickEmoji: "🍲", note: "家族と海鮮鍋", tags: ["自炊"] }
         ],
@@ -335,9 +330,9 @@ async function main() {
     await sleep(1100);
 
     // ==========================================
-    // シーン 6: 食事詳細モーダルの表示
+    // シーン 5: 食事詳細モーダルの表示（MealDetailModal）
     // ==========================================
-    console.log("Scene 6: Open Meal Detail Modal");
+    console.log("Scene 5: Open Meal Detail Modal");
     const filledCells = await page.$$(".meal-cell.meal-cell-filled");
     if (filledCells.length > 0) {
       const box = await filledCells[0].boundingBox();
@@ -350,9 +345,9 @@ async function main() {
     }
 
     // ==========================================
-    // シーン 7: 実績・あしあとモーダルの確認
+    // シーン 6: 実績・あしあとモーダルの確認（AchievementsModal）
     // ==========================================
-    console.log("Scene 7: View Achievements / Milestones");
+    console.log("Scene 6: View Achievements / Milestones");
     const ashiaotoBtn = await page.$(".nav-item:has-text('あしあと')");
     if (ashiaotoBtn) {
       const box = await ashiaotoBtn.boundingBox();
@@ -361,15 +356,15 @@ async function main() {
       await sleep(1800);
 
       // モーダル内を少しスクロール
-      await page.mouse.wheel(0, 200);
+      await page.mouse.wheel(0, 220);
       await sleep(1000);
       await closeModal(page);
     }
 
     // ==========================================
-    // シーン 8: 週報画像生成 & シェアモーダル
+    // シーン 7: 週報画像生成 & シェアモーダル（ShareModal）
     // ==========================================
-    console.log("Scene 8: Share Modal / Weekly Report Generation");
+    console.log("Scene 7: Share Modal / Weekly Report Generation");
     const shareNavBtn = await page.$(".nav-item:has-text('シェア')");
     if (shareNavBtn) {
       const box = await shareNavBtn.boundingBox();
@@ -403,9 +398,9 @@ async function main() {
     }
 
     // ==========================================
-    // シーン 9: カラーテーマの切り替え（設定）
+    // シーン 8: 設定 & ナイトモード（SettingsModal）
     // ==========================================
-    console.log("Scene 9: Theme Switch to Night Mode");
+    console.log("Scene 8: Theme Switch to Night Mode in Settings");
     const settingsNavBtn = await page.$(".nav-item:has-text('設定')");
     if (settingsNavBtn) {
       const box = await settingsNavBtn.boundingBox();
@@ -432,7 +427,7 @@ async function main() {
       await sleep(1500);
     }
 
-    console.log("All scenes completed successfully!");
+    console.log("All scenes completed successfully with latest UI!");
   } catch (err) {
     console.error("Recording error:", err);
   } finally {
@@ -450,7 +445,7 @@ async function main() {
     const artifactVideo = path.join(ARTIFACT_DIR, "demo_app.webm");
     fs.copyFileSync(srcVideo, destVideo);
     fs.copyFileSync(srcVideo, artifactVideo);
-    console.log(`\n🎉 Success! Demo video saved to:`);
+    console.log(`\n🎉 Success! Updated Demo video saved to:`);
     console.log(`- ${destVideo}`);
     console.log(`- ${artifactVideo}`);
   } else {

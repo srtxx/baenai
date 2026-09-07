@@ -6,7 +6,7 @@ import http from "http";
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9222;
 const VITE_PORT = 4173;
-const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/a34fb74d-8c5b-4513-a29d-3ad8e4608d39/screenshots";
+const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/5d766754-f676-4e91-8ed2-5a60d8558544/screenshots";
 const DOCS_DIR = path.resolve(process.cwd(), "docs/screenshots");
 
 // Helper to wait
@@ -287,7 +287,7 @@ async function main() {
     await cdp.captureScreenshot("03_modal_add_meal_quick.png");
 
     // 4. Expand Note / Tag Section in Add Meal Modal
-    await cdp.eval(`document.querySelector('.modal-accordion-toggle')?.click()`);
+    await cdp.eval(`document.querySelector('.btn-toggle-details')?.click()`);
     await sleep(400);
     await cdp.captureScreenshot("04_modal_add_meal_note.png");
 

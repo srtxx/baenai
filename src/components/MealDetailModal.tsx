@@ -162,7 +162,7 @@ export default function MealDetailModal({
           ) : null}
 
           {/* Meta Info within Card */}
-          {!isEditing && (hasNote || hasTags) && (
+          {!isEditing && (
             <div className="detail-meta-box">
               {hasNote && <p className="detail-notes">“{meal.note}”</p>}
               {hasTags && meal.tags && (
@@ -173,6 +173,9 @@ export default function MealDetailModal({
                     </span>
                   ))}
                 </div>
+              )}
+              {!hasNote && !hasTags && (
+                <p className="detail-empty-meta">メモやタグはまだ登録されていません</p>
               )}
             </div>
           )}
@@ -290,7 +293,7 @@ export default function MealDetailModal({
                 onClick={() => setIsEditing(true)}
                 className="btn-detail-edit"
               >
-                <Icon.Edit size={16} /> メモやタグを編集する
+                <Icon.Edit size={16} /> {hasNote || hasTags ? "メモやタグを編集する" : "メモやタグを追加する"}
               </button>
             )}
             <button

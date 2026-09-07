@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useMeals } from "./hooks/useMeals";
 import { useAchievements } from "./hooks/useAchievements";
 import { useProfile } from "./hooks/useProfile";
@@ -15,7 +15,17 @@ import SettingsModal from "./components/SettingsModal";
 import ShareModal from "./components/ShareModal";
 import AchievementsModal from "./components/AchievementsModal";
 import { getMondayOfCurrentWeek, getWeekKey } from "./utils/helpers";
+import { compressImage } from "./utils/imageCompressor";
 import { DayIndex, MealIndex, MealSlot, ModalState, Meal } from "./types";
+
+const QUICK_TOAST_TAGS = ["自炊", "外食", "コンビニ", "テイクアウト", "カフェ"] as const;
+
+interface ToastState {
+  id: number;
+  message: string;
+  slot?: MealSlot;
+  showQuickTags?: boolean;
+}
 
 export default function App(): React.JSX.Element {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
@@ -37,6 +47,8 @@ export default function App(): React.JSX.Element {
   const [activeModal, setActiveModal] = useState<ModalState>(null);
   const [selectedSlot, setSelectedSlot] = useState<MealSlot>({ di: 0, mi: 0 });
   const [justSavedSlot, setJustSavedSlot] = useState<MealSlot | null>(null);
+
+  const directCameraInputRef = useRef<HTMLInputElement>(null);
 
   // 今週かどうか
   const todayMonday = getMondayOfCurrentWeek();
@@ -109,7 +121,38 @@ export default function App(): React.JSX.Element {
     }
   };
 
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const toastTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = React.useCallback(
+    (
+      message: string,
+      slot?: MealSlot,
+      showQuickTags = false,
+      duration = 2800
+    ) => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+      const id = Date.now();
+      setToast({ id, message, slot, showQuickTags });
+      toastTimeoutRef.current = setTimeout(() => {
+        setToast((prev) => (prev?.id === id ? null : prev));
+      }, duration);
+    },
+    []
+  );
+
+  // カメラボタン押下時：モーダルを介さずダイレクトにカメラ/画像選択を起動
   const handleCameraClick = () => {
+    directCameraInputRef.current?.click();
+  };
+
+  // ダイレクト撮影/画像選択時のハンドラ：圧縮後に即座に現在スロットへ保存
+  const handleDirectPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     const now = new Date();
     const hours = now.getHours();
 
@@ -126,23 +169,16 @@ export default function App(): React.JSX.Element {
     setCurrentWeekStart(currentMon);
     const di = ((now.getDay() + 6) % 7) as DayIndex;
 
-    setSelectedSlot({ di, mi });
-    setActiveModal("add");
-  };
-
-  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
-  const toastTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const showToast = React.useCallback((message: string) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
+    try {
+      const compressed = await compressImage(file, 720, 720, 0.75);
+      handleSaveMeal(di, mi, { image: compressed });
+    } catch (err) {
+      console.error("ダイレクト画像保存エラー:", err);
+      showToast("写真の読み込みに失敗しました");
+    } finally {
+      e.target.value = "";
     }
-    const id = Date.now();
-    setToast({ id, message });
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(prev => (prev?.id === id ? null : prev));
-    }, 2800);
-  }, []);
+  };
 
   const handleSaveMeal = (di: DayIndex, mi: MealIndex, mealData: Meal, isEdit = false) => {
     saveMeal(di, mi, mealData);
@@ -152,14 +188,60 @@ export default function App(): React.JSX.Element {
     }, 850);
 
     if (isEdit) {
-      showToast("記録を更新しました");
+      showToast("記録を更新しました", { di, mi }, false, 2800);
     } else if (mealData && "skipped" in mealData && mealData.skipped) {
-      showToast("休食を記録しました");
+      showToast("休食を記録しました", undefined, false, 2800);
     } else if (mealData && "image" in mealData && mealData.image) {
-      showToast("写真を保存しました");
+      showToast("写真を保存しました", { di, mi }, true, 5000);
     } else if (mealData) {
-      showToast("記録を保存しました");
+      showToast("記録を保存しました", { di, mi }, true, 4500);
     }
+  };
+
+  // トースト内でのクイックタグ付けトグル
+  const handleToggleToastTag = (tag: string) => {
+    if (!toast?.slot) return;
+    const { di, mi } = toast.slot;
+    const currentMeal = meals[di][mi];
+    if (!currentMeal) return;
+
+    const currentTags = ("tags" in currentMeal && currentMeal.tags) ? currentMeal.tags : [];
+    const newTags = currentTags.includes(tag)
+      ? currentTags.filter((t) => t !== tag)
+      : [...currentTags, tag];
+
+    const updatedMeal: Meal = {
+      ...currentMeal,
+      tags: newTags.length > 0 ? newTags : undefined,
+    };
+
+    saveMeal(di, mi, updatedMeal);
+
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+
+    const message = newTags.includes(tag)
+      ? `タグ「#${tag}」を追加しました`
+      : `タグ「#${tag}」を解除しました`;
+
+    setToast({
+      ...toast,
+      message,
+      showQuickTags: true,
+    });
+
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+    }, 3800);
+  };
+
+  // トースト内の「詳細」から直接詳細モーダルを開く
+  const handleOpenToastDetail = () => {
+    if (!toast?.slot) return;
+    setSelectedSlot(toast.slot);
+    setActiveModal("detail");
+    setToast(null);
   };
 
   const handleDeleteMeal = (di: DayIndex, mi: MealIndex) => {
@@ -293,6 +375,16 @@ export default function App(): React.JSX.Element {
         />
       </div>
 
+      {/* Hidden File Input for Direct Camera Shooting */}
+      <input
+        type="file"
+        ref={directCameraInputRef}
+        accept="image/*"
+        capture="environment"
+        onChange={handleDirectPhotoChange}
+        style={{ display: "none" }}
+      />
+
       {/* Achievement Unlocked Banner */}
       {recentlyUnlocked && (
         <div className="achievement-unlocked-banner" onClick={() => setActiveModal("achievements")}>
@@ -306,11 +398,52 @@ export default function App(): React.JSX.Element {
         </div>
       )}
 
-      {/* Global Gentle Toast */}
+      {/* Global Gentle Interactive Toast */}
       {toast && (
-        <div key={toast.id} className="social-toast">
-          <Icon.Check size={14} className="social-toast-icon" />
-          <span>{toast.message}</span>
+        <div
+          key={toast.id}
+          className={`social-toast ${toast.showQuickTags ? "has-actions" : ""}`}
+        >
+          <div className="toast-header-line">
+            <div className="toast-message-wrap">
+              <Icon.Check size={14} className="social-toast-icon" />
+              <span className="toast-text">{toast.message}</span>
+            </div>
+            {toast.slot && toast.showQuickTags && (
+              <button
+                type="button"
+                className="toast-action-btn"
+                onClick={handleOpenToastDetail}
+                title="詳細・メモを入力"
+              >
+                <Icon.Edit size={12} />
+                <span>詳細</span>
+              </button>
+            )}
+          </div>
+
+          {toast.slot && toast.showQuickTags && (
+            <div className="toast-quick-tags-row">
+              {QUICK_TOAST_TAGS.map((tag) => {
+                const targetMeal = meals[toast.slot!.di]?.[toast.slot!.mi];
+                const isSelected = !!(
+                  targetMeal &&
+                  "tags" in targetMeal &&
+                  targetMeal.tags?.includes(tag)
+                );
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={`toast-tag-chip ${isSelected ? "active" : ""}`}
+                    onClick={() => handleToggleToastTag(tag)}
+                  >
+                    #{tag}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -363,6 +496,7 @@ export default function App(): React.JSX.Element {
     </div>
   );
 }
+
 
 
 

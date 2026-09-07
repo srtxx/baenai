@@ -1130,70 +1130,129 @@
   color: var(--text-light);
 }
 
-/* Recent Emojis Section */
-.modal-recents-section {
+/* Quick Emojis Section (Lean, prominent and elegant) */
+.modal-quick-emojis-section {
   background-color: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 6px 8px;
-  margin-bottom: 10px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
 }
 
-.modal-recents-header {
+.modal-quick-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10.5px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-quick-label {
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-mid);
-  margin-bottom: 5px;
 }
 
-.modal-recents-row {
-  display: flex;
-  gap: 5px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
+.modal-quick-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.recent-emoji-pill {
-  flex: 1;
-  min-width: 50px;
+.quick-emoji-card {
   background-color: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 5px 3px;
+  border-radius: 12px;
+  padding: 8px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 3px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.recent-emoji-pill:hover {
+.quick-emoji-card:hover {
   background-color: var(--accent-faint);
   border-color: var(--accent);
   transform: translateY(-1px);
 }
 
-.recent-emoji-pill.selected {
+.quick-emoji-card.selected {
   background-color: var(--accent-faint);
   border-color: var(--accent);
-  box-shadow: 0 0 0 1.5px var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
-.recent-emoji-char {
-  font-size: 18px;
+.quick-emoji-char {
+  font-size: 22px;
   line-height: 1.1;
 }
 
-.recent-emoji-label {
-  font-size: 8.5px;
-  color: var(--text-mid);
-  font-weight: 500;
+.quick-emoji-label {
+  font-size: 9.5px;
+  color: var(--text-main);
+  font-weight: 600;
   white-space: nowrap;
+}
+
+/* Toggle Details Accordion Button */
+.btn-toggle-details {
+  width: 100%;
+  background-color: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--text-mid);
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.btn-toggle-details:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background-color: var(--accent-faint);
+}
+
+.btn-toggle-details.open {
+  border-style: solid;
+  border-color: var(--border);
+  background-color: var(--card-bg);
+  color: var(--text-light);
+}
+
+.toggle-details-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Modal Expanded Section */
+.modal-expanded-section {
+  animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-extra-emojis-section {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.extra-emojis-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 8px;
 }
 
 /* Emoji Categories & Grid */
@@ -1206,7 +1265,7 @@
 }
 
 .emoji-tab-btn {
-  background-color: var(--bg);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 4px 10px;
@@ -1235,11 +1294,10 @@
   max-height: 140px;
   overflow-y: auto;
   padding-right: 2px;
-  margin-bottom: 10px;
 }
 
 .emoji-grid-item {
-  background-color: var(--bg);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 5px 3px;
@@ -1283,7 +1341,7 @@
   border-radius: 16px;
   padding: 10px 12px;
   margin-top: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .modal-input-label-row {
@@ -1480,6 +1538,14 @@
   color: var(--text-main);
   font-style: italic;
   line-height: 1.4;
+}
+
+.detail-empty-meta {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-faint, #A59E92);
+  padding: 4px 0 2px;
+  letter-spacing: 0.02em;
 }
 
 .detail-tags {
@@ -2584,29 +2650,58 @@
   font-size: 40px;
 }
 
-/* Global Gentle Toast Notification */
+/* Global Gentle Toast Notification (Interactive Quick Tags) */
 .social-toast {
   position: fixed;
   bottom: 84px;
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 7px;
-  background-color: rgba(38, 36, 34, 0.94);
+  gap: 6px;
+  background-color: rgba(38, 36, 34, 0.95);
   color: #FAF7F2;
   padding: 9px 18px;
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.03em;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  letter-spacing: 0.02em;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   z-index: 999;
   animation: toast-slide-up 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  pointer-events: none;
+  pointer-events: auto;
+  max-width: 92vw;
+  width: auto;
+}
+
+.social-toast.has-actions {
+  border-radius: 18px;
+  padding: 10px 14px 11px;
+  gap: 9px;
+}
+
+.toast-header-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.toast-message-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   white-space: nowrap;
+}
+
+.toast-text {
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .social-toast-icon {
@@ -2614,20 +2709,116 @@
   flex-shrink: 0;
 }
 
+.toast-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FAF7F2;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.toast-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.toast-action-btn:active {
+  transform: scale(0.96);
+}
+
+.toast-quick-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.toast-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #E2DDD5;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.toast-tag-chip:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.toast-tag-chip:active {
+  transform: scale(0.95);
+}
+
+.toast-tag-chip.active {
+  background-color: var(--accent, #636E5C);
+  border-color: var(--accent, #636E5C);
+  color: #FAF7F2;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Night theme for toast */
 [data-theme="night"] .social-toast {
-  background-color: rgba(244, 241, 234, 0.94);
+  background-color: rgba(244, 241, 234, 0.96);
   color: #141715;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="night"] .social-toast-icon {
   color: #4D7C5D;
 }
 
+[data-theme="night"] .toast-action-btn {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #141715;
+}
+
+[data-theme="night"] .toast-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+[data-theme="night"] .toast-tag-chip {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #2A302B;
+}
+
+[data-theme="night"] .toast-tag-chip:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #141715;
+}
+
+[data-theme="night"] .toast-tag-chip.active {
+  background-color: #4D7C5D;
+  border-color: #4D7C5D;
+  color: #FAF7F2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 @keyframes toast-slide-up {
   0% {
     opacity: 0;
-    transform: translate(-50%, 16px) scale(0.92);
+    transform: translate(-50%, 16px) scale(0.94);
   }
   100% {
     opacity: 1;
