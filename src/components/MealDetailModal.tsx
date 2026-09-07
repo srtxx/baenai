@@ -13,6 +13,8 @@ interface MealDetailModalProps {
   onSave?: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
 }
 
+const PRESET_TAGS = ["自炊", "外食", "コンビニ", "テイクアウト", "カフェ", "お弁当"] as const;
+
 export default function MealDetailModal({
   di,
   mi,
@@ -30,8 +32,7 @@ export default function MealDetailModal({
   const [selectedTags, setSelectedTags] = useState<string[]>(
     meal && "tags" in meal && meal.tags ? meal.tags : []
   );
-
-  const tagsList = ["自炊", "外食", "コンビニ", "テイクアウト"] as const;
+  const [customTagInput, setCustomTagInput] = useState<string>("");
 
   if (!meal) {
     return (
@@ -110,6 +111,16 @@ export default function MealDetailModal({
     );
   };
 
+  const handleAddCustomTag = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanTag = customTagInput.trim().replace(/^#+/, "");
+    if (!cleanTag) return;
+    if (!selectedTags.includes(cleanTag)) {
+      setSelectedTags((prev) => [...prev, cleanTag]);
+    }
+    setCustomTagInput("");
+  };
+
   const handleSaveEdit = () => {
     if (onSave) {
       onSave(di, mi, {
@@ -183,9 +194,18 @@ export default function MealDetailModal({
             </div>
 
             <div className="modal-input-group">
-              <label className="modal-input-label">カテゴリータグ</label>
+              <div className="modal-input-label-row">
+                <label className="modal-input-label">タグ</label>
+                {selectedTags.length > 0 && (
+                  <span className="selected-tags-count">
+                    {selectedTags.length}件選択中
+                  </span>
+                )}
+              </div>
+
+              {/* Preset Tags Chips */}
               <div className="tag-chips">
-                {tagsList.map((tag) => (
+                {PRESET_TAGS.map((tag) => (
                   <button
                     key={tag}
                     type="button"
@@ -195,6 +215,52 @@ export default function MealDetailModal({
                     {tag}
                   </button>
                 ))}
+                {/* Custom Tags */}
+                {selectedTags
+                  .filter((t) => !PRESET_TAGS.includes(t as typeof PRESET_TAGS[number]))
+                  .map((customTag) => (
+                    <button
+                      key={customTag}
+                      type="button"
+                      className="tag-chip active custom-tag-chip"
+                      onClick={() => handleTagToggle(customTag)}
+                      title="タップしてタグを解除"
+                    >
+                      #{customTag}
+                      <span className="tag-remove-x">×</span>
+                    </button>
+                  ))}
+              </div>
+
+              {/* Custom Tag Input Row */}
+              <div className="custom-tag-input-row" style={{ marginTop: "8px" }}>
+                <div className="custom-tag-input-wrap">
+                  <span className="custom-tag-prefix">#</span>
+                  <input
+                    type="text"
+                    value={customTagInput}
+                    onChange={(e) => setCustomTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddCustomTag();
+                      }
+                    }}
+                    placeholder="タグを追加..."
+                    className="custom-tag-input"
+                    maxLength={20}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAddCustomTag()}
+                  disabled={!customTagInput.trim()}
+                  className="btn-add-custom-tag"
+                  title="タグを追加"
+                >
+                  <Icon.Plus size={13} />
+                  <span>追加</span>
+                </button>
               </div>
             </div>
 

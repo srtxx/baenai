@@ -130,27 +130,46 @@ export default function App(): React.JSX.Element {
     setActiveModal("add");
   };
 
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const toastTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = React.useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(prev => (prev === msg ? null : prev));
+  const showToast = React.useCallback((message: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    const id = Date.now();
+    setToast({ id, message });
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(prev => (prev?.id === id ? null : prev));
     }, 2800);
   }, []);
 
-  const handleSaveMeal = (di: DayIndex, mi: MealIndex, mealData: Meal) => {
+  const handleSaveMeal = (di: DayIndex, mi: MealIndex, mealData: Meal, isEdit = false) => {
     saveMeal(di, mi, mealData);
     setJustSavedSlot({ di, mi });
     setTimeout(() => {
       setJustSavedSlot((prev) => (prev?.di === di && prev?.mi === mi ? null : prev));
     }, 850);
 
-    if (mealData && "skipped" in mealData && mealData.skipped) {
+    if (isEdit) {
+      showToast("記録を更新しました");
+    } else if (mealData && "skipped" in mealData && mealData.skipped) {
       showToast("休食を記録しました");
+    } else if (mealData && "image" in mealData && mealData.image) {
+      showToast("写真を保存しました");
     } else if (mealData) {
-      showToast("記録しました");
+      showToast("記録を保存しました");
     }
+  };
+
+  const handleDeleteMeal = (di: DayIndex, mi: MealIndex) => {
+    deleteMeal(di, mi);
+    showToast("記録を削除しました");
+  };
+
+  const handleResetAll = async () => {
+    await resetAllData();
+    showToast("すべての記録を初期化しました");
   };
 
   const handleCellClick = (di: DayIndex, mi: MealIndex, meal: unknown) => {
@@ -193,8 +212,6 @@ export default function App(): React.JSX.Element {
           onToday={handleJumpToToday}
           stats={stats}
         />
-
-        <div className="divider" />
 
         {/* Column labels */}
         <div className="column-labels">
@@ -290,9 +307,10 @@ export default function App(): React.JSX.Element {
       )}
 
       {/* Global Gentle Toast */}
-      {toastMessage && (
-        <div className="social-toast">
-          {toastMessage}
+      {toast && (
+        <div key={toast.id} className="social-toast">
+          <Icon.Check size={14} className="social-toast-icon" />
+          <span>{toast.message}</span>
         </div>
       )}
 
@@ -312,8 +330,8 @@ export default function App(): React.JSX.Element {
           mi={selectedSlot.mi}
           meal={selectedMeal}
           onClose={() => setActiveModal(null)}
-          onDelete={deleteMeal}
-          onSave={handleSaveMeal}
+          onDelete={handleDeleteMeal}
+          onSave={(di, mi, data) => handleSaveMeal(di, mi, data, true)}
         />
       )}
 
@@ -322,7 +340,7 @@ export default function App(): React.JSX.Element {
           profile={profile}
           onUpdateProfile={updateProfile}
           onClose={() => setActiveModal(null)}
-          onResetAll={resetAllData}
+          onResetAll={handleResetAll}
         />
       )}
 
