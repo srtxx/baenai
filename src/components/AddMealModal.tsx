@@ -28,7 +28,7 @@ export default function AddMealModal({ di, mi, onClose, onSave }: AddMealModalPr
 
     try {
       setIsCompressing(true);
-      const compressedDataUrl = await compressImage(file, 800, 800, 0.8);
+      const compressedDataUrl = await compressImage(file, 720, 720, 0.75);
       onSave(di, mi, {
         image: compressedDataUrl,
         tags: selectedTags.length > 0 ? selectedTags : undefined,

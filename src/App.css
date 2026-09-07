@@ -581,17 +581,28 @@
   border-width: 2px;
   background-color: var(--card-bg);
   box-shadow: 0 0 0 3px var(--accent-faint);
+  animation: current-slot-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes current-slot-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 3px var(--accent-faint), 0 2px 6px rgba(91, 130, 102, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 5px var(--accent-faint), 0 4px 12px rgba(91, 130, 102, 0.28);
+  }
 }
 
 .plus-icon {
   font-size: 16px;
   color: var(--text-light);
   font-weight: 300;
-  transition: color 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .meal-cell-empty:hover .plus-icon {
   color: var(--accent);
+  transform: scale(1.15);
 }
 
 /* Filled Photo Cell */
@@ -615,16 +626,28 @@
 
 /* Rested / Skipped Cell */
 .meal-cell-rested {
-  background-color: rgba(0, 0, 0, 0.03);
-  border: 1px dashed var(--border);
+  background-color: rgba(0, 0, 0, 0.02);
+  border: 1.5px dashed var(--border);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
 }
 
-.cell-rested-icon {
-  font-size: 16px;
+.rested-mark {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1;
   opacity: 0.6;
+}
+
+.rested-label {
+  font-size: 8.5px;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 /* Emoji Cell */
@@ -640,9 +663,33 @@
 }
 
 .cell-emoji-char {
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
   user-select: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+/* Just Saved Spring Animation */
+.meal-cell-just-saved {
+  animation: just-saved-bounce 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+  z-index: 10;
+}
+
+@keyframes just-saved-bounce {
+  0% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 rgba(91, 130, 102, 0.6);
+  }
+  45% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 8px rgba(91, 130, 102, 0);
+  }
+  75% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Badges & Dots inside Cell */
@@ -677,26 +724,15 @@
   50% { opacity: 0.4; transform: scale(0.7); }
 }
 
-.cell-rested-badge {
-  position: absolute;
-  bottom: 3px;
-  font-size: 8.5px;
-  color: var(--text-light);
-  background-color: var(--card-bg);
-  padding: 1px 4px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-.cell-meta-indicator {
+.cell-indicator-dot {
   position: absolute;
   bottom: 4px;
   right: 4px;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   background-color: var(--accent);
   border-radius: 50%;
-  border: 1px solid #FFFFFF;
+  border: 1.5px solid var(--card-bg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -2389,6 +2425,45 @@
 
 .feed-large-emoji {
   font-size: 40px;
+}
+
+/* Global Gentle Toast Notification */
+.social-toast {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(38, 36, 34, 0.92);
+  color: #FAF7F2;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  animation: toast-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+[data-theme="night"] .social-toast {
+  background-color: rgba(244, 241, 234, 0.94);
+  color: #141715;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes toast-slide-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 16px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 

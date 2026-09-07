@@ -129,12 +129,34 @@ export default function App(): React.JSX.Element {
     setActiveModal("add");
   };
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = React.useCallback((msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => (prev === msg ? null : prev));
+    }, 2800);
+  }, []);
+
   const handleSaveMeal = (di: DayIndex, mi: MealIndex, mealData: Meal) => {
     saveMeal(di, mi, mealData);
     setJustSavedSlot({ di, mi });
     setTimeout(() => {
       setJustSavedSlot((prev) => (prev?.di === di && prev?.mi === mi ? null : prev));
     }, 850);
+
+    if (mealData && "skipped" in mealData && mealData.skipped) {
+      const skipMessages = [
+        "休むことも、生きること 🌙",
+        "無理せずいこう 🌱",
+        "おやすみも立派なきろく 🍵",
+        "大丈夫、また次のごはん 🌿",
+      ];
+      const randomMsg = skipMessages[Math.floor(Math.random() * skipMessages.length)];
+      showToast(randomMsg);
+    } else if (mealData) {
+      showToast("きろくが灯りました 🌱");
+    }
   };
 
   const handleCellClick = (di: DayIndex, mi: MealIndex, meal: unknown) => {
@@ -273,6 +295,13 @@ export default function App(): React.JSX.Element {
             <div className="unlocked-badge-tag">きろくが灯りました 🌱</div>
             <div className="unlocked-badge-title">{recentlyUnlocked.title}</div>
           </div>
+        </div>
+      )}
+
+      {/* Global Gentle Toast */}
+      {toastMessage && (
+        <div className="social-toast">
+          {toastMessage}
         </div>
       )}
 
