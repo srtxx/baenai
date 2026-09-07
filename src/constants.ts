@@ -153,12 +153,3 @@ export const EMOJI_CATEGORIES: EmojiCategory[] = [
   }
 ];
 
-/** やさしい励ましメッセージ */
-export const ENCOURAGE_MESSAGES = [
-  { emoji: "🍵", label: "おつかれさま" },
-  { emoji: "👏", label: "えらい" },
-  { emoji: "🌿", label: "ゆるくいこう" },
-  { emoji: "✨", label: "今日も最高" },
-  { emoji: "🤝", label: "一緒にがんばろ" },
-  { emoji: "🍙", label: "おなかすいた" },
-] as const;

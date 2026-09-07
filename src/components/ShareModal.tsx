@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, ChangeEvent } from "react";
 import { Icon } from "./icons/Icons";
-import { WeekMeals } from "../types";
+import { WeekMeals, ShareRatio, ShareTheme } from "../types";
 import { generateShareImage } from "../utils/shareImageGenerator";
 import { useProfile } from "../hooks/useProfile";
 import { compressImage } from "../utils/imageCompressor";

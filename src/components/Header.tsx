@@ -6,14 +6,12 @@ import { DayIndex } from "../types";
 interface HeaderProps {
   weekLabel: string;
   isCurrentWeek: boolean;
-  currentDayIndex?: DayIndex;
+  currentDayIndex?: DayIndex | -1;
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onToday: () => void;
   onShareClick: () => void;
   onAchievementsClick?: () => void;
-  onNotificationsClick?: () => void;
-  hasUnreadNudges?: boolean;
   stats: {
     photoCount: number;
     skipCount: number;
@@ -31,8 +29,6 @@ export default function Header({
   onToday,
   onShareClick,
   onAchievementsClick,
-  onNotificationsClick,
-  hasUnreadNudges = false,
   stats,
 }: HeaderProps): React.JSX.Element {
   const percentage = Math.round(((stats.photoCount + stats.skipCount) / stats.totalSlots) * 100);
@@ -61,17 +57,6 @@ export default function Header({
               aria-label="ふりかえり・足跡"
             >
               🌿
-            </button>
-          )}
-          {onNotificationsClick && (
-            <button
-              onClick={onNotificationsClick}
-              className="btn-header-action notif-btn"
-              title="届いたことば"
-              aria-label="届いたことば"
-            >
-              ✉️
-              {hasUnreadNudges && <span className="header-notif-dot" />}
             </button>
           )}
           <button onClick={onShareClick} className="btn-header-action share-btn" title="今週のmogをシェア" aria-label="シェア">
@@ -121,4 +106,5 @@ export default function Header({
     </header>
   );
 }
+
 

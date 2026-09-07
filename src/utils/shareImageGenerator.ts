@@ -308,7 +308,8 @@ export async function generateShareImage(
   for (let r = 0; r < 7; r++) {
     const rowY = Y_START + r * (CELL_HEIGHT + ROW_GAP);
     const day = DAYS[r];
-    ctx.font = "bold 21px sans-serif";
+    const dateStr = datesList && datesList[r] ? datesList[r] : "";
+
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     
@@ -316,7 +317,17 @@ export async function generateShareImage(
     else if (day === "日") ctx.fillStyle = "#C48A7A";
     else ctx.fillStyle = colors.textMain;
 
-    ctx.fillText(day, X_START + DAY_COL_WIDTH, rowY + CELL_HEIGHT / 2);
+    if (dateStr && ratio !== "1:1") {
+      ctx.font = "bold 19px sans-serif";
+      ctx.fillText(day, X_START + DAY_COL_WIDTH, rowY + CELL_HEIGHT / 2 - 9);
+      ctx.font = "11px sans-serif";
+      ctx.fillStyle = colors.textSub;
+      ctx.fillText(dateStr, X_START + DAY_COL_WIDTH, rowY + CELL_HEIGHT / 2 + 11);
+    } else {
+      ctx.font = "bold 20px sans-serif";
+      ctx.fillText(day, X_START + DAY_COL_WIDTH, rowY + CELL_HEIGHT / 2);
+    }
+
 
     for (let c = 0; c < 3; c++) {
       const colX = X_START + DAY_COL_WIDTH + 15 + c * (CELL_WIDTH + COL_GAP);

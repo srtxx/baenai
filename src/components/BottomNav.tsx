@@ -1,18 +1,19 @@
 import React from "react";
 import { Icon } from "./icons/Icons";
-import { ActiveTab } from "../types";
 
 interface BottomNavProps {
-  activeTab: ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
+  onHomeClick: () => void;
+  onAchievementsClick: () => void;
   onCameraClick: () => void;
+  onShareClick: () => void;
   onSettingsClick: () => void;
 }
 
 export default function BottomNav({
-  activeTab,
-  onTabChange,
+  onHomeClick,
+  onAchievementsClick,
   onCameraClick,
+  onShareClick,
   onSettingsClick,
 }: BottomNavProps): React.JSX.Element {
   return (
@@ -20,30 +21,28 @@ export default function BottomNav({
       <div className="bottom-nav-inner">
         <button
           type="button"
-          onClick={() => onTabChange("home")}
-          className={`nav-item ${activeTab === "home" ? "active" : ""}`}
+          onClick={onHomeClick}
+          className="nav-item active"
           title="きろく"
           aria-label="きろく"
         >
           <div className="nav-icon-box">
             <Icon.Log />
-            {activeTab === "home" && <span className="nav-active-pill" />}
           </div>
           <span className="nav-label">きろく</span>
         </button>
 
         <button
           type="button"
-          onClick={() => onTabChange("friends")}
-          className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
-          title="ともだち"
-          aria-label="ともだち"
+          onClick={onAchievementsClick}
+          className="nav-item"
+          title="あしあと"
+          aria-label="あしあと"
         >
           <div className="nav-icon-box">
-            <Icon.Friends />
-            {activeTab === "friends" && <span className="nav-active-pill" />}
+            <Icon.Leaf />
           </div>
-          <span className="nav-label">ともだち</span>
+          <span className="nav-label">あしあと</span>
         </button>
 
         <div className="nav-center-action-wrap">
@@ -61,6 +60,19 @@ export default function BottomNav({
 
         <button
           type="button"
+          onClick={onShareClick}
+          className="nav-item"
+          title="シェア"
+          aria-label="シェア"
+        >
+          <div className="nav-icon-box">
+            <Icon.Share />
+          </div>
+          <span className="nav-label">シェア</span>
+        </button>
+
+        <button
+          type="button"
           onClick={onSettingsClick}
           className="nav-item"
           title="設定"
@@ -75,5 +87,6 @@ export default function BottomNav({
     </nav>
   );
 }
+
 
 

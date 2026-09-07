@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Achievement, WeekMeals } from "../types";
 
-const REFLECTIONS_STORAGE_KEY = "mog_reflections_v1";
+const REFLECTIONS_STORAGE_KEY = "mog_reflections_v2";
 
 const INITIAL_REFLECTIONS: Achievement[] = [
   {
@@ -12,26 +12,11 @@ const INITIAL_REFLECTIONS: Achievement[] = [
     unlocked: false,
   },
   {
-    id: "first_friend",
-    title: "ともだち",
-    description: "ともだちを追加した",
-    icon: "🤝",
+    id: "three_meals",
+    title: "三食のめぐみ",
+    description: "1日で朝・昼・夜の3食すべてを記録した",
+    icon: "🍱",
     unlocked: false,
-  },
-  {
-    id: "weekly_record",
-    title: "一週間のmog",
-    description: "1週間のうち15食以上を記録した",
-    icon: "📓",
-    unlocked: false,
-  },
-  {
-    id: "encourage_warmth",
-    title: "やさしいひとこと",
-    description: "ともだちに3回以上ことばを送った",
-    icon: "🍵",
-    unlocked: false,
-    progress: { current: 0, max: 3 },
   },
   {
     id: "home_cook",
@@ -48,15 +33,29 @@ const INITIAL_REFLECTIONS: Achievement[] = [
     unlocked: false,
   },
   {
+    id: "weekly_record",
+    title: "一週間のmog",
+    description: "1週間のうち15食以上を記録した",
+    icon: "📓",
+    unlocked: false,
+  },
+  {
     id: "share_week",
     title: "今週のふりかえり",
-    description: "週報を生成・共有した",
+    description: "週報画像を生成・保存した",
     icon: "🖼",
+    unlocked: false,
+  },
+  {
+    id: "all_week_logged",
+    title: "満ち足りた一週間",
+    description: "1週間の全21マスを記録またはおやすみで埋めた",
+    icon: "✨",
     unlocked: false,
   },
 ];
 
-export function useAchievements(meals?: WeekMeals, friendsCount = 0) {
+export function useAchievements(meals?: WeekMeals) {
   const [achievements, setAchievements] = useState<Achievement[]>(() => {
     try {
       const saved = localStorage.getItem(REFLECTIONS_STORAGE_KEY);
@@ -99,10 +98,13 @@ export function useAchievements(meals?: WeekMeals, friendsCount = 0) {
     let totalLogged = 0;
     let cookCount = 0;
     let restCount = 0;
+    let hasFullDay = false;
 
     meals.forEach((day) => {
+      let dayFilledCount = 0;
       day.forEach((m) => {
         if (m) {
+          dayFilledCount++;
           if ("skipped" in m && m.skipped) {
             restCount++;
           }
@@ -112,36 +114,18 @@ export function useAchievements(meals?: WeekMeals, friendsCount = 0) {
           }
         }
       });
+      if (dayFilledCount === 3) {
+        hasFullDay = true;
+      }
     });
 
     if (totalLogged >= 1) unlock("first_meal");
-    if (totalLogged >= 15) unlock("weekly_record");
+    if (hasFullDay) unlock("three_meals");
     if (cookCount >= 5) unlock("home_cook");
     if (restCount >= 3) unlock("rest_kindness");
-    if (friendsCount >= 1) unlock("first_friend");
-  }, [meals, friendsCount, unlock]);
-
-  const recordEncourageSent = useCallback(() => {
-    setAchievements((prev) => {
-      const next = prev.map((a) => {
-        if (a.id === "encourage_warmth" && !a.unlocked && a.progress) {
-          const newCurrent = a.progress.current + 1;
-          if (newCurrent >= a.progress.max) {
-            unlock("encourage_warmth");
-          }
-          return {
-            ...a,
-            progress: { ...a.progress, current: newCurrent },
-          };
-        }
-        return a;
-      });
-      try {
-        localStorage.setItem(REFLECTIONS_STORAGE_KEY, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-  }, [unlock]);
+    if (totalLogged >= 15) unlock("weekly_record");
+    if (totalLogged >= 21) unlock("all_week_logged");
+  }, [meals, unlock]);
 
   const recordShareGenerated = useCallback(() => {
     unlock("share_week");
@@ -151,7 +135,7 @@ export function useAchievements(meals?: WeekMeals, friendsCount = 0) {
     achievements,
     recentlyUnlocked,
     unlock,
-    recordEncourageSent,
     recordShareGenerated,
   };
 }
+
