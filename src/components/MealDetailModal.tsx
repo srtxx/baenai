@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Icon } from "./icons/Icons";
 import { photoUrl } from "../utils/helpers";
 import { DAYS, MEAL_LABELS, PRESET_TAGS } from "../constants";
@@ -12,6 +12,9 @@ interface MealDetailModalProps {
   onDelete: (di: DayIndex, mi: MealIndex) => void;
   onSave?: (di: DayIndex, mi: MealIndex, mealData: Meal) => void;
   initialEditing?: boolean;
+  customTags?: string[];
+  onAddCustomTag?: (tag: string) => string | null;
+  onRemoveCustomTag?: (tag: string) => void;
 }
 
 export default function MealDetailModal({
@@ -22,6 +25,9 @@ export default function MealDetailModal({
   onDelete,
   onSave,
   initialEditing = false,
+  customTags = [],
+  onAddCustomTag,
+  onRemoveCustomTag,
 }: MealDetailModalProps): React.JSX.Element {
   const mealLabel = MEAL_LABELS[mi] || "ごはん";
 
@@ -33,6 +39,17 @@ export default function MealDetailModal({
     meal && "tags" in meal && meal.tags ? meal.tags : []
   );
   const [customTagInput, setCustomTagInput] = useState<string>("");
+
+  // 保存済みカスタムタグマスタと現在選択中タグの統合
+  const allCustomTags = useMemo(() => {
+    const list = [...customTags];
+    selectedTags.forEach((t) => {
+      if (!PRESET_TAGS.includes(t as typeof PRESET_TAGS[number]) && !list.includes(t)) {
+        list.push(t);
+      }
+    });
+    return list;
+  }, [customTags, selectedTags]);
 
   if (!meal) {
     return (
@@ -126,6 +143,7 @@ export default function MealDetailModal({
     }
   };
 
+
   const handleTagToggle = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
@@ -139,10 +157,20 @@ export default function MealDetailModal({
     if (!selectedTags.includes(cleanTag)) {
       setSelectedTags((prev) => [...prev, cleanTag]);
     }
+    if (onAddCustomTag) {
+      onAddCustomTag(cleanTag);
+    }
     setCustomTagInput("");
   };
 
   const handleSaveEdit = () => {
+    if (onAddCustomTag) {
+      selectedTags.forEach((t) => {
+        if (!PRESET_TAGS.includes(t as typeof PRESET_TAGS[number])) {
+          onAddCustomTag(t);
+        }
+      });
+    }
     if (onSave) {
       onSave(di, mi, {
         image: "image" in meal ? meal.image : undefined,
@@ -237,7 +265,7 @@ export default function MealDetailModal({
                 )}
               </div>
 
-              {/* Preset Tags Chips */}
+              {/* Preset & Custom Tags Chips */}
               <div className="tag-chips">
                 {PRESET_TAGS.map((tag) => (
                   <button
@@ -249,21 +277,38 @@ export default function MealDetailModal({
                     {tag}
                   </button>
                 ))}
-                {/* Custom Tags */}
-                {selectedTags
-                  .filter((t) => !PRESET_TAGS.includes(t as typeof PRESET_TAGS[number]))
-                  .map((customTag) => (
+                {allCustomTags.map((customTag) => {
+                  const isSelected = selectedTags.includes(customTag);
+                  return (
                     <button
                       key={customTag}
                       type="button"
-                      className="tag-chip active custom-tag-chip"
+                      className={`tag-chip custom-tag-chip ${isSelected ? "active" : ""}`}
                       onClick={() => handleTagToggle(customTag)}
-                      title="タップしてタグを解除"
+                      title={isSelected ? `タップしてタグ「#${customTag}」を解除` : `タップしてタグ「#${customTag}」を付与`}
                     >
-                      #{customTag}
-                      <span className="tag-remove-x">×</span>
+                      <span>#{customTag}</span>
+                      {onRemoveCustomTag && (
+                        <span
+                          className="tag-chip-delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isSelected) {
+                              handleTagToggle(customTag);
+                            }
+                            onRemoveCustomTag(customTag);
+                          }}
+                          title="タグ候補から削除"
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`タグ「${customTag}」を候補から削除`}
+                        >
+                          <Icon.Close size={10} />
+                        </span>
+                      )}
                     </button>
-                  ))}
+                  );
+                })}
               </div>
 
               {/* Custom Tag Input Row */}

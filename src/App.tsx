@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useMeals } from "./hooks/useMeals";
 import { useAchievements } from "./hooks/useAchievements";
 import { useProfile } from "./hooks/useProfile";
+import { useCustomTags } from "./hooks/useCustomTags";
 import { DAYS } from "./constants";
 import "./App.css";
 import { Icon } from "./components/icons/Icons";
@@ -33,6 +34,7 @@ export default function App(): React.JSX.Element {
 
   const { profile, updateProfile } = useProfile();
   const { meals, isLoading, saveMeal, deleteMeal, resetAllData, stats } = useMeals(weekKey);
+  const { customTags, addCustomTag, removeCustomTag } = useCustomTags();
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', profile.themePreference || 'ecru');
@@ -457,7 +459,7 @@ export default function App(): React.JSX.Element {
 
           {toast.slot && toast.showQuickTags && (
             <div className="toast-quick-tags-row">
-              {QUICK_TOAST_TAGS.map((tag) => {
+              {Array.from(new Set([...QUICK_TOAST_TAGS, ...customTags.slice(-4).reverse()])).map((tag) => {
                 const targetMeal = meals[toast.slot!.di]?.[toast.slot!.mi];
                 const isSelected = !!(
                   targetMeal &&
@@ -487,6 +489,9 @@ export default function App(): React.JSX.Element {
           mi={selectedSlot.mi}
           onClose={() => setActiveModal(null)}
           onSave={handleSaveMeal}
+          customTags={customTags}
+          onAddCustomTag={addCustomTag}
+          onRemoveCustomTag={removeCustomTag}
         />
       )}
 
@@ -502,6 +507,9 @@ export default function App(): React.JSX.Element {
           }}
           onDelete={handleDeleteMeal}
           onSave={(di, mi, data) => handleSaveMeal(di, mi, data, true)}
+          customTags={customTags}
+          onAddCustomTag={addCustomTag}
+          onRemoveCustomTag={removeCustomTag}
         />
       )}
 

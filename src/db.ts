@@ -58,6 +58,7 @@ export async function clearAllMeals(): Promise<void> {
 }
 
 const PROFILE_KEY = "ration_user_profile";
+const CUSTOM_TAGS_KEY = "ration_custom_tags";
 
 export async function getUserProfile(): Promise<import("./types").UserProfile> {
   try {
@@ -91,5 +92,84 @@ export async function saveUserProfile(profile: import("./types").UserProfile): P
     request.onerror = () => reject(request.error);
   });
 }
+
+export async function getCustomTags(): Promise<string[]> {
+  try {
+    const db = await getDB();
+    return new Promise((resolve) => {
+      const transaction = db.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(CUSTOM_TAGS_KEY);
+      request.onsuccess = async () => {
+        const res = request.result;
+        if (Array.isArray(res)) {
+          resolve(res as string[]);
+        } else {
+          // 初回アクセス時、過去の保存済み食事データからタグを自動抽出してマスタを自己修復・初期化
+          const extracted = await extractTagsFromStoredMeals(db);
+          if (extracted.length > 0) {
+            await saveCustomTags(extracted);
+          }
+          resolve(extracted);
+        }
+      };
+      request.onerror = () => resolve([]);
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function saveCustomTags(tags: string[]): Promise<void> {
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(tags, CUSTOM_TAGS_KEY);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function extractTagsFromStoredMeals(db: IDBDatabase): Promise<string[]> {
+  return new Promise((resolve) => {
+    try {
+      const transaction = db.transaction(STORE_NAME, "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.openCursor();
+      const tagsSet = new Set<string>();
+
+      request.onsuccess = (e) => {
+        const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          const key = String(cursor.key);
+          if (key.startsWith("ration_meals_") && Array.isArray(cursor.value)) {
+            const weekMeals = cursor.value as WeekMeals;
+            for (const day of weekMeals) {
+              if (Array.isArray(day)) {
+                for (const meal of day) {
+                  if (meal && "tags" in meal && Array.isArray(meal.tags)) {
+                    for (const t of meal.tags) {
+                      if (typeof t === "string" && t.trim()) {
+                        tagsSet.add(t.trim().replace(/^#+/, ""));
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cursor.continue();
+        } else {
+          resolve(Array.from(tagsSet));
+        }
+      };
+      request.onerror = () => resolve([]);
+    } catch {
+      resolve([]);
+    }
+  });
+}
+
 
 
