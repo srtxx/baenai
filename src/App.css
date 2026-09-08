@@ -589,6 +589,26 @@
   font-size: 16px;
 }
 
+.cell-style-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.meal-cell-emoji.has-text .cell-style-icon-wrap svg {
+  width: 17px;
+  height: 17px;
+}
+
+.detail-style-icon-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
 .cell-inline-text {
   font-size: 8px;
   font-weight: 600;
@@ -1639,6 +1659,93 @@
   gap: 8px;
   max-height: 55vh;
   overflow-y: auto;
+}
+
+.rhythm-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-top: 14px;
+}
+
+.rhythm-flow-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.rhythm-flow-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.rhythm-flow-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.rhythm-flow-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.rhythm-flow-desc {
+  font-size: 11px;
+  color: var(--text-mid);
+  margin-top: 2px;
+}
+
+.rhythm-flow-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+  flex-shrink: 0;
+}
+
+.rhythm-empty-state {
+  padding: 36px 16px;
+  text-align: center;
+}
+
+.rhythm-empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.rhythm-empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.rhythm-empty-desc {
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  max-width: 280px;
+  margin: 0 auto;
 }
 
 .achievement-card {
@@ -3181,6 +3288,70 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Weekend Survival Prompt Card */
+.weekend-survival-card {
+  margin: 8px 12px 0 12px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.weekend-survival-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.weekend-survival-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weekend-survival-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--accent-faint);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.weekend-survival-texts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.weekend-survival-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+}
+
+.weekend-survival-title {
+  font-size: 11.5px;
+  color: var(--text-main);
+  margin-top: 1px;
+}
+
+.weekend-survival-arrow {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 
 
 

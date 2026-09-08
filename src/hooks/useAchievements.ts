@@ -39,11 +39,17 @@ export function useAchievements(meals?: WeekMeals) {
           } else if ("image" in m && m.image) {
             photoCount++;
           }
+          if ("style" in m && m.style) {
+            if (m.style === "cook") cookCount++;
+            if (m.style === "store") convenienceCount++;
+            if (m.style === "out") outCount++;
+            if (m.style === "cafe") cafeCount++;
+          }
           if ("tags" in m && m.tags) {
-            if (m.tags.includes("自炊")) cookCount++;
-            if (m.tags.includes("コンビニ")) convenienceCount++;
-            if (m.tags.includes("外食")) outCount++;
-            if (m.tags.includes("カフェ")) cafeCount++;
+            if (m.tags.includes("自炊") && (!("style" in m) || m.style !== "cook")) cookCount++;
+            if (m.tags.includes("コンビニ") && (!("style" in m) || m.style !== "store")) convenienceCount++;
+            if (m.tags.includes("外食") && (!("style" in m) || m.style !== "out")) outCount++;
+            if (m.tags.includes("カフェ") && (!("style" in m) || m.style !== "cafe")) cafeCount++;
           }
         });
       });

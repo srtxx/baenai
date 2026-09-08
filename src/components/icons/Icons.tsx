@@ -192,6 +192,44 @@ export const Icon = {
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
       <line x1="7" y1="7" x2="7.01" y2="7" />
     </svg>
+  ),
+  Pan: ({ size = 20, className = "" }: { size?: number; className?: string }): React.JSX.Element => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="9.5" cy="12.5" rx="7.5" ry="5.5" />
+      <line x1="17" y1="12.5" x2="23" y2="10" />
+      <path d="M6 10a4 4 0 0 1 7 0" />
+    </svg>
+  ),
+  Store: ({ size = 20, className = "" }: { size?: number; className?: string }): React.JSX.Element => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l2-5h14l2 5" />
+      <path d="M21 9v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9" />
+      <path d="M9 21V12h6v9" />
+    </svg>
+  ),
+  Utensils: ({ size = 20, className = "" }: { size?: number; className?: string }): React.JSX.Element => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2" />
+      <path d="M15 11v11" />
+      <path d="M5 2v10a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V2" />
+      <path d="M7 14v8" />
+    </svg>
+  ),
+  Coffee: ({ size = 20, className = "" }: { size?: number; className?: string }): React.JSX.Element => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+      <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+      <line x1="6" y1="2" x2="6" y2="4" />
+      <line x1="10" y1="2" x2="10" y2="4" />
+      <line x1="14" y1="2" x2="14" y2="4" />
+    </svg>
+  ),
+  Takeout: ({ size = 20, className = "" }: { size?: number; className?: string }): React.JSX.Element => (
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 16l3-8H5l3 8" />
+      <path d="M4 8l8-6 8 6" />
+      <path d="M8 16v5h8v-5" />
+    </svg>
   )
 };
 

@@ -101,9 +101,30 @@ export default function MealDetailModal({
     imgSrc = photoUrl(meal.seed, 400, 300);
   }
 
+  const styleKey = ("iconKey" in meal && meal.iconKey) || ("style" in meal && meal.style);
   const quickEmoji = "quickEmoji" in meal ? meal.quickEmoji : undefined;
   const hasNote = "note" in meal && meal.note;
   const hasTags = "tags" in meal && meal.tags && meal.tags.length > 0;
+
+  const renderDetailIcon = () => {
+    switch (styleKey) {
+      case "pan":
+      case "cook":
+        return <Icon.Pan size={44} />;
+      case "store":
+        return <Icon.Store size={44} />;
+      case "utensils":
+      case "out":
+        return <Icon.Utensils size={44} />;
+      case "coffee":
+      case "cafe":
+        return <Icon.Coffee size={44} />;
+      case "takeout":
+        return <Icon.Takeout size={44} />;
+      default:
+        return <Icon.Utensils size={44} />;
+    }
+  };
 
   const handleTagToggle = (tag: string) => {
     setSelectedTags((prev) =>
@@ -125,6 +146,8 @@ export default function MealDetailModal({
     if (onSave) {
       onSave(di, mi, {
         image: "image" in meal ? meal.image : undefined,
+        style: "style" in meal ? meal.style : undefined,
+        iconKey: "iconKey" in meal ? meal.iconKey : undefined,
         quickEmoji: "quickEmoji" in meal ? meal.quickEmoji : undefined,
         note: note.trim() || undefined,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
@@ -149,17 +172,25 @@ export default function MealDetailModal({
           </button>
         </div>
 
-        {/* Meal Photo or Emoji: Polaroid Card Style */}
+        {/* Meal Photo or Style Icon: Polaroid Card Style */}
         <div className="detail-polaroid-frame">
           {imgSrc ? (
             <div className="detail-preview">
               <img src={imgSrc} alt="食事の写真" className="detail-image" />
             </div>
+          ) : styleKey ? (
+            <div className="detail-emoji-preview">
+              <span className="detail-style-icon-large">{renderDetailIcon()}</span>
+            </div>
           ) : quickEmoji ? (
             <div className="detail-emoji-preview">
               <span className="detail-emoji-large">{quickEmoji}</span>
             </div>
-          ) : null}
+          ) : (
+            <div className="detail-emoji-preview">
+              <span className="detail-style-icon-large"><Icon.Utensils size={44} /></span>
+            </div>
+          )}
 
           {/* Meta Info within Card */}
           {!isEditing && (

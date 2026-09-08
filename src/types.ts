@@ -1,6 +1,8 @@
-/** 食事記録（写真あり、またはクイック絵文字記録） */
+/** 食事記録（写真あり、または生活スタイル記録） */
 export interface MealWithPhoto {
   image?: string;
+  style?: "cook" | "store" | "out" | "cafe" | "takeout";
+  iconKey?: string;
   quickEmoji?: string;
   note?: string;
   tags?: string[];

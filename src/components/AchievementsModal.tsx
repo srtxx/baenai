@@ -7,24 +7,22 @@ interface AchievementsModalProps {
   onClose: () => void;
 }
 
-function renderAchievementIcon(iconKey: string): React.JSX.Element {
+function renderReflectionIcon(iconKey: string): React.JSX.Element {
   switch (iconKey) {
-    case "leaf":
-      return <Icon.Leaf size={20} />;
-    case "log":
-      return <Icon.Log size={20} />;
-    case "fire":
-      return <Icon.Fire size={20} />;
     case "moon":
       return <Icon.Moon size={20} />;
-    case "calendar":
-      return <Icon.Calendar size={20} />;
-    case "share":
-      return <Icon.Share size={20} />;
+    case "log":
+      return <Icon.Camera size={20} />;
+    case "fire":
+      return <Icon.Pan size={20} />;
+    case "leaf":
+      return <Icon.Store size={20} />;
     case "sparkle":
-      return <Icon.Sparkle size={20} />;
+      return <Icon.Utensils size={20} />;
+    case "calendar":
+      return <Icon.Coffee size={20} />;
     default:
-      return <Icon.Leaf size={20} />;
+      return <Icon.Utensils size={20} />;
   }
 }
 
@@ -32,6 +30,8 @@ export default function AchievementsModal({
   achievements,
   onClose
 }: AchievementsModalProps): React.JSX.Element {
+  const activeItems = achievements.filter((item) => (item.progress?.current || 0) > 0);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content achievements-modal" onClick={(e) => e.stopPropagation()}>
@@ -55,35 +55,38 @@ export default function AchievementsModal({
           </p>
         </div>
 
-        {/* Life Rhythm Reflection Grid */}
-        <div className="achievement-grid">
-          {achievements.map((item) => {
-            const count = item.progress?.current || 0;
-            return (
-              <div
-                key={item.id}
-                className={`achievement-card ${count > 0 ? "unlocked" : "locked"}`}
-              >
-                <div className="achievement-icon-wrap">
-                  <span className="achievement-icon">{renderAchievementIcon(item.icon)}</span>
+        {/* Life Rhythm Active Cards */}
+        {activeItems.length > 0 ? (
+          <div className="rhythm-items-list">
+            {activeItems.map((item) => (
+              <div key={item.id} className="rhythm-flow-card">
+                <div className="rhythm-flow-icon">
+                  {renderReflectionIcon(item.icon)}
                 </div>
-
-                <div className="achievement-info">
-                  <div className="achievement-title-row">
-                    <span className="achievement-title">{item.title}</span>
-                  </div>
-                  <div className="achievement-desc">{item.description}</div>
-                  <div className="rhythm-count-label">
-                    {count > 0 ? (
-                      <span className="rhythm-count-active">{count} 回の記録</span>
-                    ) : (
-                      <span className="rhythm-count-empty">今週はなし</span>
-                    )}
-                  </div>
+                <div className="rhythm-flow-info">
+                  <span className="rhythm-flow-title">{item.title}</span>
+                  <span className="rhythm-flow-desc">{item.description}</span>
+                </div>
+                <div className="rhythm-flow-badge">
+                  <span>{item.progress?.current} 回</span>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
+        ) : (
+          <div className="rhythm-empty-state">
+            <div className="rhythm-empty-icon"><Icon.Moon size={32} /></div>
+            <p className="rhythm-empty-title">静かな余白の週</p>
+            <p className="rhythm-empty-desc">
+              記録がない時間も、体を休め、生活が静かに呼吸している大切な証拠です。
+            </p>
+          </div>
+        )}
+
+        <div className="modal-save-action-wrap" style={{ marginTop: "20px" }}>
+          <button type="button" onClick={onClose} className="btn-modal-secondary">
+            閉じる
+          </button>
         </div>
       </div>
     </div>

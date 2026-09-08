@@ -240,8 +240,8 @@ export async function generateShareImage(
   ctx.fillText("mog", 70, 34);
 
   ctx.fillStyle = colors.textSub;
-  ctx.font = "14px sans-serif";
-  ctx.fillText("たべる、のこす、いきる。", 140, 44);
+  ctx.font = "bold 14px sans-serif";
+  ctx.fillText("生存報告 — たべる、のこす、いきる。", 140, 44);
 
   ctx.textAlign = "right";
   ctx.font = "bold 18px sans-serif";
@@ -342,17 +342,41 @@ export async function generateShareImage(
         } catch {
           drawEmptySlot(ctx, colX, rowY, CELL_WIDTH, CELL_HEIGHT, RADIUS, isDark);
         }
-      } else if (meal && "quickEmoji" in meal && meal.quickEmoji) {
+      } else if (meal && (("style" in meal && meal.style) || ("iconKey" in meal && meal.iconKey) || ("quickEmoji" in meal && meal.quickEmoji))) {
         ctx.save();
         drawRoundedRect(ctx, colX, rowY, CELL_WIDTH, CELL_HEIGHT, RADIUS);
-        ctx.fillStyle = isDark ? "#262626" : "#FFFFFF";
+        ctx.fillStyle = isDark ? "#242424" : "#FFFFFF";
         ctx.fill();
         ctx.strokeStyle = colors.cardBorder;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-        ctx.font = "32px sans-serif";
+
+        const styleId = ("style" in meal && meal.style) || "";
+        const styleLabelMap: Record<string, string> = {
+          cook: "自炊",
+          store: "コンビニ",
+          out: "外食",
+          cafe: "カフェ",
+          takeout: "テイクアウト",
+        };
+        const mainLabel = styleLabelMap[styleId] || ("tags" in meal && meal.tags?.[0]) || ("quickEmoji" in meal ? meal.quickEmoji : "記録");
+        const noteText = ("note" in meal && meal.note) ? meal.note : "";
+
+        ctx.fillStyle = colors.accent;
+        ctx.font = "bold 16px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(meal.quickEmoji, colX + CELL_WIDTH / 2, rowY + CELL_HEIGHT / 2);
+
+        if (noteText) {
+          ctx.fillText(mainLabel, colX + CELL_WIDTH / 2, rowY + CELL_HEIGHT / 2 - 10);
+          ctx.fillStyle = colors.textSub;
+          ctx.font = "12px sans-serif";
+          const truncatedNote = noteText.length > 14 ? noteText.slice(0, 13) + "…" : noteText;
+          ctx.fillText(truncatedNote, colX + CELL_WIDTH / 2, rowY + CELL_HEIGHT / 2 + 12);
+        } else {
+          ctx.fillText(mainLabel, colX + CELL_WIDTH / 2, rowY + CELL_HEIGHT / 2);
+        }
+
         ctx.restore();
       } else {
         drawEmptySlot(ctx, colX, rowY, CELL_WIDTH, CELL_HEIGHT, RADIUS, isDark);
@@ -360,38 +384,43 @@ export async function generateShareImage(
     }
   }
 
-  // 5. Tags Breakdown & Stats
+  // 5. Tags Breakdown & Gentle Survival Stats
   let cookCount = 0;
   let convCount = 0;
   let outCount = 0;
+  let skipCount = stats.skipCount || 0;
   meals.forEach((d) =>
     d.forEach((m) => {
-      if (m && "tags" in m && m.tags) {
-        if (m.tags.includes("自炊")) cookCount++;
-        if (m.tags.includes("コンビニ")) convCount++;
-        if (m.tags.includes("外食")) outCount++;
+      if (m) {
+        if ("style" in m && m.style) {
+          if (m.style === "cook") cookCount++;
+          if (m.style === "store") convCount++;
+          if (m.style === "out") outCount++;
+        } else if ("tags" in m && m.tags) {
+          if (m.tags.includes("自炊")) cookCount++;
+          if (m.tags.includes("コンビニ")) convCount++;
+          if (m.tags.includes("外食")) outCount++;
+        }
       }
     })
   );
 
   const statsParts = [
-    `記録 ${stats.photoCount}/${stats.totalSlots}`,
-    stats.skipCount > 0 ? `休食 ${stats.skipCount}食` : "",
-    cookCount > 0 ? `自炊 ${cookCount}食` : "",
-    outCount > 0 ? `外食 ${outCount}食` : "",
-    convCount > 0 ? `コンビニ ${convCount}食` : "",
+    cookCount > 0 ? `自炊 ${cookCount}` : "",
+    convCount > 0 ? `身近な食 ${convCount}` : "",
+    outCount > 0 ? `外食 ${outCount}` : "",
+    skipCount > 0 ? `休食 ${skipCount}` : "",
   ].filter(Boolean);
 
   const statsY = HEIGHT - (ratio === "9:16" ? 140 : 90);
-  ctx.fillStyle = colors.textMain;
-  ctx.font = "bold 20px sans-serif";
+  ctx.fillStyle = colors.textSub;
+  ctx.font = "14px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-  ctx.fillText(
-    statsParts.join("   "),
-    WIDTH / 2,
-    statsY
-  );
+  const statsString = statsParts.length > 0
+    ? `生活のリズム：${statsParts.join("  /  ")}`
+    : "生活のリズム：静かに過ごした一週間";
+  ctx.fillText(statsString, WIDTH / 2, statsY);
 
   // 6. Watermark
   ctx.fillStyle = colors.watermark;

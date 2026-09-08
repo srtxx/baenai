@@ -13,6 +13,14 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
+const SURVIVAL_PRESETS = [
+  "今週もなんとか生き延びました",
+  "無事に一週間を乗り切った！",
+  "静かに体を休めることもできた週",
+  "手作りと身近な食に支えられた日々",
+  "ぼちぼち、自分のペースで",
+];
+
 export default function ShareModal({
   meals,
   weekLabel,
@@ -23,7 +31,7 @@ export default function ShareModal({
   const { profile, updateProfile } = useProfile();
   const [ratio, setRatio] = useState<ShareRatio>("4:5");
   const theme: ShareTheme = "ecru"; // 週報は生成り（ecru）に統一
-  const [comment, setComment] = useState<string>("今週の食事ログ。なんとか生き延びました");
+  const [comment, setComment] = useState<string>("今週もなんとか生き延びました");
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
@@ -90,9 +98,9 @@ export default function ShareModal({
     
     if (navigator.share) {
       try {
-        const file = new File([imageBlob], "mog_share.png", { type: "image/png" });
+        const file = new File([imageBlob], "mog_survival_report.png", { type: "image/png" });
         await navigator.share({
-          text: `${profile.name} の今週の食事ログ「${comment}」 #mog #たべるのこすいきる`,
+          text: `${profile.name} の今週の生存報告「${comment}」 #mog #生存報告 #たべるのこすいきる`,
           url: "https://mog-app.vercel.app",
           files: [file]
         });
@@ -107,7 +115,7 @@ export default function ShareModal({
     const a = document.createElement("a");
     a.href = objectUrl;
     const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "_");
-    a.download = `mog_week_${dateStr}.png`;
+    a.download = `mog_survival_${dateStr}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -122,8 +130,8 @@ export default function ShareModal({
           {/* Header */}
           <div className="modal-header-row">
             <div>
-              <h2 className="modal-title">今週の記録をシェア</h2>
-              <p className="modal-subtitle">1週間の食事ログを画像として保存・共有</p>
+              <h2 className="modal-title">今週の生存報告</h2>
+              <p className="modal-subtitle">1週間を生き抜いた証を画像として残す・届ける</p>
             </div>
             <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
               <Icon.Close />
@@ -194,11 +202,26 @@ export default function ShareModal({
             </div>
 
             <div className="share-comment-wrap" style={{ marginTop: "10px" }}>
-              <label className="modal-input-label">今週のひとこと（画像に刻印）</label>
+              <div className="modal-input-label-row">
+                <label className="modal-input-label">今週のひとこと（生存の記録）</label>
+              </div>
+              <div className="share-preset-chips" style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+                {SURVIVAL_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    className={`tag-chip ${comment === preset ? "active" : ""}`}
+                    onClick={() => setComment(preset)}
+                    style={{ fontSize: "11px", padding: "3px 8px" }}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="例: 今週は仕事が忙しくて鶏ハムばかり食べてました"
+                placeholder="今週をどう生き抜いたかを自由に..."
                 className="modal-textarea"
                 maxLength={60}
                 rows={2}
@@ -211,7 +234,7 @@ export default function ShareModal({
             {isGenerating && !objectUrl ? (
               <div className="share-generating">
                 <div className="loading-spinner" />
-                <span>画像を生成中...</span>
+                <span>生存報告を生成中...</span>
               </div>
             ) : error ? (
               <div className="modal-error-text">{error}</div>
@@ -236,7 +259,7 @@ export default function ShareModal({
               <>
                 {canShare && (
                   <button type="button" onClick={handleShare} className="btn-modal-primary">
-                    <Icon.Share size={18} /> シェアする
+                    <Icon.Share size={18} /> 生存報告を共有
                   </button>
                 )}
                 <button
@@ -244,7 +267,7 @@ export default function ShareModal({
                   onClick={handleDownload}
                   className={canShare ? "btn-modal-secondary" : "btn-modal-primary"}
                 >
-                  <Icon.Download size={18} /> 画像を保存
+                  <Icon.Download size={18} /> 生存報告を画像で保存
                 </button>
               </>
             )}

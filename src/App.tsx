@@ -89,6 +89,18 @@ export default function App(): React.JSX.Element {
     return 2; // 夕食
   })();
 
+  // 週末判定（金曜夕方〜日曜、または過去週閲覧時）
+  const isWeekendOrPast = React.useMemo(() => {
+    if (isPastWeek) return true;
+    if (isCurrentWeek) {
+      const now = new Date();
+      const day = now.getDay(); // 0: Sun, 5: Fri, 6: Sat
+      const hours = now.getHours();
+      return day === 0 || day === 6 || (day === 5 && hours >= 17);
+    }
+    return false;
+  }, [isPastWeek, isCurrentWeek]);
+
   const todayRowRef = React.useRef<HTMLDivElement>(null);
 
   // 今週表示時、今日の行が見えるように自動スクロール
@@ -212,6 +224,8 @@ export default function App(): React.JSX.Element {
 
     const updatedMeal: Meal = {
       image: "image" in currentMeal ? currentMeal.image : undefined,
+      style: "style" in currentMeal ? currentMeal.style : undefined,
+      iconKey: "iconKey" in currentMeal ? currentMeal.iconKey : undefined,
       quickEmoji: "quickEmoji" in currentMeal ? currentMeal.quickEmoji : undefined,
       note: "note" in currentMeal ? currentMeal.note : undefined,
       tags: newTags.length > 0 ? newTags : undefined,
@@ -365,6 +379,30 @@ export default function App(): React.JSX.Element {
             );
           })}
         </div>
+
+        {/* Weekend Survival Report Prompt Card */}
+        {isWeekendOrPast && (
+          <div
+            className="weekend-survival-card"
+            onClick={() => {
+              setActiveModal("share");
+              recordShareGenerated();
+            }}
+          >
+            <div className="weekend-survival-inner">
+              <div className="weekend-survival-icon-wrap">
+                <Icon.Share size={18} />
+              </div>
+              <div className="weekend-survival-texts">
+                <span className="weekend-survival-tag">週末の生存報告</span>
+                <span className="weekend-survival-title">今週もなんとか生き抜いた記録を画像に残す</span>
+              </div>
+              <div className="weekend-survival-arrow">
+                <Icon.ChevronRight size={16} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Navigation */}
         <BottomNav
