@@ -20,6 +20,18 @@ export default function SettingsModal({
   const [isResetting, setIsResetting] = useState(false);
   const [showCloudSync, setShowCloudSync] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [nameInput, setNameInput] = useState(profile.name || "");
+
+  // profile.name が外部から変わった場合の同期
+  React.useEffect(() => {
+    setNameInput(profile.name || "");
+  }, [profile.name]);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNameInput(val);
+    onUpdateProfile({ name: val });
+  };
 
   const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,9 +102,9 @@ export default function SettingsModal({
                 <input
                   type="text"
                   className="modal-text-input"
-                  value={profile.name || ""}
+                  value={nameInput}
                   placeholder="あなたのお名前"
-                  onChange={(e) => onUpdateProfile({ name: e.target.value })}
+                  onChange={handleNameChange}
                 />
               </div>
             </div>
@@ -195,7 +207,7 @@ export default function SettingsModal({
             ) : (
               <div className="confirm-reset-box">
                 <p className="danger-warning">
-                  これまでに記録したすべての週の食事が削除されます。本当によろしいですか？
+                  これまでに記録したすべての週の食事が削除されます（設定したお名前やテーマは維持されます）。本当によろしいですか？
                 </p>
                 <div className="btn-modal-actions-row">
                   <button

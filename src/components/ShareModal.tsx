@@ -11,6 +11,7 @@ interface ShareModalProps {
   stats: { photoCount: number; skipCount: number; totalSlots: number };
   datesList: string[];
   onClose: () => void;
+  profile?: import("../types").UserProfile;
 }
 
 const SURVIVAL_PRESETS = [
@@ -26,9 +27,11 @@ export default function ShareModal({
   weekLabel,
   stats,
   datesList,
-  onClose
+  onClose,
+  profile: propProfile,
 }: ShareModalProps): React.JSX.Element {
-  const { profile, updateProfile } = useProfile();
+  const { profile: hookProfile, updateProfile } = useProfile();
+  const profile = propProfile || hookProfile;
   const [ratio, setRatio] = useState<ShareRatio>("4:5");
   const theme: ShareTheme = "ecru"; // 週報は生成り（ecru）に統一
   const [comment, setComment] = useState<string>("今週もなんとか生き延びました");

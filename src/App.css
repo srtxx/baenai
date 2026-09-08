@@ -233,6 +233,28 @@
   line-height: 1;
 }
 
+.brand-user-tag {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  max-width: 96px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.header-slim-brand:hover .brand-user-tag {
+  border-color: var(--accent);
+  color: var(--text-main);
+}
+
 .brand-stat-pill {
   background-color: var(--accent-faint);
   border: 1px solid var(--accent-border);

@@ -1,175 +1,217 @@
-import { WeekMeals } from "./types";
+import { DayIndex, Meal, MealIndex, MealWithPhoto, UserProfile, WeekMeals } from "./types";
+import { StoredMealRecord } from "./storage/interfaces";
+import {
+  mealRepository,
+  imageRepository,
+  profileRepository,
+  tagRepository,
+} from "./storage/indexeddb/repositories";
+import { dataUrlToBlob, blobToDataUrl } from "./storage/indexeddb/database";
 
-const DB_NAME = "ration_db";
-const STORE_NAME = "meals_store";
-
-function getDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
-    request.onupgradeneeded = (e) => {
-      const target = e.target as IDBOpenDBRequest;
-      const db = target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
-    };
-    request.onsuccess = (e) => {
-      const target = e.target as IDBOpenDBRequest;
-      resolve(target.result);
-    };
-    request.onerror = (e) => {
-      const target = e.target as IDBOpenDBRequest;
-      reject(target.error);
-    };
-  });
+/**
+ * 空の1週間（7日 × 3食）グリッドを作成
+ */
+export function createEmptyWeekGrid(): WeekMeals {
+  return Array(7)
+    .fill(null)
+    .map(() => [null, null, null]) as WeekMeals;
 }
 
+/**
+ * 指定した週の食事データを取得（1食1レコードから7×3配列を復元）
+ */
 export async function getSavedMeals(weekKey = "default"): Promise<WeekMeals | null> {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readonly");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.get(`ration_meals_${weekKey}`);
-    request.onsuccess = () => resolve((request.result as WeekMeals) || null);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export async function saveMeals(weekKey = "default", meals: WeekMeals): Promise<void> {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(meals, `ration_meals_${weekKey}`);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export async function clearAllMeals(): Promise<void> {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.clear();
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-const PROFILE_KEY = "ration_user_profile";
-const CUSTOM_TAGS_KEY = "ration_custom_tags";
-
-export async function getUserProfile(): Promise<import("./types").UserProfile> {
   try {
-    const db = await getDB();
-    return new Promise((resolve) => {
-      const transaction = db.transaction(STORE_NAME, "readonly");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get(PROFILE_KEY);
-      request.onsuccess = () => {
-        const res = request.result;
-        if (res && typeof res === "object" && "name" in res) {
-          resolve(res as import("./types").UserProfile);
+    const records = await mealRepository.getMealsByWeek(weekKey);
+    if (!records || records.length === 0) {
+      return null;
+    }
+
+    const grid = createEmptyWeekGrid();
+
+    // レコードを 7x3 グリッドへマッピング
+    for (const record of records) {
+      const di = record.dayIndex;
+      const mi = record.mealIndex;
+      if (di >= 0 && di < 7 && mi >= 0 && mi < 3) {
+        if (record.skipped) {
+          grid[di][mi] = { skipped: true };
         } else {
-          resolve({ name: "USER", handle: "" });
-        }
-      };
-      request.onerror = () => resolve({ name: "USER", handle: "" });
-    });
-  } catch {
-    return { name: "USER", handle: "" };
-  }
-}
-
-export async function saveUserProfile(profile: import("./types").UserProfile): Promise<void> {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(profile, PROFILE_KEY);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export async function getCustomTags(): Promise<string[]> {
-  try {
-    const db = await getDB();
-    return new Promise((resolve) => {
-      const transaction = db.transaction(STORE_NAME, "readonly");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get(CUSTOM_TAGS_KEY);
-      request.onsuccess = async () => {
-        const res = request.result;
-        if (Array.isArray(res)) {
-          resolve(res as string[]);
-        } else {
-          // 初回アクセス時、過去の保存済み食事データからタグを自動抽出してマスタを自己修復・初期化
-          const extracted = await extractTagsFromStoredMeals(db);
-          if (extracted.length > 0) {
-            await saveCustomTags(extracted);
-          }
-          resolve(extracted);
-        }
-      };
-      request.onerror = () => resolve([]);
-    });
-  } catch {
-    return [];
-  }
-}
-
-export async function saveCustomTags(tags: string[]): Promise<void> {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(tags, CUSTOM_TAGS_KEY);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function extractTagsFromStoredMeals(db: IDBDatabase): Promise<string[]> {
-  return new Promise((resolve) => {
-    try {
-      const transaction = db.transaction(STORE_NAME, "readonly");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.openCursor();
-      const tagsSet = new Set<string>();
-
-      request.onsuccess = (e) => {
-        const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
-        if (cursor) {
-          const key = String(cursor.key);
-          if (key.startsWith("ration_meals_") && Array.isArray(cursor.value)) {
-            const weekMeals = cursor.value as WeekMeals;
-            for (const day of weekMeals) {
-              if (Array.isArray(day)) {
-                for (const meal of day) {
-                  if (meal && "tags" in meal && Array.isArray(meal.tags)) {
-                    for (const t of meal.tags) {
-                      if (typeof t === "string" && t.trim()) {
-                        tagsSet.add(t.trim().replace(/^#+/, ""));
-                      }
-                    }
-                  }
-                }
-              }
+          let imageUrl: string | undefined;
+          if (record.imageId) {
+            const blob = await imageRepository.getImage(record.imageId);
+            if (blob) {
+              imageUrl = await blobToDataUrl(blob);
             }
           }
-          cursor.continue();
-        } else {
-          resolve(Array.from(tagsSet));
+
+          const mealData: MealWithPhoto = {
+            image: imageUrl,
+            style: record.style,
+            iconKey: record.iconKey,
+            quickEmoji: record.quickEmoji,
+            note: record.note,
+            tags: record.tags,
+          };
+          grid[di][mi] = mealData;
         }
-      };
-      request.onerror = () => resolve([]);
-    } catch {
-      resolve([]);
+      }
     }
-  });
+
+    return grid;
+  } catch (err) {
+    console.error("Failed to load meals by week:", err);
+    return null;
+  }
 }
 
+/**
+ * 1食単位（アトミック）で食事レコードを保存/更新する
+ * 画像はBlob専用ストアへ分離保存し、メタデータのみを更新
+ */
+export async function saveMealSlot(
+  weekKey: string,
+  di: DayIndex,
+  mi: MealIndex,
+  meal: Meal
+): Promise<void> {
+  const recordId = `${weekKey}_${di}_${mi}`;
 
+  if (!meal) {
+    await deleteMealSlot(weekKey, di, mi);
+    return;
+  }
 
+  // 既存レコードの確認（既存画像IDの再利用チェック）
+  const existing = await mealRepository.getMeal(weekKey, di, mi);
+  let imageId = existing?.imageId;
+
+  if ("skipped" in meal && meal.skipped) {
+    // 休食の場合、もし旧画像があれば削除
+    if (imageId) {
+      await imageRepository.deleteImage(imageId).catch(() => {});
+      imageId = undefined;
+    }
+
+    const record: StoredMealRecord = {
+      id: recordId,
+      weekKey,
+      dayIndex: di,
+      mealIndex: mi,
+      recordedAt: existing?.recordedAt || new Date().toISOString(),
+      skipped: true,
+      updatedAt: Date.now(),
+      syncStatus: "pending",
+    };
+    await mealRepository.saveMeal(record);
+    return;
+  }
+
+  // 写真付きまたはスタイル記録の場合
+  if ("image" in meal && meal.image) {
+    if (meal.image.startsWith("data:image/")) {
+      // 新規アップロード画像（DataURL）の場合のみBlobに変換して画像ストアへ保存
+      const newImageId = imageId || `img_${recordId}_${Date.now()}`;
+      const blob = dataUrlToBlob(meal.image);
+      await imageRepository.saveImage(newImageId, blob, blob.type);
+      imageId = newImageId;
+    }
+    // 既存の画像（URLや再利用）で変更がない場合は画像ストアへの再書き込みはスキップ
+  } else if (existing?.imageId && (!("image" in meal) || !meal.image)) {
+    // 画像が削除された場合
+    await imageRepository.deleteImage(existing.imageId).catch(() => {});
+    imageId = undefined;
+  }
+
+  const mealWithPhoto = meal as MealWithPhoto;
+  const record: StoredMealRecord = {
+    id: recordId,
+    weekKey,
+    dayIndex: di,
+    mealIndex: mi,
+    recordedAt: existing?.recordedAt || new Date().toISOString(),
+    style: mealWithPhoto.style,
+    iconKey: mealWithPhoto.iconKey,
+    quickEmoji: mealWithPhoto.quickEmoji,
+    note: mealWithPhoto.note,
+    tags: mealWithPhoto.tags,
+    skipped: false,
+    imageId,
+    updatedAt: Date.now(),
+    syncStatus: "pending",
+  };
+
+  await mealRepository.saveMeal(record);
+}
+
+/**
+ * 1食分のレコードを削除
+ */
+export async function deleteMealSlot(
+  weekKey: string,
+  di: DayIndex,
+  mi: MealIndex
+): Promise<void> {
+  const existing = await mealRepository.getMeal(weekKey, di, mi);
+  if (existing?.imageId) {
+    await imageRepository.deleteImage(existing.imageId).catch(() => {});
+  }
+  await mealRepository.deleteMeal(weekKey, di, mi);
+}
+
+/**
+ * 1週間分の一括保存（後方互換性用）
+ */
+export async function saveMeals(weekKey = "default", meals: WeekMeals): Promise<void> {
+  for (let di = 0; di < meals.length; di++) {
+    const day = meals[di];
+    for (let mi = 0; mi < day.length; mi++) {
+      const meal = day[mi];
+      await saveMealSlot(weekKey, di as DayIndex, mi as MealIndex, meal);
+    }
+  }
+}
+
+/**
+ * すべての食事データを初期化（プロフィール・タグマスタは安全に保護）
+ */
+export async function clearAllMeals(): Promise<void> {
+  await mealRepository.clearAllMeals();
+}
+
+/**
+ * ユーザープロファイルを取得
+ */
+export async function getUserProfile(): Promise<UserProfile> {
+  return await profileRepository.getProfile();
+}
+
+/**
+ * ユーザープロファイルを保存
+ */
+export async function saveUserProfile(profile: UserProfile): Promise<void> {
+  await profileRepository.saveProfile(profile);
+}
+
+/**
+ * カスタムタグ一覧を取得
+ */
+export async function getCustomTags(): Promise<string[]> {
+  let tags = await tagRepository.getTags();
+  if (tags.length === 0) {
+    // 初期タグが無ければ過去の食事から抽出してマスタ初期化
+    const extracted = await mealRepository.getAllTags();
+    if (extracted.length > 0) {
+      await tagRepository.saveTags(extracted);
+      tags = extracted;
+    }
+  }
+  return tags;
+}
+
+/**
+ * カスタムタグ一覧を保存
+ */
+export async function saveCustomTags(tags: string[]): Promise<void> {
+  await tagRepository.saveTags(tags);
+}

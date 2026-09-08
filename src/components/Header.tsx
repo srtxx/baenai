@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "./icons/Icons";
 import { APP_NAME } from "../constants";
-import { DayIndex } from "../types";
+import { DayIndex, UserProfile } from "../types";
 
 interface HeaderProps {
   weekLabel: string;
@@ -16,6 +16,8 @@ interface HeaderProps {
     totalLogged: number;
     totalSlots: number;
   };
+  profile?: UserProfile;
+  onOpenSettings?: () => void;
 }
 
 export default function Header({
@@ -26,13 +28,22 @@ export default function Header({
   onNextWeek,
   onToday,
   stats: _stats,
+  profile,
+  onOpenSettings,
 }: HeaderProps): React.JSX.Element {
+  const displayName = profile?.name && profile.name.trim() !== "" ? profile.name : "";
+
   return (
     <header className="app-header-slim">
       {/* Top Bar: Brand & Week Nav */}
       <div className="header-slim-main-row">
-        <div className="header-slim-brand">
+        <div className="header-slim-brand" onClick={onOpenSettings} style={{ cursor: onOpenSettings ? "pointer" : "default" }}>
           <span className="brand-logo-text">{APP_NAME}</span>
+          {displayName && (
+            <span className="brand-user-tag" title="設定を開く">
+              {displayName}
+            </span>
+          )}
         </div>
 
         {/* Week Navigator */}
@@ -45,7 +56,11 @@ export default function Header({
           >
             <Icon.ChevronLeft size={16} />
           </button>
-          <div className="week-nav-label-box" onClick={!isCurrentWeek ? onToday : undefined} title={!isCurrentWeek ? "タップで今週に戻る" : undefined}>
+          <div
+            className="week-nav-label-box"
+            onClick={!isCurrentWeek ? onToday : undefined}
+            title={!isCurrentWeek ? "タップで今週に戻る" : undefined}
+          >
             <span className="week-nav-calendar-icon"><Icon.Calendar size={13} /></span>
             <span className="week-nav-label-text">{weekLabel}</span>
           </div>
@@ -73,7 +88,3 @@ export default function Header({
     </header>
   );
 }
-
-
-
-

@@ -267,6 +267,8 @@ export default function App(): React.JSX.Element {
           onNextWeek={handleNextWeek}
           onToday={handleJumpToToday}
           stats={stats}
+          profile={profile}
+          onOpenSettings={() => setActiveModal("settings")}
         />
 
         {/* Column labels */}
@@ -461,6 +463,7 @@ export default function App(): React.JSX.Element {
           weekLabel={weekRangeLabel}
           stats={stats}
           datesList={datesList}
+          profile={profile}
           onClose={() => setActiveModal(null)}
         />
       )}
