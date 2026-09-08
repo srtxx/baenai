@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mog（映えない食事記録）- 実画面フル操作デモ動画プレビュー</title>
+  <title>mog（映えない食事記録）- 最新実画面デモ動画プレビュー</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,67 +11,141 @@
       padding: 0;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #141518;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: #121513;
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 36px 16px 60px;
+      padding: 36px 16px 64px;
     }
     header {
       text-align: center;
       margin-bottom: 24px;
+      max-width: 680px;
+    }
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(91, 130, 102, 0.2);
+      border: 1px solid rgba(91, 130, 102, 0.4);
+      color: #8ab89e;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
     }
     h1 {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       color: #faf7f2;
-      margin-bottom: 6px;
-      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
     }
     p.subtitle {
       font-size: 13px;
       color: #94a3b8;
+      line-height: 1.6;
     }
-    .video-container {
+
+    /* Tab Switcher */
+    .tab-switcher {
+      display: flex;
+      background: #1c221f;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: #5b8266;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Video Player Containers */
+    .player-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    /* Desktop Full UI Video */
+    .video-container-desktop {
+      width: 100%;
+      max-width: 960px;
+      background: #1c221f;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    .video-container-desktop video {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+      outline: none;
+      background: #000;
+    }
+
+    /* Mobile Scale Video */
+    .video-container-mobile {
       position: relative;
       width: 100%;
-      max-width: 380px;
+      max-width: 390px;
       background: #000;
       border-radius: 44px;
       padding: 12px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
     }
     .phone-speaker {
-      width: 72px;
+      width: 68px;
       height: 4px;
       background: #2a2a2a;
       border-radius: 2px;
       margin: 8px auto 14px;
     }
-    video {
+    .video-container-mobile video {
       width: 100%;
       border-radius: 32px;
       display: block;
       outline: none;
       background: #2b302c;
     }
+
+    /* Meta & Scene Info */
     .scene-list {
-      margin-top: 32px;
-      max-width: 520px;
+      max-width: 680px;
       width: 100%;
-      background: #1e2025;
-      border-radius: 18px;
-      padding: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #1a1e1c;
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
     .scene-list h2 {
-      font-size: 15px;
-      margin-bottom: 14px;
+      font-size: 16px;
+      margin-bottom: 16px;
       color: #f1f5f9;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .scene-list ol {
       padding-left: 20px;
@@ -80,48 +154,122 @@
       line-height: 1.85;
     }
     .scene-list li {
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .badge {
       display: inline-block;
-      background: rgba(43, 90, 83, 0.25);
-      color: #5eead4;
-      border: 1px solid rgba(94, 234, 212, 0.3);
+      background: rgba(91, 130, 102, 0.25);
+      color: #8ab89e;
+      border: 1px solid rgba(91, 130, 102, 0.4);
       padding: 1px 7px;
-      border-radius: 5px;
+      border-radius: 4px;
       font-size: 11px;
       margin-left: 6px;
+    }
+    .file-paths {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .file-paths code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>mog — 実画面フル操作デモ動画</h1>
-    <p class="subtitle">自然で活発なユーザーの使用感を網羅したiPhone実機スケールレコーディング（解像度 2x / 4.5 MB）</p>
+    <div class="brand-pill">mog (映えない食事記録) — 最新デモプレビュー</div>
+    <h1>実画面デモ動画（UI全体収録版）</h1>
+    <p class="subtitle">
+      最新のタグ・メモ同時表示、Flexbox伸縮グリッド、ゼロ摩擦記録、リアルタイム生存報告シェア、ナイトモードなど、アプリの全インタラクションを網羅した動画です。
+    </p>
   </header>
 
-  <div class="video-container">
-    <div class="phone-speaker"></div>
-    <video controls autoplay loop muted playsinline src="./demo_app.webm">
-      お使いのブラウザは動画タグに対応していません。
-    </video>
+  <!-- View Switcher -->
+  <div class="tab-switcher">
+    <button id="btn-full-ui" class="tab-btn active" onclick="switchTab('full')">
+      UI全体版（Web/デスクトップ全体）
+    </button>
+    <button id="btn-mobile" class="tab-btn" onclick="switchTab('mobile')">
+      モバイル実機版（1画面全収容）
+    </button>
+  </div>
+
+  <!-- Player 1: Full UI (Default) -->
+  <div id="view-full" class="player-wrapper">
+    <div class="video-container-desktop">
+      <video id="video-full" controls autoplay loop muted playsinline src="./demo_app.webm">
+        お使いのブラウザは動画タグに対応していません。
+      </video>
+    </div>
+  </div>
+
+  <!-- Player 2: Mobile UI -->
+  <div id="view-mobile" class="player-wrapper" style="display: none;">
+    <div class="video-container-mobile">
+      <div class="phone-speaker"></div>
+      <video id="video-mobile" controls loop muted playsinline src="./demo_app_mobile.webm">
+        お使いのブラウザは動画タグに対応していません。
+      </video>
+    </div>
   </div>
 
   <div class="scene-list">
-    <h2>収録されている操作フロー（全11シーン）</h2>
+    <h2>
+      <span>収録操作フロー（全12シーン）</span>
+      <span class="badge">解像度 2x / 高精細レコーディング</span>
+    </h2>
     <ol>
-      <li><strong>週移動の探索</strong>: 前週・次週へ軽快に切り替え、「今週」ボタンで瞬時に復帰</li>
-      <li><strong>ゼロ摩擦ワンタップ記録</strong>: 朝食枠を開き、クイックカード「自炊」を1タップで即時保存（トースト表示）</li>
-      <li><strong>詳細入力モードの探索</strong>: アコーディオン展開、カテゴリタブ切り替え、ラーメン選択、タグ「外食」選択、カスタムタグ「特製」追加、キーボードタイピングでメモ入力</li>
-      <li><strong>休食（スキップ）記録</strong>: 食べなかった枠で「休食」を記録し、詳細ビューで確認</li>
-      <li><strong>下部FABカメラボタンからのクイック記録</strong>: 画面中央下のボタンから「ごはん」をワンタップ記録</li>
-      <li><strong>登録済みセルのインライン編集</strong>: 詳細モーダルから「メモやタグを編集する」を開き、メモを更新して再保存</li>
-      <li><strong>1週間のフルグリッド＆スムーズスクロール</strong>: 7×3マスに写真・絵文字・休食が埋まった一週間を軽快にスクロール</li>
-      <li><strong>写真付き食事のポラロイド詳細</strong>: 大きな写真・タグ・コメントが表示された詳細ビューの確認</li>
-      <li><strong>振り返り・実績モーダル</strong>: 達成度プログレスバーとバッジ一覧をスクロールしてじっくり確認</li>
-      <li><strong>週報シェアモーダルのフル操作</strong>: 4:5 / 9:16 / 1:1 比率切り替え、週報コメントのタイピング編集（Canvasリアルタイム再生成）、画像プレビューのズーム拡大・解除</li>
-      <li><strong>設定＆ナイトモード切り替え</strong>: お名前編集、「ナイト」テーマへ切り替え、ダークトーンでのスクロール、再度「生成り」に戻す全体プレビュー</li>
+      <li><strong>週移動ナビゲーション</strong>: 前週・次週へ軽快に切り替え、「今週」ボタンで瞬時に復帰</li>
+      <li><strong>ゼロ摩擦ワンタップ記録 ＆ Toastクイックタグ</strong>: 朝食枠を開き「自炊」を1タップで即時記録、出現したToastから「#自炊」タグをワンタップ付与</li>
+      <li><strong>詳細入力モードの探索</strong>: アコーディオン展開、生活スタイル「外食」選択、タグ「#ガッツリ」選択、カスタムタグ「特製」追加、ひとことメモ入力・保存</li>
+      <li><strong>休食（体を休める）記録</strong>: 食べなかった枠で「休食」をワンタップ記録し、詳細ビューで温かいメッセージを確認</li>
+      <li><strong>下部FABカメラボタンからのクイック記録</strong>: 画面中央下のボタンから「コンビニ」を記録し、Toastからインラインでメモを入力・即時保存</li>
+      <li><strong>登録済みセルのインライン編集</strong>: 詳細モーダルから「メモやタグを編集する」を開き、メモを更新して保存（セル内にタグとメモが同時に美しく表示される最新仕様）</li>
+      <li><strong>1週間の充実したフルグリッド反映</strong>: 写真付き・スタイルアイコン・休食・タグ・メモが満たされた7×3マスのバランス良い一週間を提示</li>
+      <li><strong>写真付き食事のポラロイド詳細</strong>: 大きな料理写真・タグ・コメントが表示されたポラロイド風カードの確認</li>
+      <li><strong>週の生活リズム（実績・振り返り）</strong>: 哲学的メッセージと進捗プログレスバーを鑑賞</li>
+      <li><strong>週末の生存報告カード ＆ 週報シェアモーダル</strong>: 4:5 / 9:16 / 1:1 比率切り替え、生存報告コメントの変更（Canvasリアルタイム再描画）、画像プレビューの全画面拡大ズーム</li>
+      <li><strong>設定 ＆ ナイトモード切り替え</strong>: お名前編集、「ナイト」テーマへ切り替え、シックなダークトーンでのUI全体鑑賞</li>
+      <li><strong>生成りテーマへの復帰 ＆ 全体静止</strong>: 再び設定から「生成り（エクリュ）」に戻し、温かみのある全体の調和を確認</li>
     </ol>
+
+    <div class="file-paths">
+      <p>動画ファイル（リポジトリ内）: <code>docs/demo/demo_app.webm</code> (UI全体版 / 4.3 MB), <code>docs/demo/demo_app_mobile.webm</code> (モバイル実機版 / 2.7 MB)</p>
+    </div>
   </div>
+
+  <script>
+    function switchTab(mode) {
+      const btnFull = document.getElementById('btn-full-ui');
+      const btnMobile = document.getElementById('btn-mobile');
+      const viewFull = document.getElementById('view-full');
+      const viewMobile = document.getElementById('view-mobile');
+      const videoFull = document.getElementById('video-full');
+      const videoMobile = document.getElementById('video-mobile');
+
+      if (mode === 'full') {
+        btnFull.classList.add('active');
+        btnMobile.classList.remove('active');
+        viewFull.style.display = 'flex';
+        viewMobile.style.display = 'none';
+        videoFull.play();
+        videoMobile.pause();
+      } else {
+        btnMobile.classList.add('active');
+        btnFull.classList.remove('active');
+        viewMobile.style.display = 'flex';
+        viewFull.style.display = 'none';
+        videoMobile.play();
+        videoFull.pause();
+      }
+    }
+  </script>
 </body>
 </html>
