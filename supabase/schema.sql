@@ -11,9 +11,12 @@ create table if not exists public.profiles (
   handle text unique,
   avatar_url text,
   friend_code text unique not null default ('RN-' || upper(substring(md5(random()::text) from 1 for 5))),
+  custom_tags text[] default array[]::text[],
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+-- Migration for existing database:
+-- alter table public.profiles add column if not exists custom_tags text[] default array[]::text[];
 
 -- 2. Friendships Table (相互監視関係)
 create table if not exists public.friendships (

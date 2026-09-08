@@ -146,28 +146,41 @@
   to { transform: rotate(360deg); }
 }
 
+/* Safe Area Top Spacer */
+.safe-top-spacer {
+  height: env(safe-area-inset-top, 0px);
+  width: 100%;
+  flex-shrink: 0;
+}
+
 /* App Wrapper & Container Layout */
 .app-wrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #E2DDD5;
-  padding: 16px 0 40px;
+  padding: 12px 0;
   transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 @media (max-width: 480px) {
   .app-wrapper {
     padding: 0;
+    align-items: stretch;
     background-color: var(--bg);
+    height: 100dvh;
+    min-height: 100dvh;
   }
 }
 
 .app-container {
   width: 100%;
   max-width: 420px;
-  min-height: 100vh;
+  height: min(94vh, 880px);
+  min-height: 600px;
   background-color: var(--bg);
   border-radius: 36px;
   overflow: hidden;
@@ -179,6 +192,9 @@
 
 @media (max-width: 480px) {
   .app-container {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
     box-shadow: none;
   }
@@ -306,11 +322,13 @@
 /* Column Labels */
 .column-labels {
   display: flex;
-  padding: 2px 10px 1px;
+  padding: 4px 10px 2px;
+  flex-shrink: 0;
 }
 
 .column-label-spacer {
-  width: 34px;
+  width: 36px;
+  flex-shrink: 0;
 }
 
 .column-label {
@@ -322,22 +340,26 @@
   letter-spacing: 0.1em;
 }
 
-/* Grid & Rows (Optimized for single-screen viewport fit & breathing room) */
+/* Grid & Rows (Responsive Flexbox Layout for All Mobile Viewports) */
 .meal-grid {
-  padding: 4px 8px 96px;
+  padding: 2px 10px 6px;
   display: flex;
   flex-direction: column;
   gap: 3px;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .day-row {
   display: flex;
   align-items: center;
   border-radius: 14px;
-  padding: 2.5px 4px;
+  padding: 2px 4px;
   border: 1px solid transparent;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 /* 本日の行のハイライト */
@@ -360,7 +382,7 @@
 }
 
 .day-info {
-  width: 34px;
+  width: 36px;
   text-align: center;
   flex-shrink: 0;
   display: flex;
@@ -396,7 +418,7 @@
 .meal-cell {
   flex: 1 1 0;
   min-width: 0;
-  height: clamp(44px, 6.5vh, 54px);
+  height: 100%;
   margin: 0 2px;
   border-radius: 10px;
   overflow: hidden;
@@ -522,16 +544,16 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.3) 70%, transparent 100%);
-  padding: 8px 3px 2px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.35) 75%, transparent 100%);
+  padding: 10px 4px 3px;
   color: #FFFFFF;
-  font-size: 8px;
+  font-size: 8.5px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1.15;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
@@ -543,18 +565,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 1.5px;
 }
 
 .rested-mark {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-mid);
   line-height: 1;
   opacity: 0.7;
 }
 
 .rested-label {
-  font-size: 7.5px;
+  font-size: 8px;
   color: var(--text-mid);
   letter-spacing: 0.04em;
   font-weight: 600;
@@ -570,8 +592,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2px 3px;
+  padding: 3px 4px;
   overflow: hidden;
+  gap: 2px;
 }
 
 .meal-cell-emoji:hover {
@@ -580,13 +603,13 @@
 }
 
 .meal-cell-emoji .cell-emoji-char {
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1;
   user-select: none;
 }
 
 .meal-cell-emoji.has-text .cell-emoji-char {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .cell-style-icon-wrap {
@@ -598,8 +621,8 @@
 }
 
 .meal-cell-emoji.has-text .cell-style-icon-wrap svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
 }
 
 .detail-style-icon-large {
@@ -610,10 +633,10 @@
 }
 
 .cell-inline-text {
-  font-size: 8px;
+  font-size: 8.5px;
   font-weight: 600;
   color: var(--text-mid);
-  line-height: 1.1;
+  line-height: 1.15;
   margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -696,6 +719,7 @@
   bottom: 0;
   left: 0;
   right: 0;
+  flex-shrink: 0;
   background-color: rgba(250, 247, 242, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1429,15 +1453,39 @@
 }
 
 .tag-chip.custom-tag-chip {
-  background-color: var(--accent);
-  color: #FFFFFF;
+  padding-right: 6px;
 }
 
-.tag-remove-x {
-  font-size: 11px;
-  line-height: 1;
-  opacity: 0.8;
-  margin-left: 2px;
+.tag-chip.custom-tag-chip.active {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  border-color: var(--accent);
+}
+
+.tag-chip-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 3px;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.tag-chip-delete-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.tag-chip.active .tag-chip-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .custom-tag-input-row {
@@ -3291,14 +3339,15 @@
 
 /* Weekend Survival Prompt Card */
 .weekend-survival-card {
-  margin: 8px 12px 0 12px;
+  margin: 0 10px 6px 10px;
   background-color: var(--card-bg);
   border: 1px solid var(--accent-border);
   border-radius: 12px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .weekend-survival-card:hover {
