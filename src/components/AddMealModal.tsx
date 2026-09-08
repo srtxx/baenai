@@ -168,7 +168,7 @@ export default function AddMealModal({
               {DAYS[di]}曜日 — {mealLabel}
             </h2>
             <p className="modal-subtitle">
-              {isDetailOpen ? "メモやタグを添えて記録" : "1タップで即時記録"}
+              {isDetailOpen ? "メモやタグを添えて記録" : "選ぶだけで即座に記録完了"}
             </p>
           </div>
           <button onClick={onClose} className="modal-close-icon-btn" aria-label="閉じる">
@@ -203,8 +203,8 @@ export default function AddMealModal({
           ) : (
             <div
               onClick={() => !isCompressing && fileInputRef.current?.click()}
-              className={`hero-photo-box ${isCompressing ? "compressing" : ""}`}
-              title="写真を撮影またはライブラリから選択"
+              className={`hero-photo-box ${isCompressing ? "compressing" : ""} ${!isDetailOpen ? "instant-hero-btn" : ""}`}
+              title="写真を撮影またはライブラリから選択して即時記録"
             >
               {isCompressing ? (
                 <div className="upload-placeholder">
@@ -213,10 +213,10 @@ export default function AddMealModal({
                 </div>
               ) : (
                 <div className="hero-photo-inner">
-                  <span className="hero-camera-icon"><Icon.Camera size={22} /></span>
+                  <span className="hero-camera-icon"><Icon.Camera size={24} /></span>
                   <div className="hero-photo-texts">
-                    <span className="hero-photo-title">写真で記録</span>
-                    <span className="hero-photo-sub">{isDetailOpen ? "撮影・選択" : "1タップ記録"}</span>
+                    <span className="hero-photo-title">写真で即記録</span>
+                    <span className="hero-photo-sub">{isDetailOpen ? "撮影・選択" : "1タップで完了"}</span>
                   </div>
                 </div>
               )}
@@ -226,12 +226,12 @@ export default function AddMealModal({
           <button
             type="button"
             onClick={handleSkipMeal}
-            className="hero-skip-btn"
+            className={`hero-skip-btn ${!isDetailOpen ? "instant-hero-btn" : ""}`}
             title="食事をとらずに体を休めたときは休食をワンタップ記録"
           >
-            <span className="hero-skip-icon"><Icon.Moon size={20} /></span>
+            <span className="hero-skip-icon"><Icon.Moon size={22} /></span>
             <div className="hero-skip-texts">
-              <span className="hero-skip-title">休食</span>
+              <span className="hero-skip-title">休食で即記録</span>
               <span className="hero-skip-sub">体を休める</span>
             </div>
           </button>
@@ -249,9 +249,11 @@ export default function AddMealModal({
         {/* Quick Style Options */}
         <div className="modal-quick-emojis-section">
           <div className="modal-quick-header">
-            <span className="modal-quick-label">生活スタイルから選ぶ</span>
+            <span className="modal-quick-label">
+              {isDetailOpen ? "生活スタイル（タグ）" : "ワンタップ即時記録"}
+            </span>
             <span className="selected-emoji-indicator">
-              {isDetailOpen ? `選択中: ${selectedOption.label}` : "1タップで記録完了"}
+              {isDetailOpen ? `選択中: ${selectedOption.label}` : "押した瞬間に保存"}
             </span>
           </div>
           <div className="modal-quick-row">
@@ -259,11 +261,11 @@ export default function AddMealModal({
               <button
                 key={item.id}
                 type="button"
-                className={`quick-emoji-card ${selectedOption.id === item.id && isDetailOpen ? "selected" : ""}`}
+                className={`quick-emoji-card ${selectedOption.id === item.id && isDetailOpen ? "selected" : ""} ${!isDetailOpen ? "instant-record-btn" : ""}`}
                 onClick={() => handleSelectStyle(item)}
-                title={`${item.label} を1タップで記録`}
+                title={`${item.label} をワンタップで即記録`}
               >
-                <span className="quick-emoji-char">{renderStyleIcon(item.icon, 22)}</span>
+                <span className="quick-emoji-char">{renderStyleIcon(item.icon, 24)}</span>
                 <span className="quick-emoji-label">{item.label}</span>
               </button>
             ))}

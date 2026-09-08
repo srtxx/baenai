@@ -19,13 +19,11 @@ import { getMondayOfCurrentWeek, getWeekKey } from "./utils/helpers";
 import { compressImage } from "./utils/imageCompressor";
 import { DayIndex, MealIndex, MealSlot, ModalState, Meal } from "./types";
 
-const QUICK_TOAST_TAGS = ["自炊", "外食", "コンビニ", "テイクアウト", "カフェ"] as const;
-
 interface ToastState {
   id: number;
   message: string;
   slot?: MealSlot;
-  showQuickTags?: boolean;
+  showAction?: boolean;
 }
 
 export default function App(): React.JSX.Element {
@@ -144,14 +142,14 @@ export default function App(): React.JSX.Element {
     (
       message: string,
       slot?: MealSlot,
-      showQuickTags = false,
-      duration = 2800
+      showAction = false,
+      duration = 2600
     ) => {
       if (toastTimeoutRef.current) {
         clearTimeout(toastTimeoutRef.current);
       }
       const id = Date.now();
-      setToast({ id, message, slot, showQuickTags });
+      setToast({ id, message, slot, showAction });
       toastTimeoutRef.current = setTimeout(() => {
         setToast((prev) => (prev?.id === id ? null : prev));
       }, duration);
@@ -204,56 +202,14 @@ export default function App(): React.JSX.Element {
     }, 850);
 
     if (isEdit) {
-      showToast("記録を更新しました", { di, mi }, false, 2800);
+      showToast("記録を更新しました", { di, mi }, false, 2400);
     } else if (mealData && "skipped" in mealData && mealData.skipped) {
-      showToast("休食を記録しました", undefined, false, 2800);
+      showToast("休食を記録しました", undefined, false, 2400);
     } else if (mealData && "image" in mealData && mealData.image) {
-      showToast("写真を保存しました", { di, mi }, true, 5000);
+      showToast("写真を保存しました", { di, mi }, true, 2800);
     } else if (mealData) {
-      showToast("記録を保存しました", { di, mi }, true, 4500);
+      showToast("記録を保存しました", { di, mi }, true, 2600);
     }
-  };
-
-  // トースト内でのクイックタグ付けトグル
-  const handleToggleToastTag = (tag: string) => {
-    if (!toast?.slot) return;
-    const { di, mi } = toast.slot;
-    const currentMeal = meals[di]?.[mi];
-    if (!currentMeal || ("skipped" in currentMeal && currentMeal.skipped)) return;
-
-    const currentTags = ("tags" in currentMeal && currentMeal.tags) ? currentMeal.tags : [];
-    const newTags = currentTags.includes(tag)
-      ? currentTags.filter((t) => t !== tag)
-      : [...currentTags, tag];
-
-    const updatedMeal: Meal = {
-      image: "image" in currentMeal ? currentMeal.image : undefined,
-      style: "style" in currentMeal ? currentMeal.style : undefined,
-      iconKey: "iconKey" in currentMeal ? currentMeal.iconKey : undefined,
-      quickEmoji: "quickEmoji" in currentMeal ? currentMeal.quickEmoji : undefined,
-      note: "note" in currentMeal ? currentMeal.note : undefined,
-      tags: newTags.length > 0 ? newTags : undefined,
-    };
-
-    saveMeal(di, mi, updatedMeal);
-
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-
-    const message = newTags.includes(tag)
-      ? `タグ「#${tag}」を追加しました`
-      : `タグ「#${tag}」を解除しました`;
-
-    setToast({
-      ...toast,
-      message,
-      showQuickTags: true,
-    });
-
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(null);
-    }, 3800);
   };
 
   // トースト内の「メモを追加」から直接詳細モーダルを編集モードで開く
@@ -427,18 +383,18 @@ export default function App(): React.JSX.Element {
         style={{ display: "none" }}
       />
 
-      {/* Global Gentle Interactive Toast */}
+      {/* Global Calm Notification Toast */}
       {toast && (
         <div
           key={toast.id}
-          className={`social-toast ${toast.showQuickTags ? "has-actions" : ""}`}
+          className="social-toast"
         >
           <div className="toast-header-line">
             <div className="toast-message-wrap">
               <Icon.Check size={14} className="social-toast-icon" />
               <span className="toast-text">{toast.message}</span>
             </div>
-            {toast.slot && toast.showQuickTags && (
+            {toast.slot && toast.showAction && (
               <button
                 type="button"
                 className="toast-action-btn"
@@ -456,29 +412,6 @@ export default function App(): React.JSX.Element {
               </button>
             )}
           </div>
-
-          {toast.slot && toast.showQuickTags && (
-            <div className="toast-quick-tags-row">
-              {Array.from(new Set([...QUICK_TOAST_TAGS, ...customTags.slice(-4).reverse()])).map((tag) => {
-                const targetMeal = meals[toast.slot!.di]?.[toast.slot!.mi];
-                const isSelected = !!(
-                  targetMeal &&
-                  "tags" in targetMeal &&
-                  targetMeal.tags?.includes(tag)
-                );
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    className={`toast-tag-chip ${isSelected ? "active" : ""}`}
-                    onClick={() => handleToggleToastTag(tag)}
-                  >
-                    #{tag}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
       )}
 
