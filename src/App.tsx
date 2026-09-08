@@ -50,9 +50,11 @@ export default function App(): React.JSX.Element {
 
   const directCameraInputRef = useRef<HTMLInputElement>(null);
 
-  // 今週かどうか
+  // 今週・過去・未来判定
   const todayMonday = getMondayOfCurrentWeek();
   const isCurrentWeek = currentWeekStart.getTime() === todayMonday.getTime();
+  const isFutureWeek = currentWeekStart.getTime() > todayMonday.getTime();
+  const isPastWeek = currentWeekStart.getTime() < todayMonday.getTime();
 
   // currentWeekStart から週の日付配列を動的生成
   const datesList = (() => {
@@ -282,10 +284,6 @@ export default function App(): React.JSX.Element {
   };
 
   const selectedMeal = meals[selectedSlot.di][selectedSlot.mi];
-
-  // 週全体の未来・過去判定
-  const isFutureWeek = currentWeekStart.getTime() > todayMonday.getTime();
-  const isPastWeek = currentWeekStart.getTime() < todayMonday.getTime();
 
   if (isLoading) {
     return (

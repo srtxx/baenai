@@ -359,7 +359,7 @@ export async function generateShareImage(
           cafe: "カフェ",
           takeout: "テイクアウト",
         };
-        const mainLabel = styleLabelMap[styleId] || ("tags" in meal && meal.tags?.[0]) || ("quickEmoji" in meal ? meal.quickEmoji : "記録");
+        const mainLabel: string = styleLabelMap[styleId] || ("tags" in meal && meal.tags?.[0]) || ("quickEmoji" in meal && meal.quickEmoji) || "記録";
         const noteText = ("note" in meal && meal.note) ? meal.note : "";
 
         ctx.fillStyle = colors.accent;
