@@ -52,40 +52,55 @@ const MealCell = React.memo(function MealCell({
 
   const noteText = "note" in meal && meal.note ? meal.note : "";
   const firstTag = "tags" in meal && meal.tags && meal.tags.length > 0 ? meal.tags[0] : "";
-  const displayLabel = noteText || (firstTag ? `#${firstTag}` : "");
+  const hasTag = Boolean(firstTag);
+  const hasNote = Boolean(noteText);
+  const hasBoth = hasTag && hasNote;
+  const hasContent = hasTag || hasNote;
+
+  const cellTitle = hasBoth
+    ? `[#${firstTag}] ${noteText}`
+    : noteText
+    ? noteText
+    : hasTag
+    ? `#${firstTag}`
+    : "食事の記録";
 
   // SVGアイコンまたはスタイル記録の場合
   const iconKey = ("iconKey" in meal && meal.iconKey) || ("style" in meal && meal.style);
   if (iconKey && !("image" in meal && meal.image)) {
+    const iconSize = hasBoth ? 17 : 20;
     const renderCellIcon = () => {
       switch (iconKey) {
         case "pan":
         case "cook":
-          return <Icon.Pan size={20} />;
+          return <Icon.Pan size={iconSize} />;
         case "store":
-          return <Icon.Store size={20} />;
+          return <Icon.Store size={iconSize} />;
         case "utensils":
         case "out":
-          return <Icon.Utensils size={20} />;
+          return <Icon.Utensils size={iconSize} />;
         case "coffee":
         case "cafe":
-          return <Icon.Coffee size={20} />;
+          return <Icon.Coffee size={iconSize} />;
         case "takeout":
-          return <Icon.Takeout size={20} />;
+          return <Icon.Takeout size={iconSize} />;
         default:
-          return <Icon.Utensils size={20} />;
+          return <Icon.Utensils size={iconSize} />;
       }
     };
 
     return (
       <div
         onClick={onClick}
-        className={`meal-cell meal-cell-emoji ${displayLabel ? "has-text" : ""} ${isJustSaved ? "meal-cell-just-saved" : ""}`}
-        title={noteText || displayLabel || "食事の記録"}
+        className={`meal-cell meal-cell-emoji ${hasContent ? "has-text" : ""} ${hasBoth ? "has-both" : ""} ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        title={cellTitle}
       >
         <span className="cell-style-icon-wrap">{renderCellIcon()}</span>
-        {displayLabel && (
-          <span className="cell-inline-text">{displayLabel}</span>
+        {hasContent && (
+          <div className="cell-text-group">
+            {hasTag && <span className="cell-inline-tag">#{firstTag}</span>}
+            {hasNote && <span className="cell-inline-note">{noteText}</span>}
+          </div>
         )}
       </div>
     );
@@ -96,12 +111,15 @@ const MealCell = React.memo(function MealCell({
     return (
       <div
         onClick={onClick}
-        className={`meal-cell meal-cell-emoji ${displayLabel ? "has-text" : ""} ${isJustSaved ? "meal-cell-just-saved" : ""}`}
-        title={noteText || meal.quickEmoji}
+        className={`meal-cell meal-cell-emoji ${hasContent ? "has-text" : ""} ${hasBoth ? "has-both" : ""} ${isJustSaved ? "meal-cell-just-saved" : ""}`}
+        title={cellTitle}
       >
         <span className="cell-emoji-char">{meal.quickEmoji}</span>
-        {displayLabel && (
-          <span className="cell-inline-text">{displayLabel}</span>
+        {hasContent && (
+          <div className="cell-text-group">
+            {hasTag && <span className="cell-inline-tag">#{firstTag}</span>}
+            {hasNote && <span className="cell-inline-note">{noteText}</span>}
+          </div>
         )}
       </div>
     );
@@ -118,7 +136,7 @@ const MealCell = React.memo(function MealCell({
     <div
       onClick={onClick}
       className={`meal-cell meal-cell-filled ${isJustSaved ? "meal-cell-just-saved" : ""}`}
-      title={noteText || "食事の写真"}
+      title={cellTitle}
     >
       {imgSrc ? (
         <div className="meal-cell-photo-wrap">
@@ -128,16 +146,22 @@ const MealCell = React.memo(function MealCell({
             className="meal-cell-image"
             loading="lazy"
           />
-          {displayLabel && (
-            <div className="cell-photo-overlay-label">
-              <span>{displayLabel}</span>
+          {hasContent && (
+            <div className={`cell-photo-overlay-label ${hasBoth ? "has-both" : ""}`}>
+              {hasTag && <span className="cell-photo-tag">#{firstTag}</span>}
+              {hasNote && <span className="cell-photo-note">{noteText}</span>}
             </div>
           )}
         </div>
       ) : (
-        <div className="meal-cell-emoji has-text">
-          <span className="cell-style-icon-wrap"><Icon.Utensils size={20} /></span>
-          {displayLabel && <span className="cell-inline-text">{displayLabel}</span>}
+        <div className={`meal-cell-emoji has-text ${hasBoth ? "has-both" : ""}`}>
+          <span className="cell-style-icon-wrap"><Icon.Utensils size={hasBoth ? 17 : 20} /></span>
+          {hasContent && (
+            <div className="cell-text-group">
+              {hasTag && <span className="cell-inline-tag">#{firstTag}</span>}
+              {hasNote && <span className="cell-inline-note">{noteText}</span>}
+            </div>
+          )}
         </div>
       )}
     </div>
