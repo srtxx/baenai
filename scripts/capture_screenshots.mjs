@@ -6,8 +6,11 @@ import http from "http";
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9222;
 const VITE_PORT = 4173;
-const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/5d766754-f676-4e91-8ed2-5a60d8558544/screenshots";
+const ARTIFACT_DIR = "/Users/suganuma_ryohei/.gemini/antigravity/brain/cd7b356f-43fd-4f6c-8d5e-548b2e1cf87f";
 const DOCS_DIR = path.resolve(process.cwd(), "docs/screenshots");
+
+fs.mkdirSync(ARTIFACT_DIR, { recursive: true });
+fs.mkdirSync(DOCS_DIR, { recursive: true });
 
 // Helper to wait
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -278,8 +281,37 @@ async function main() {
     await cdp.send("Page.reload");
     await sleep(1500);
 
-    // 2. Capture Filled Main Weekly Grid (Ecru theme)
+    // 2. Capture Filled Main Weekly Grid (Ecru theme on iPhone 15 Pro Max: 430 x 932)
     await cdp.captureScreenshot("02_main_weekly_grid_ecru.png");
+
+    // 2b. Capture on iPhone 14 (390 x 844)
+    await cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: 390,
+      height: 844,
+      deviceScaleFactor: 2,
+      mobile: true,
+    });
+    await sleep(400);
+    await cdp.captureScreenshot("02b_main_grid_iphone14_844.png");
+
+    // 2c. Capture on iPhone SE (375 x 667)
+    await cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: 375,
+      height: 667,
+      deviceScaleFactor: 2,
+      mobile: true,
+    });
+    await sleep(400);
+    await cdp.captureScreenshot("02c_main_grid_iphone_se_667.png");
+
+    // Restore to iPhone 15 Pro Max
+    await cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: 430,
+      height: 932,
+      deviceScaleFactor: 2,
+      mobile: true,
+    });
+    await sleep(400);
 
     // 3. Open Add Meal Modal (Quick Emoji / Photo selection)
     await cdp.eval(`document.querySelector('.meal-grid .day-row:nth-child(6) .meal-cell-empty')?.click()`);
